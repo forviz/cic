@@ -24,6 +24,7 @@ dotenv.load({ path: `.env.${process.env.NODE_ENV}` });
 const passportConfig = require('./config/passport');
 
 const spaceController = require('./controllers/space');
+const contentTypeController = require('./controllers/space/contentType');
 const entryController = require('./controllers/space/entry');
 const apiKeyController = require('./controllers/space/apikey');
 const cloudinaryController = require('./controllers/asset/cloudinary');
@@ -82,8 +83,8 @@ app.use(logger('dev'));
  */
 const apiPrefix = '/v1';
 app.get(`${apiPrefix}/spaces/:space_id`, spaceController.getSingle);
-app.get(`${apiPrefix}/spaces/:space_id/content_types`, spaceController.getAllContentTypes);
-app.get(`${apiPrefix}/spaces/:space_id/content_types/:content_type_id`, spaceController.getSingleContentType);
+app.get(`${apiPrefix}/spaces/:space_id/content_types`, contentTypeController.getAllContentTypes);
+app.get(`${apiPrefix}/spaces/:space_id/content_types/:content_type_id`, contentTypeController.getSingleContentType);
 app.get(`${apiPrefix}/spaces/:space_id/entries`, entryController.getAllEntries);
 app.get(`${apiPrefix}/spaces/:space_id/entries/:entry_id`, entryController.getSingleEntry);
 
@@ -100,9 +101,9 @@ app.post(`${apiPrefix}/spaces`, passportConfig.isBearerAuthenticated, spaceContr
 app.put(`${apiPrefix}/spaces/:space_id`, passportConfig.isBearerAuthenticated, spaceController.updateSpace);
 app.delete(`${apiPrefix}/spaces/:space_id`, passportConfig.isBearerAuthenticated, spaceController.deleteSpace);
 
-app.post(`${apiPrefix}/spaces/:space_id/content_types/`, passportConfig.isBearerAuthenticated, spaceController.createContentType);
-app.put(`${apiPrefix}/spaces/:space_id/content_types/:content_type_id`, passportConfig.isBearerAuthenticated, spaceController.updateContentType);
-app.delete(`${apiPrefix}/spaces/:space_id/content_types/:content_type_id`, passportConfig.isBearerAuthenticated, spaceController.deleteContentType);
+app.post(`${apiPrefix}/spaces/:space_id/content_types/`, passportConfig.isBearerAuthenticated, contentTypeController.createContentType);
+app.put(`${apiPrefix}/spaces/:space_id/content_types/:content_type_id`, passportConfig.isBearerAuthenticated, contentTypeController.updateContentType);
+app.delete(`${apiPrefix}/spaces/:space_id/content_types/:content_type_id`, passportConfig.isBearerAuthenticated, contentTypeController.deleteContentType);
 
 // CREATE entry
 app.post(`${apiPrefix}/spaces/:space_id/entries/`, passportConfig.isBearerAuthenticated, entryController.createEntry);

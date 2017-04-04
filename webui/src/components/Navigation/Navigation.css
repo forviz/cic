@@ -1,0 +1,25 @@
+.Navigation-bar {
+  background: black;
+}
+
+.Navigation {
+  list-style:none;
+  display: flex;
+  flex-direction: row;
+  margin: 0;
+}
+
+.Navigation-item {
+  flex: 1;
+}
+
+.Navigation-item a {
+  display: block;
+  color: white;
+  text-decoration: none;
+  padding: 20px 0;
+}
+
+.Navigation-item a:hover {
+  color: #ccc;
+}

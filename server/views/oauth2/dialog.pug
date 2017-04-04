@@ -1,0 +1,12 @@
+doctype html
+html
+  head
+    title #{title} - Hackathon Starter
+  body
+    p Hi User
+  form(method='POST', action='/oauth2/authorize')
+    input(name='transaction_id', type='hidden', value=transactionID)
+    input(name='response_type', type='hidden', value='code')
+    div
+      input(type='submit', value='Allow', id='allow')
+      input(type='submit', value='Deny', name='cancel' id='deny')

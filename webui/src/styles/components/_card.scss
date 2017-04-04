@@ -1,0 +1,37 @@
+.card {
+  &.error{
+    color: white;
+    background: #d00000;
+  }
+  border-radius: 5px;
+  background: white;
+  box-shadow: 0 1px 2px #ccc;
+  padding: 25px;
+  margin:0 auto 30px;
+
+  .form-group {
+    margin-bottom: 20px;
+  }
+  .title {
+    font-size: 18px;
+    margin-bottom: 30px;
+  }
+  .title-icon {
+    font-size: 50px;
+  }
+}
+
+
+.card-header {
+  border-bottom: 1px solid #ececec;
+  margin-bottom: 20px;
+  @include clearfix;
+  margin-top: 0;
+  font-weight: bold;
+  font-size: 22px;
+  h1, h3{
+    margin-top: 0;
+    font-weight: bold;
+    font-size: 22px;
+  }
+}

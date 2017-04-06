@@ -17,10 +17,11 @@ exports.getAll = (req, res, next) => {
 
 exports.getSingle = (req, res, next) => {
   const spaceId = req.params.space_id;
-  Space.find({ _id: spaceId }).exec((err, spaces) => {
+  Space.findOne({ _id: spaceId }).exec((err, space) => {
     if (err) { return next(err); }
     res.json({
-      spaces,
+      title: 'find space',
+      space,
     });
   });
 }

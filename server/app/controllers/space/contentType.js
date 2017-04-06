@@ -4,8 +4,14 @@ const _ = require('lodash');
 const Space = require('../../models/Space');
 
 exports.getAllContentTypes = (req, res, next) => {
-
-}
+  const spaceId = req.params.space_id;
+  Space.findOne({ _id: spaceId }, (err, theSpace) => {
+    if (err) { return next(err); }
+    res.json({
+      types: theSpace.contentTypes,
+    });
+  });
+};
 
 exports.getSingleContentType = (req, res, next) => {
 
@@ -44,6 +50,7 @@ const updateContentType = (req, res, next) => {
   const spaceId = req.params.space_id;
   const contentTypeId = req.params.content_type_id;
   const name = req.body.name;
+  const identifier = req.body.identifier;
   const fields = req.body.fields;
 
   Space.findOne({ _id: spaceId }, (err, space) => {
@@ -54,14 +61,16 @@ const updateContentType = (req, res, next) => {
     if (isExisting) {
       // Update existing noe
       space.contentTypes = _.map(space.contentTypes, (contentType) => {
-
         if (contentType._id.equals(contentTypeId)) {
+          console.log('fields', _.size(fields), fields);
           return {
             _id: contentType._id,
             name,
+            identifier,
             fields: _.map(fields, field => ({
               id: field.id,
               name: field.name,
+              identifier: field.identifier,
               fieldType: field.type,
               required: field.required,
               localized: field.localized,
@@ -71,14 +80,17 @@ const updateContentType = (req, res, next) => {
         }
         return contentType;
       });
+
     } else {
       // Add New
       space.contentTypes.push({
         _id: contentTypeId,
         name,
+        identifier,
         fields: _.map(fields, field => ({
           id: field.id,
           name: field.name,
+          identifier: field.identifier,
           fieldType: field.type,
           required: field.required,
           localized: field.localized,

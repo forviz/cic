@@ -25,9 +25,15 @@ const spaceSchema = new mongoose.Schema({
       localized: Boolean,
       validations: {
         linkContentType: [String], // Link to another contentType
-        in: [String], // Takes an array of values and validates that the field value is in this array.
-        linkMimetypeGroup: String, // Takes a MIME type group name and validates that the link points to an asset of this group
-        size: { // Takes optional min and max parameters and validates the size of the array (number of objects in it).
+        // Takes an array of values and validates that the field
+        //  value is in this array.
+        in: [String],
+        // Takes a MIME type group name and validates that
+        // the link points to an asset of this group
+        linkMimetypeGroup: String,
+        // Takes optional min and max parameters and validates
+        // the size of the array (number of objects in it).
+        size: {
           min: Number,
           max: Number,
         },
@@ -40,17 +46,10 @@ const spaceSchema = new mongoose.Schema({
           flags: String,
         },
         unique: Boolean,
-      }
-    }]
+      },
+    }],
   }],
   entries: [{ type: Schema.Types.ObjectId, ref: 'Entry' }],
-  // entries: [{
-  //   contentType: String,
-  //   fields: Object,
-  //   publishedAt: 'Date',
-  //   publishedBy: String,
-  //   publishedVersion: Number,
-  // }],
   createdAt: { type: 'Date', default: Date.now, required: true },
   updatedAt: { type: 'Date', default: Date.now, required: true },
 }, { timestamps: true });

@@ -29,27 +29,14 @@ export const addField = (spaceId, contentTypeId, contentType, values) => {
         fieldType: _.head(values.fieldType),
         identifier: values.identifier,
         required: _.get(values, 'required', false),
-        localized: false,
-        validations: {
-          linkContentType: [], // ["post", "doc", "product"],
-          in: [], // ["General", "iOS", "Android"],
-          linkMimetypeGroup: undefined, // "image",
-          // size: {
-          //   "min": 0,
-          //   "max": 0,
-          // },
-          range: {
-            "min": _.get(values, 'validation-limit-min', 0),
-            "max": _.get(values, 'validation-limit-max', 0),
-          },
-          // regexp: {"pattern": "^such", "flags": "im"},
-          // unique: true,
-        },
+        localized: _.get(values, 'localized', false),
+        validations: _.get(values, 'validations'),
       }]
     })
 
     return fetchUpdateContentType(spaceId, contentTypeId, _contentTypeToUpdate)
     .then((createResponse) => {
+      console.log('createResponse', createResponse);
       dispatch(getSpace(spaceId));
     });
   }
@@ -59,7 +46,7 @@ export const updateField = (spaceId, contentTypeId, contentType, values) => {
   return (dispatch) => {
 
     const fieldId = values._id;
-    debugger;
+
     const _contentTypeToUpdate = _.assign({}, contentType, {
       fields: _.map(contentType.fields, field => {
         if (field._id === fieldId) {
@@ -68,32 +55,18 @@ export const updateField = (spaceId, contentTypeId, contentType, values) => {
             fieldType: _.head(values.fieldType),
             identifier: values.identifier,
             required: _.get(values, 'required', false),
-            localized: false,
-            validations: {
-              linkContentType: [], // ["post", "doc", "product"],
-              in: [], // ["General", "iOS", "Android"],
-              linkMimetypeGroup: undefined, // "image",
-              // size: {
-              //   "min": 0,
-              //   "max": 0,
-              // },
-              range: {
-                "min": _.get(values, 'validation-limit-min', 0),
-                "max": _.get(values, 'validation-limit-max', 0),
-              },
-              // regexp: {"pattern": "^such", "flags": "im"},
-              // unique: true,
-            }
+            localized: _.get(values, 'localized', false),
+            validations: _.get(values, 'validations'),
           };
         }
         return field;
       })
     });
 
-    debugger;
-
+    console.log('_contentTypeToUpdate', _contentTypeToUpdate);
     return fetchUpdateContentType(spaceId, contentTypeId, _contentTypeToUpdate)
-    .then((createResponse) => {
+    .then((res) => {
+      console.log('updateFieldResponse', res);
       dispatch(getSpace(spaceId));
     });
   }

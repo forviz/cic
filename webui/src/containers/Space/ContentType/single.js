@@ -37,27 +37,39 @@ class ContentTypeSingle extends Component {
     })
   }
 
-  handleSubmitFieldCreate = () => {
+  handleSubmitFieldCreate = (fieldModel) => {
 
     const form = this.form;
-    form.validateFields((err, values) => {
-      if (err) {
-        return;
-      }
+    const { space, contentType } = this.props;
+    const { addField, updateField } = this.props.actions;
 
-      console.log('values To Submit', values);
-      const { space, contentType } = this.props;
-      const { addField, updateField } = this.props.actions;
-
-      const fieldOperation = _.isEmpty(values._id) ? addField : updateField;
-      fieldOperation(space._id, contentType._id, contentType, values)
-      .then(response => {
-        console.log('action response', response);
-        form.resetFields();
-        this.setState({ modalVisible: false });
-      });
-
+    const fieldOperation = _.isEmpty(fieldModel._id) ? addField : updateField;
+    fieldOperation(space._id, contentType._id, contentType, fieldModel)
+    .then(response => {
+      console.log('fieldOperation response', response);
+      form.resetFields();
+      this.setState({ modalVisible: false });
     });
+
+    // const form = this.form;
+    // form.validateFields((err, values) => {
+    //   if (err) {
+    //     return;
+    //   }
+    //
+    //   console.log('values To Submit', values);
+    //   const { space, contentType } = this.props;
+    //   const { addField, updateField } = this.props.actions;
+    //
+    //   const fieldOperation = _.isEmpty(values._id) ? addField : updateField;
+    //   fieldOperation(space._id, contentType._id, contentType, values)
+    //   .then(response => {
+    //     console.log('action response', response);
+    //     form.resetFields();
+    //     this.setState({ modalVisible: false });
+    //   });
+    //
+    // });
   }
 
   handleDeleteField = (fieldId) => {
@@ -163,10 +175,10 @@ class ContentTypeSingle extends Component {
 
         <FieldCreateForm
           ref={this.createFormRef}
-          fieldValues={this.state.fieldValues}
+          field={this.state.fieldValues}
           visible={this.state.modalVisible}
           onCancel={this.handleCancel}
-          onCreate={this.handleSubmitFieldCreate}
+          onSubmit={this.handleSubmitFieldCreate}
         />
       </div>
     );

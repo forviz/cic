@@ -8,12 +8,13 @@ exports.handleError = (err, next) => {
  * Field Validation Helpers
  */
 const validateField = (value, contentTypeField) => {
+  console.log('validateField', value, contentTypeField);
   // Check require
   if (contentTypeField.required && _.isEmpty(value)) return `${contentTypeField.name} is required`;
 
   // Check 'in'
   if (!_.isEmpty(_.get(contentTypeField, 'validations.in'))) {
-    if (!_.includes(contentTypeField.in, value)) return `${contentTypeField.name} must be one of ${_.join(contentTypeField.in, ',')}`;
+    if (!_.includes(contentTypeField.validations.in, value)) return `${contentTypeField.name} must be one of ${_.join(contentTypeField.validations.in, ',')}`;
   }
 
   // Check MIME
@@ -52,7 +53,7 @@ const validateField = (value, contentTypeField) => {
 
 exports.validateFields = (fields, contentType) => {
   const errors = _.compact(_.map(contentType.fields, (contentTypeField) => {
-    const fieldValue = _.get(fields, contentTypeField.id);
+    const fieldValue = _.get(fields, contentTypeField.identifier);
     return validateField(fieldValue, contentTypeField);
   }));
   return _.size(errors) > 0 ? { valid: false, message: errors } : { valid: true, message: '' };

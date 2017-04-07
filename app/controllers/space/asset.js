@@ -4,7 +4,6 @@ const request = require('request');
 const cloudinary = require('cloudinary');
 const fs = require('fs');
 
-
 /* Cloudinary */
 const CLOUDINARY_CLOUDNAME = 'pitipatdop';
 const CLOUDINARY_APIKEY = '647979826422471';
@@ -17,10 +16,8 @@ cloudinary.config({
 });
 
 const upload = (req, res, next) => {
-  console.log(req.file);
   const file = req.file.path;
   cloudinary.uploader.upload(file, (result) => {
-    console.log(result);
     res.json(result);
     fs.unlink(file);
   });
@@ -34,7 +31,7 @@ const getRealParamKey = (key) => {
     case 'g': return 'gravity';
     default: return key;
   }
-}
+};
 
 const convertStringToObject = (str) => {
   return _.reduce(_.split(str, ','), (all, item) => {
@@ -45,9 +42,9 @@ const convertStringToObject = (str) => {
       [realKey]: value,
     }
   }, {});
-}
+};
 
-const getImage = (req, res, next) => {
+const getAsset = (req, res, next) => {
   const publicId = req.params.public_id;
   const paramString = req.params.param;
   const paramsObject = convertStringToObject(paramString);
@@ -57,6 +54,6 @@ const getImage = (req, res, next) => {
 
 
 module.exports = {
-  getImage,
+  getAsset,
   upload,
 }

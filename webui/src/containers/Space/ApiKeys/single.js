@@ -17,8 +17,8 @@ class ApiKeySingle extends Component {
 
   handleSubmit = (e) => {
     e.preventDefault();
-    const { space, apiKey, form } = this.props;
-    this.props.form.validateFields((err, values) => {
+    const { form } = this.props;
+    form.validateFields((err, values) => {
       if (!err) {
         console.log('Received values of form: ', values);
         const { updateApiKey } = this.props.actions;

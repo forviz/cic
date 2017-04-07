@@ -1,9 +1,11 @@
 import React, { Component } from 'react';
 import _ from 'lodash';
 
-import { Modal, Form, Select, Input, Switch, Checkbox, Row, Col, Menu, Icon, Collapse, Radio } from 'antd';
+import { Modal, Form, Select, Input, Switch, Row, Col, Menu, Icon, Collapse, Radio } from 'antd';
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
+
+import EditableTagGroup from '../../components/EditableTagGroup';
 
 import Pattern from '../../helpers/regex-pattern';
 
@@ -11,6 +13,7 @@ import Pattern from '../../helpers/regex-pattern';
 const getValidationRangeMin = (model) => _.get(model, 'validations.range.min' ,'');
 const getValidationRangeMax = (model) => _.get(model, 'validations.range.max' ,'');
 const getValidationPattern = (model) => _.get(model, 'validations.regexp.pattern' ,'');
+const getValidationOptions = (model) => _.get(model, 'validations.in', []);
 
 const shouldCheckValidationRange = (model) => {
   const minValue = getValidationRangeMin(model);
@@ -21,9 +24,10 @@ const shouldCheckValidationRange = (model) => {
 const mapFieldsToProps = (fieldsValue) => {
   return {
     ..._.pick(fieldsValue, ['_id', 'name', 'identifier', 'required']),
+    fieldType: _.head(fieldsValue.fieldType),
     validations: {
       linkContentType: '',
-      in: '',
+      in: _.get(fieldsValue, 'validations-options', []),
       linkMimetypeGroup: '',
       size: '',
       range: {
@@ -45,6 +49,9 @@ const mapPropsToFields = (props) => {
     _id: {
       value: _.get(model, '_id' ,''),
     },
+    fieldType: {
+      value: _.get(model, 'fieldType'),
+    },
     name: {
       value: _.get(model, 'name' ,''),
     },
@@ -64,7 +71,7 @@ const mapPropsToFields = (props) => {
       value: getValidationRangeMax(model),
     },
     'validations-match-pattern': {
-      value: true,
+      value: !_.isEmpty(getValidationPattern(model)),
     },
     'validations-pattern-template': {
       value: getValidationPattern(model),
@@ -74,6 +81,12 @@ const mapPropsToFields = (props) => {
     },
     'validations-pattern-flags': {
       value: 'ig',
+    },
+    'validations-show-options': {
+      value: _.size(getValidationOptions(model)) > 0,
+    },
+    'validations-options': {
+      value: getValidationOptions(model),
     }
   };
 
@@ -115,7 +128,7 @@ class FieldCreateForm extends Component {
   }
 
   render() {
-    const { visible, onCancel, onCreate, form, fieldValues } = this.props;
+    const { visible, onCancel, form, fieldValues } = this.props;
     const { getFieldDecorator, getFieldValue } = form;
     return (
       <Modal
@@ -160,7 +173,7 @@ class FieldCreateForm extends Component {
             <Form layout="vertical">
               <Form.Item>
                 {getFieldDecorator('_id', {})(
-                  <Input />
+                  <Input type="hidden" />
                 )}
               </Form.Item>
               <Form.Item label="Name">
@@ -264,15 +277,32 @@ class FieldCreateForm extends Component {
                       </span>
                     }
                   </Row>
-                  <div>
-                    <Form.Item>
-                      {getFieldDecorator('validations-options', {
-                        initialValue: _.get(fieldValues, 'validations-options', ''),
-                      })(
-                        <Checkbox>Accept only specified value</Checkbox>
-                      )}
-                    </Form.Item>
-                  </div>
+                  <Row>
+                    <Col span="12">
+                      <Form.Item>
+                        {getFieldDecorator('validations-show-options', {
+                          valuePropName: 'checked',
+                        })(
+                          <Switch />
+                        )}
+                        <span style={{ marginLeft: 15 }}>Accept only specified value</span>
+                      </Form.Item>
+                    </Col>
+                    {
+                      getFieldValue('validations-show-options') &&
+                      <span>
+                        <Col span="12">
+                          <Form.Item>
+                            {getFieldDecorator('validations-options', {
+
+                            })(
+                              <EditableTagGroup />
+                            )}
+                          </Form.Item>
+                        </Col>
+                      </span>
+                    }
+                  </Row>
                 </Collapse.Panel>
                 <Collapse.Panel header="Appearance" key="2">
                   <div>

@@ -2,9 +2,12 @@ import React, { Component, PropTypes } from 'react';
 import _ from 'lodash';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { Input, Form, Button } from 'antd';
-
+import { message } from 'antd';
 import * as Actions from './actions';
+
+import { getActiveSpace, getEntryId, getActiveEntry } from '../../../selectors';
+
+import EntryEditorForm from '../../../components/EntryEditorForm';
 
 class EntrySingle extends Component {
 
@@ -12,45 +15,25 @@ class EntrySingle extends Component {
     fields: PropTypes.array,
   }
 
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      fields: [],
-    };
-
-  }
-
-  componentWillReceiveProps(nextProps) {
-    const { space } = nextProps;
-    const entryId = nextProps.params.entryId;
-    const entry = _.find(space.entries, entry => entry._id === entryId);
-    if (entry) {
-      const { fields } = entry;
-
-      this.state = {
-        contentType: entry.contentType,
-        fields: fields,
-      }
+  componentDidMount = () => {
+    if (!this.props.entry) {
+      const { space } = this.props;
+      const { getSingleEntry } = this.props.actions;
+      getSingleEntry(space._id, this.props.entryId);
     }
   }
 
-  handleInputChange = (name, value) => {
-    this.setState({
-      fields: _.assign({}, this.state.fields, {
-        [name]: value,
-      }),
-    });
-  }
-
-  handleSubmitForm = (e) => {
-    e.preventDefault();
-    const spaceId = this.props.params.spaceId;
-    const entryId = this.props.params.entryId;
-    console.log('submit form', spaceId, entryId);
+  handleSubmitForm = (values) => {
+    const { space, entry, contentType } = this.props;
+    const spaceId = space._id;
+    const entryId = entry._id;
+    console.log('submit form', spaceId, entryId, values);
 
     const { updateEntry } = this.props.actions;
-    updateEntry(spaceId, entryId, this.state.contentType, this.state.fields);
+    updateEntry(spaceId, entryId, contentType, values)
+    .then(res => {
+      message.info('Entry saved');
+    })
 
     return false;
   }
@@ -58,40 +41,39 @@ class EntrySingle extends Component {
   render() {
 
     console.log('render', this.props);
-    const { fields } = this.state;
+    const { space, contentType, entry } = this.props;
+    if (!space || !contentType || !entry) return (<div />);
 
     return (
       <div>
         <div>
-          <Form>
-            <Form.Item
-              label="Title"
-              validateStatus="error"
-              help="Should be combination of numbers & alphabets"
-            >
-              <Input key="title" name="title" value={this.state.fields['title']} onChange={this.handleInputChange} />
-            </Form.Item>
-            {
-              !_.isEmpty(fields) &&
-                _.map(fields, (value, key) =>
-                  <Form.Item
-                    label="Title"
-                    validateStatus="error"
-                    help="Should be combination of numbers & alphabets"
-                  >
-                    <Input key={key} name={key} value={value} onChange={this.handleInputChange} />
-                  </Form.Item>
-                )
-            }
-            <Button type="primary" onClick={this.handleSubmitForm}>Save</Button>
-          </Form>
+          <h1>Test</h1>
+          <EntryEditorForm contentType={contentType} entry={entry} onSubmit={this.handleSubmitForm} />
         </div>
       </div>
     );
   }
 }
 
+const getEntryContentType = (entry, space) => {
+  if (!entry || !space) return undefined;
+  return _.find(space.contentTypes, ct => ct._id === entry.contentTypeId);
+}
+
+const mapStateToProps = (state, ownProps) => {
+  console.log('mapStateToProps', state);
+  const space = getActiveSpace(state, ownProps);
+  const entry = getActiveEntry(state, ownProps);
+  return {
+    space: space,
+    contentType: getEntryContentType(entry, space),
+    entryId: getEntryId(ownProps),
+    entry: entry,
+  }
+}
+
 const actions = {
+  getSingleEntry: Actions.getSingleEntry,
   updateEntry: Actions.updateEntry,
 }
 
@@ -99,4 +81,4 @@ const mapDispatchToProps = (dispatch) => {
   return { actions: bindActionCreators(actions, dispatch) };
 }
 
-export default connect(undefined, mapDispatchToProps)(EntrySingle);
+export default connect(mapStateToProps, mapDispatchToProps)(EntrySingle);

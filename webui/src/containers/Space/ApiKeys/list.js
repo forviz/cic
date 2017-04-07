@@ -7,7 +7,7 @@ import { bindActionCreators } from 'redux';
 import * as Actions from './actions';
 import _ from 'lodash';
 
-import { Button, Collapse, Row, Col, Icon, Table, Popconfirm, message } from 'antd';
+import { Button, Row, Col, Icon, Table, Popconfirm, message } from 'antd';
 
 import { getActiveSpace } from '../../../selectors';
 

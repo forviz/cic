@@ -50,26 +50,6 @@ class ContentTypeSingle extends Component {
       form.resetFields();
       this.setState({ modalVisible: false });
     });
-
-    // const form = this.form;
-    // form.validateFields((err, values) => {
-    //   if (err) {
-    //     return;
-    //   }
-    //
-    //   console.log('values To Submit', values);
-    //   const { space, contentType } = this.props;
-    //   const { addField, updateField } = this.props.actions;
-    //
-    //   const fieldOperation = _.isEmpty(values._id) ? addField : updateField;
-    //   fieldOperation(space._id, contentType._id, contentType, values)
-    //   .then(response => {
-    //     console.log('action response', response);
-    //     form.resetFields();
-    //     this.setState({ modalVisible: false });
-    //   });
-    //
-    // });
   }
 
   handleDeleteField = (fieldId) => {
@@ -152,7 +132,7 @@ class ContentTypeSingle extends Component {
       <div>
         <Row>
           <Col>
-            <h2>{contentType.name}</h2>
+            <h1>{contentType.name}</h1>
           </Col>
         </Row>
         <Row>
@@ -163,7 +143,7 @@ class ContentTypeSingle extends Component {
         <Row>
           <Col>
             <Table
-              showHeader={false}
+              showHeader={true}
               columns={columns}
               dataSource={data}
               locale={{

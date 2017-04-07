@@ -13,11 +13,12 @@ exports.getAllEntries = (req, res, next) => {
   Space.findOne({ _id: spaceId }).populate('entries').exec((err, space) => {
     if (err) { return next(err); }
     res.json({
-      entries: space.entries,
+      items: space.entries,
     });
   });
 };
 
+/*
 exports.getSingleEntry = (req, res, next) => {
   const spaceId = req.params.space_id;
   const entryId = req.params.entry_id;
@@ -33,41 +34,51 @@ exports.getSingleEntry = (req, res, next) => {
     const entry = _.find(space.entries, entry => entry._id.equals(entryId));
     res.json(entry);
   });
-};
+};*/
+exports.getSingleEntry = (req, res, next) => {
+  const entryId = req.params.entry_id;
+  Entry.findOne({ _id: entryId }, (err, entry) => {
+    if (err) { return next(err); }
+    res.json({
+      item: entry,
+    });
+  });
+}
 
 // UPDATE CONTENT TYPE
 const updateEntry = (req, res, next) => {
   const spaceId = req.params.space_id;
   const entryId = req.params.entry_id;
-  const contentType = req.body.type;
+  const contentTypeId = req.headers['x-cic-content-type'];
   const fields = req.body.fields;
+  console.log('updateEntry', fields);
 
   Space.findOne({ _id: spaceId }, (err, space) => {
     if (err) { return next(err); }
-    space.entries = [];
 
     // Check contentType
-    const contentTypeInfo = _.find(space.contentTypes, ct => ct.name === contentType);
+    const contentTypeInfo = _.find(space.contentTypes, ct => ct._id.equals(contentTypeId));
 
     if (!contentTypeInfo) {
       res.json({
         status: 'UNSUCCESSFUL',
-        detail: `Invalid contentType ${contentType}`,
-      });
-      return;
-    }
-
-    const _validateFields = _helper.validateFields(fields, contentTypeInfo);
-    if (!_validateFields.valid) {
-      res.json({
-        status: 'UNSUCCESSFUL',
-        message: _validateFields.message,
+        detail: `Invalid contentType ${contentTypeId}`,
       });
       return;
     }
 
     const isExistingInSpace = _.find(space.entries, entry => entry.equals(entryId));
     if (isExistingInSpace) {
+
+      const validation = _helper.validateFields(fields, contentTypeInfo);
+      if (!validation.valid) {
+        res.json({
+          status: 'UNSUCCESSFUL',
+          message: validation.message,
+        });
+        return;
+      }
+
       // Not update spaces.entry
       // Update entry
       Entry.findOne({ _id: entryId }, (err, entry) => {
@@ -77,6 +88,7 @@ const updateEntry = (req, res, next) => {
           res.json({
             status: 'SUCCESS',
             detail: 'Updating entry successfully',
+            entry,
           });
         });
       });
@@ -84,7 +96,7 @@ const updateEntry = (req, res, next) => {
       // 1. Create and Insert new entry
       // 2. Update spaces.entry
       const newEntry = new Entry({
-        contentType,
+        contentTypeId,
         fields,
         status: 'draft',
         _spaceId: spaceId,
@@ -100,6 +112,7 @@ const updateEntry = (req, res, next) => {
           res.json({
             status: 'SUCCESS',
             detail: 'Create new entry successfully',
+            entry: newEntry,
           });
         });
       });

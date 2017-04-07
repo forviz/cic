@@ -65,12 +65,16 @@ export const responseError = props => new AppError({ ...props, code: 600, name: 
 
 
 export function prepareRequest(request) {
-  return _.assign({}, {
+  return {
     // default
-    method: 'GET',
+    method: _.get(request, 'method', 'GET'),
     credentials: 'same-origin',
-    headers,
-  }, request);
+    headers: {
+      ...headers,
+      ..._.get(request, 'headers'),
+    },
+    body: _.get(request, 'body'),
+  };
 }
 
 export const fetchWithResponse = (url, params) => {

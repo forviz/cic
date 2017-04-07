@@ -26,7 +26,7 @@ export const addField = (spaceId, contentTypeId, contentType, values) => {
     const _contentTypeToUpdate = _.assign({}, contentType, {
       fields: [...contentType.fields, {
         name: values.name,
-        fieldType: _.head(values.fieldType),
+        fieldType: values.fieldType,
         identifier: values.identifier,
         required: _.get(values, 'required', false),
         localized: _.get(values, 'localized', false),
@@ -52,7 +52,7 @@ export const updateField = (spaceId, contentTypeId, contentType, values) => {
         if (field._id === fieldId) {
           return {
             name: values.name,
-            fieldType: _.head(values.fieldType),
+            fieldType: values.fieldType,
             identifier: values.identifier,
             required: _.get(values, 'required', false),
             localized: _.get(values, 'localized', false),

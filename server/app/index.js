@@ -27,7 +27,8 @@ const spaceController = require('./controllers/space');
 const contentTypeController = require('./controllers/space/contentType');
 const entryController = require('./controllers/space/entry');
 const apiKeyController = require('./controllers/space/apikey');
-const cloudinaryController = require('./controllers/asset/cloudinary');
+const assetController = require('./controllers/space/asset');
+// const cloudinaryController = require('./controllers/asset/cloudinary');
 
 const oauth2Controller = require('./controllers/oauth2/index');
 const authController = require('./controllers/oauth2/auth');
@@ -58,7 +59,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 const allowCrossDomain = (req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Methods', 'GET,HEAD,OPTIONS,POST,PUT,DELETE');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, X-CIC-Content-Type');
   next();
 };
 
@@ -89,7 +90,7 @@ app.get(`${apiPrefix}/spaces/:space_id/entries`, entryController.getAllEntries);
 app.get(`${apiPrefix}/spaces/:space_id/entries/:entry_id`, entryController.getSingleEntry);
 
 
-app.post(`${apiPrefix}/api/upload`, upload.single('myFile'), cloudinaryController.upload);
+// app.post(`${apiPrefix}/api/upload`, upload.single('myFile'), cloudinaryController.upload);
 
 // TODO QUERY entries
 
@@ -119,8 +120,15 @@ app.delete(`${apiPrefix}/spaces/:space_id/api_keys`, passportConfig.isBearerAuth
 app.delete(`${apiPrefix}/spaces/:space_id/api_keys/:key_id`, passportConfig.isBearerAuthenticated, apiKeyController.deleteKey);
 
 // Assets
-app.post(`${apiPrefix}/assets/upload`, upload.single('file'), cloudinaryController.upload);
+app.get(`${apiPrefix}/assets/:asset_id`, assetController.getAsset);
+app.post(`${apiPrefix}/assets/upload`, upload.single('file'), assetController.upload);
 // app.post('/api/upload', upload.single('myFile'), apiController.postFileUpload);
+
+
+// Image api
+// app.get('/img/:param?/:public_id', cloudinaryController.getImage);
+// app.post(`/upload`, upload.single('file'), cloudinaryController.upload);
+
 
 /**
  * CIC App codebase: GOD

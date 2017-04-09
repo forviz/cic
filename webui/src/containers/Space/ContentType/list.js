@@ -37,7 +37,6 @@ class ContentTypeList extends Component {
 
   cancel = (e) => {
     console.log(e);
-    message.error('Click on No');
   }
 
   handleSelectAddContentType = () => {

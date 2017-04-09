@@ -36,7 +36,6 @@ class Setting extends Component {
       }
 
       const { actions, space } = this.props;
-      console.log('submit settings', values);
       actions.updateSpace(space._id, {
         name: values.name,
         defaultLocale: 'en',

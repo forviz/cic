@@ -14,6 +14,13 @@ class EditableTagGroup extends Component {
     inputValue: '',
   }
 
+  /* Handle init tags from props.value componentDidMount & componentWillReceiveProps */
+  componentDidMount() {
+    this.setState({
+      tags: this.props.value,
+    });
+  }
+
   componentWillReceiveProps = (nextProps) => {
     this.setState({
       tags: nextProps.value,
@@ -65,7 +72,7 @@ class EditableTagGroup extends Component {
         {tags.map((tag, index) => {
           const isLongTag = tag.length > 20;
           const tagElem = (
-            <Tag key={tag} afterClose={() => this.handleClose(tag)}>
+            <Tag key={tag} closable afterClose={() => this.handleClose(tag)}>
               {isLongTag ? `${tag.slice(0, 20)}...` : tag}
             </Tag>
           );

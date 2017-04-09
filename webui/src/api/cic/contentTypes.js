@@ -12,23 +12,22 @@ export const fetchCreateContentType = (spaceId, { name, identifier, description 
     })
   })
   .then((response) => {
-    console.log('createContentType', response);
     return response;
   });
 };
 
-export const fetchUpdateContentType = (spaceId, contentTypeId, { name, identifier, description, fields }) => {
+export const fetchUpdateContentType = (spaceId, contentTypeId, { name, identifier, description, displayField, fields }) => {
   return fetchWithResponse(`${BASE_URL}/spaces/${spaceId}/content_types/${contentTypeId}`, {
     method: 'PUT',
     body: JSON.stringify({
       name,
       identifier,
       description,
+      displayField,
       fields,
     })
   })
   .then((response) => {
-    console.log('updateContentType', response);
     return response;
   });
 };
@@ -39,7 +38,6 @@ export const fetchDeleteContentType = (spaceId, contentTypeId) => {
     method: 'DELETE',
   })
   .then((response) => {
-    console.log('deleteContentType', response);
     return response;
   });
 };

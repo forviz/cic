@@ -1,4 +1,4 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
 import _ from 'lodash';
 
 import { Form, Input, Button } from 'antd';
@@ -9,13 +9,8 @@ const hasErrors = (fieldsError) => {
   return Object.keys(fieldsError).some(field => fieldsError[field]);
 }
 
-// const mapFieldsToProps = (fieldsValue) => {
-//   return fieldsValue;
-// };
-
 const mapValidationToRules = (field) => {
   const validations = field.validations;
-  console.log('mapValidationToRules', validations);
 
   const rules = [];
 
@@ -28,23 +23,9 @@ const mapValidationToRules = (field) => {
     const inString = _.join(_.get(validations, 'in'), ',');
     rules.push({ type: 'enum', enum: _.get(validations, 'in'), message: `Must be one of ${inString}` });
   }
-  console.log(rules);
+  // console.log(rules);
   return rules;
 };
-
-// const mapPropsToFields = (props) => {
-//   const { contentType, entry } = props;
-//   const fields = _.mapValues(arrayToObject(contentType.fields, 'identifier'), field => {
-//     return {
-//       identifier: field.identifier,
-//       value: _.get(entry, `fields.${field.identifier}`, ''),
-//       rules: mapValidationToRules(field),
-//     }
-//   });
-//   console.log('mapPropsToFields', fields);
-//   return fields;
-// }
-
 
 class EntryEditorForm extends Component {
 
@@ -57,7 +38,6 @@ class EntryEditorForm extends Component {
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
       if (!err) {
-        console.log('Received values of form: ', values);
         const { onSubmit } = this.props;
         onSubmit(values);
       }
@@ -75,8 +55,7 @@ class EntryEditorForm extends Component {
       }
     });
 
-    const { getFieldDecorator, getFieldsValue, getFieldsError } = this.props.form;
-    console.log('fields', fields);
+    const { getFieldDecorator, getFieldsError } = this.props.form;
     return (
       <Form layout="horizontal" onSubmit={this.handleSubmit}>
         {

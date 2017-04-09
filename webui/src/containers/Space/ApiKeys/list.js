@@ -47,7 +47,6 @@ class ContentTypeList extends Component {
     const { space } = this.props;
     if (!space) return (<div />);
 
-    console.log('Key.list', space);
     const { apiKeys } = space;
 
     const columns = [

@@ -22,6 +22,15 @@ export const getEntryId = (props) => {
   return props.match.params.entryId;
 }
 
+export const getAssetId = (props) => {
+  return props.match.params.assetId;
+}
+
+export const getActiveAsset = (state, props) => {
+  const assetId = getAssetId(props);
+  return _.get(state.entities.assets, `entities.${assetId}`);
+}
+
 export const getApiKeyId = (props) => {
   return props.match.params.keyId;
 }
@@ -52,6 +61,10 @@ export const getActiveApiKey= (state, props) => {
 
 export const getSpaceEntries = (state, ownProps) => {
   const space = getActiveSpace(state, ownProps);
-  console.log('getSpaceEntries', space, state);
   return _.filter(_.get(state, 'entities.entries.entities'), entry => entry._spaceId === space._id);
+}
+
+export const getSpaceAssets = (state, ownProps) => {
+  const space = getActiveSpace(state, ownProps);
+  return _.filter(_.get(state, 'entities.assets.entities', []), asset => asset._spaceId === space._id);
 }

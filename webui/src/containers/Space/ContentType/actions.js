@@ -24,15 +24,16 @@ export const addField = (spaceId, contentTypeId, contentType, values) => {
   return (dispatch) => {
 
     const _contentTypeToUpdate = _.assign({}, contentType, {
+      displayField: (values.isDisplayField === true) ? values.identifier : contentType.displayField,
       fields: [...contentType.fields, {
         name: values.name,
-        fieldType: values.fieldType,
+        type: values.type,
         identifier: values.identifier,
         required: _.get(values, 'required', false),
         localized: _.get(values, 'localized', false),
         validations: _.get(values, 'validations'),
       }]
-    })
+    });
 
     return fetchUpdateContentType(spaceId, contentTypeId, _contentTypeToUpdate)
     .then((createResponse) => {
@@ -48,11 +49,12 @@ export const updateField = (spaceId, contentTypeId, contentType, values) => {
     const fieldId = values._id;
 
     const _contentTypeToUpdate = _.assign({}, contentType, {
+      displayField: (values.isDisplayField === true) ? values.identifier : contentType.displayField,
       fields: _.map(contentType.fields, field => {
         if (field._id === fieldId) {
           return {
             name: values.name,
-            fieldType: values.fieldType,
+            type: values.type,
             identifier: values.identifier,
             required: _.get(values, 'required', false),
             localized: _.get(values, 'localized', false),

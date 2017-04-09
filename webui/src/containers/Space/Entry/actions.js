@@ -1,5 +1,6 @@
 import _ from 'lodash';
-import { fetchGetSingleEntry, fetchEntryInSpace, fetchCreateEntry, fetchUpdateEntry } from '../../../api/cic/entries';
+import { fetchGetSingleEntry, fetchEntryInSpace, fetchCreateEntry, fetchUpdateEntry, fetchDeleteEntry } from '../../../api/cic/entries';
+import { getSpace } from '../../../actions/spaces';
 
 export const getEntryInSpace = (spaceId) => {
   return (dispatch) => {
@@ -46,11 +47,18 @@ export const updateEntry = (spaceId, entryId, contentType, fields) => {
   return (dispatch) => {
     return fetchUpdateEntry(spaceId, entryId, contentType._id, fields)
     .then((updateResponse) => {
-      console.log(updateResponse);
+      window.location = `/spaces/${spaceId}/entries/`;
+      return updateResponse;
     })
   };
 };
 
 export const deleteEntry = (spaceId, entryId) => {
-
+  return (dispatch) => {
+    return fetchDeleteEntry(spaceId, entryId)
+    .then((deleteResponse) => {
+      console.log(deleteResponse);
+      dispatch(getSpace(spaceId));
+    })
+  };
 };

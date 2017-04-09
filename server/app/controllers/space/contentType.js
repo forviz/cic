@@ -50,6 +50,7 @@ const updateContentType = (req, res, next) => {
   const spaceId = req.params.space_id;
   const contentTypeId = req.params.content_type_id;
   const name = req.body.name;
+  const displayField = req.body.displayField;
   const identifier = req.body.identifier;
   const fields = req.body.fields;
 
@@ -62,20 +63,21 @@ const updateContentType = (req, res, next) => {
       // Update existing noe
       space.contentTypes = _.map(space.contentTypes, (contentType) => {
         if (contentType._id.equals(contentTypeId)) {
-          console.log('fields', _.size(fields), fields);
           return {
             _id: contentType._id,
             name,
             identifier,
+            displayField,
             fields: _.map(fields, field => ({
               id: field.id,
               name: field.name,
               identifier: field.identifier,
-              fieldType: field.type,
+              type: field.type,
               required: field.required,
               localized: field.localized,
               validations: field.validations,
             })),
+            dateUpdated: Date.now(),
           };
         }
         return contentType;
@@ -87,19 +89,20 @@ const updateContentType = (req, res, next) => {
         _id: contentTypeId,
         name,
         identifier,
+        displayField,
         fields: _.map(fields, field => ({
           id: field.id,
           name: field.name,
           identifier: field.identifier,
-          fieldType: field.type,
+          type: field.type,
           required: field.required,
           localized: field.localized,
           validations: field.validations,
         })),
+        dateUpdated: Date.now(),
       });
     }
 
-    space.dateUpdated = Date.now();
 
     space.save((err) => {
       if (err) { console.log(err); return next(err); }

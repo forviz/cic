@@ -5,6 +5,7 @@ import { bindActionCreators } from 'redux';
 
 import {
   Route,
+  Link,
 } from 'react-router-dom'
 
 
@@ -17,6 +18,8 @@ import ContentTypeListContainer from './ContentType/list';
 import ContentTypeSingleContainer from './ContentType/single';
 import EntryListContainer from './Entry/list';
 import EntrySingleContainer from './Entry/single';
+import AssetListContainer from './Asset/list';
+import AssetSingleContainer from './Asset/single';
 import SpaceApiKeyContainer from './ApiKeys/list';
 import SpaceApiKeySingleContainer from './ApiKeys/single';
 import SpaceSettingContainer from './Settings';
@@ -67,6 +70,16 @@ class Space extends Component {
         main: EntrySingleContainer
       },
       {
+        path: '/spaces/:spaceId/assets',
+        exact: true ,
+        main: AssetListContainer
+      },
+      {
+        path: '/spaces/:spaceId/assets/:assetId',
+        exact: true ,
+        main: AssetSingleContainer
+      },
+      {
         path: '/spaces/:spaceId/api/keys',
         exact: true ,
         main: SpaceApiKeyContainer
@@ -98,11 +111,15 @@ class Space extends Component {
             <Breadcrumb style={{ margin: '12px 0' }}>
               <Breadcrumb.Item>{space.name}</Breadcrumb.Item>
               <Breadcrumb.Item>
-                <Route path="/spaces/:spaceId/content_types" render={() => <span>Content Type</span>} />
-                <Route path="/spaces/:spaceId/entries" render={() => <span>Entries</span>} />
-                <Route path="/spaces/:spaceId/assets" render={() => <span>Assets</span>} />
-                <Route path="/spaces/:spaceId/api/keys" render={() => <span>API Keys</span>} />
-                <Route path="/spaces/:spaceId/settings" render={() => <span>Settings</span>} />
+                <Route path="/spaces/:spaceId/content_types" render={() => <Link to={`/spaces/${space._id}/content_types`}>Content Type</Link>} />
+                <Route path="/spaces/:spaceId/entries" render={() => <Link to={`/spaces/${space._id}/entries`}>Entries</Link>} />
+                <Route path="/spaces/:spaceId/assets" render={() => <Link to={`/spaces/${space._id}/assets`}>Assets</Link>} />
+                <Route path="/spaces/:spaceId/api/keys" render={() => <Link to={`/spaces/${space._id}/api/keys`}>API Keys</Link>} />
+                <Route path="/spaces/:spaceId/settings" render={() => <Link to={`/spaces/${space._id}/settings`}>Settings</Link>} />
+              </Breadcrumb.Item>
+              <Breadcrumb.Item>
+                <Route path="/spaces/:spaceId/content_types/:contentTypeId" render={({ match }) => <span>{match.params.contentTypeId}</span>} />
+                <Route path="/spaces/:spaceId/entries/:entryId" render={({ match }) => <span>{match.params.entryId}</span>} />
               </Breadcrumb.Item>
             </Breadcrumb>
             <Content style={{ background: '#fff', padding: 24, margin: 0, minHeight: 280 }}>

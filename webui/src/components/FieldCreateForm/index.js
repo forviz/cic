@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import _ from 'lodash';
 
-import { Modal, Form, Select, Input, Switch, Row, Col, Menu, Icon, Collapse, Radio } from 'antd';
+import { Modal, Form, Select, Checkbox, Input, Switch, Row, Col, Menu, Icon, Collapse, Radio } from 'antd';
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
 
@@ -23,8 +23,8 @@ const shouldCheckValidationRange = (model) => {
 
 const mapFieldsToProps = (fieldsValue) => {
   return {
-    ..._.pick(fieldsValue, ['_id', 'name', 'identifier', 'required']),
-    fieldType: _.head(fieldsValue.fieldType),
+    ..._.pick(fieldsValue, ['_id', 'name', 'identifier', 'required', 'isDisplayField']),
+    type: _.head(fieldsValue.type),
     validations: {
       linkContentType: '',
       in: _.get(fieldsValue, 'validations-options', []),
@@ -49,8 +49,11 @@ const mapPropsToFields = (props) => {
     _id: {
       value: _.get(model, '_id' ,''),
     },
-    fieldType: {
-      value: _.get(model, 'fieldType'),
+    type: {
+      value: [_.get(model, 'type')],
+    },
+    isDisplayField: {
+      value: _.get(model, 'isDisplayField'),
     },
     name: {
       value: _.get(model, 'name' ,''),
@@ -133,7 +136,7 @@ class FieldCreateForm extends Component {
     return (
       <Modal
         visible={visible}
-        title="Create a new collection"
+        title="Create a new Field"
         cancelText="Cancel"
         okText="Create"
         onCancel={onCancel}
@@ -143,9 +146,9 @@ class FieldCreateForm extends Component {
         <Row>
           <Col span={8}>
             <Form.Item>
-              {getFieldDecorator('fieldType', {
+              {getFieldDecorator('type', {
                 valuePropName: 'selectedKeys',
-                initialValue:  [_.get(fieldValues, 'fieldType', 'text')],
+                initialValue:  [_.get(fieldValues, 'type', 'text')],
                 trigger: 'onSelect',
                 getValueFromEvent: ({ value, key, selectedKeys }) => {
                   // Convert onSelect({ value, key ,selectedKeys }) and send only selectedKeys to Form.Item
@@ -157,14 +160,14 @@ class FieldCreateForm extends Component {
                   mode="inline"
                   style={{ width: 200 }}
                 >
-                  <Menu.Item key="text"><Icon type="edit" /> Text</Menu.Item>
-                  <Menu.Item key="number"><Icon type="calculator" />Number</Menu.Item>
-                  <Menu.Item key="datetime"><Icon type="calendar" /> Date and Time</Menu.Item>
-                  <Menu.Item key="location"><Icon type="environment" />Location</Menu.Item>
-                  <Menu.Item key="media"><Icon type="picture" /> Media</Menu.Item>
-                  <Menu.Item key="boolean"><Icon type="flag" />Boolean</Menu.Item>
-                  <Menu.Item key="object"><Icon type="database" />JSON Object</Menu.Item>
-                  <Menu.Item key="link"><Icon type="link" />Reference</Menu.Item>
+                  <Menu.Item key="Text"><Icon type="edit" /> Text</Menu.Item>
+                  <Menu.Item key="Number"><Icon type="calculator" />Number</Menu.Item>
+                  <Menu.Item key="Datetime"><Icon type="calendar" /> Date and Time</Menu.Item>
+                  <Menu.Item key="Location"><Icon type="environment" />Location</Menu.Item>
+                  <Menu.Item key="Media"><Icon type="picture" /> Media</Menu.Item>
+                  <Menu.Item key="Boolean"><Icon type="flag" />Boolean</Menu.Item>
+                  <Menu.Item key="Object"><Icon type="database" />JSON Object</Menu.Item>
+                  <Menu.Item key="Link"><Icon type="link" />Reference</Menu.Item>
                 </Menu>
               )}
             </Form.Item>
@@ -191,7 +194,14 @@ class FieldCreateForm extends Component {
                   <Input />
                 )}
               </Form.Item>
-              <Collapse defaultActiveKey="1">
+              <Form.Item>
+                {getFieldDecorator('isDisplayField', {
+                  valuePropName: 'checked',
+                })(
+                  <Checkbox>This field represent as title.</Checkbox>
+                )}
+              </Form.Item>
+              <Collapse>
                 <Collapse.Panel header="Validation" key="1">
                   <Form.Item>
                     {getFieldDecorator('required', {

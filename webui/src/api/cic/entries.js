@@ -51,3 +51,14 @@ export const fetchUpdateEntry = (spaceId, entryId, contentTypeId, fields) => {
     return response;
   });
 };
+
+
+export const fetchDeleteEntry = (spaceId, entryId, contentTypeId, fields) => {
+  return fetchWithResponse(`${BASE_URL}/spaces/${spaceId}/entries/${entryId}`, {
+    method: 'DELETE',
+  })
+  .then((response) => {
+    console.log('fetchDeleteEntry', response);
+    return response;
+  });
+};

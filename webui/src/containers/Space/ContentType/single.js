@@ -3,12 +3,18 @@ import _ from 'lodash';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
-import { Button, Row, Col, Popconfirm, Table } from 'antd';
+import { Button, Row, Col, Icon, Popconfirm, Table } from 'antd';
 
 import { getActiveSpace, getActiveContentType } from '../../../selectors';
 
 import * as Actions from './actions';
 import FieldCreateForm from '../../../components/FieldCreateForm';
+
+const getFieldFromContentType = (contentType, fieldId) => {
+  const field = _.find(_.get(contentType, 'fields'), field => field._id === fieldId);
+  if (contentType.displayField === field.identifier) field.isDisplayField = true;
+  return field;
+};
 
 class ContentTypeSingle extends Component {
 
@@ -29,7 +35,7 @@ class ContentTypeSingle extends Component {
 
   handleEditField = (fieldId) => {
     const { contentType } = this.props;
-    const field = _.find(_.get(contentType, 'fields'), field => field._id === fieldId);
+    const field = getFieldFromContentType(contentType, fieldId);
 
     this.setState({
       fieldValues: field,
@@ -95,8 +101,8 @@ class ContentTypeSingle extends Component {
       },
       {
         title: 'Type',
-        dataIndex: 'fieldType',
-        key: 'fieldType',
+        dataIndex: 'type',
+        key: 'type',
       },
       {
         title: 'Action',
@@ -125,19 +131,19 @@ class ContentTypeSingle extends Component {
       _id: field._id,
       key: i,
       name: field.name,
-      fieldType: field.fieldType,
+      type: field.type,
     }));
 
     return (
       <div>
-        <Row>
-          <Col>
+        <Row type="flex" justify="space-between">
+          <Col span={18}>
             <h1>{contentType.name}</h1>
           </Col>
-        </Row>
-        <Row>
-          <Col>
-            <Button type="primary" onClick={this.handleClickAddField}>Add Field</Button>
+          <Col span={6}>
+            <div style={{ marginBottom: 20 }}>
+              <Button type="primary" onClick={this.handleClickAddField}><Icon type="plus" /> Add Field</Button>
+            </div>
           </Col>
         </Row>
         <Row>

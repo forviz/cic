@@ -1,37 +1,61 @@
 import _ from 'lodash';
-import { fetchWithResponse } from './helper';
+import { BASE_URL, fetchWithResponse } from './helper';
 
-const sha1 = require('sha1');
-
-const CLOUDINARY_CLOUDNAME = 'pitipatdop';
-const CLOUDINARY_APIKEY = '647979826422471';
-const CLOUDINARY_APISECRET = 'MAie91dIiOb0acRzVkZZM4H1_OQ';
-
-export const createSignature = (data, apiSecret) => {
-  const str = `${_.join(_.map(data, (value, key) => `${key}=${value}`), '&')}${apiSecret}`;
-  const sh1Str = sha1(str);
-  console.log('signature', str, sh1Str);
-  return sh1Str;
-};
-
-export const upload = (file) => {
-
-  const timestamp = Date.now();
-
-  const data = {
-    timestamp,
-  };
-
-  data.signature = createSignature(data, CLOUDINARY_APISECRET);
-  data.file = file;
-  data.api_key = CLOUDINARY_APIKEY;
-
-  return fetchWithResponse(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUDNAME}/image/upload`, {
-    method: 'POST',
-    body: JSON.stringify()
+export const fetchAssetInSpace = (spaceId) => {
+  return fetchWithResponse(`${BASE_URL}/spaces/${spaceId}/assets/`, {
+    method: 'GET',
   })
   .then((response) => {
-    console.log('upload', response);
+    console.log('fetchGetAssetInSpace', response);
+    return response;
+  });
+};
+
+export const fetchGetSingleAsset = (spaceId, assetId) => {
+  return fetchWithResponse(`${BASE_URL}/spaces/${spaceId}/assets/${assetId}`, {
+    method: 'GET',
+  })
+  .then((response) => {
+    console.log('fetchGetAsset', response);
+    return response;
+  });
+}
+
+export const fetchCreateAsset = (spaceId, contentTypeId, data = {}) => {
+  return fetchWithResponse(`${BASE_URL}/spaces/${spaceId}/assets/`, {
+    method: 'POST',
+    headers: {
+      'X-CIC-Content-Type': contentTypeId,
+    },
+    body: JSON.stringify(data)
+  })
+  .then((response) => {
+    console.log('fetchCreateAsset', response);
+    return response;
+  });
+};
+
+
+export const fetchUpdateAsset = (spaceId, assetId, fields) => {
+  return fetchWithResponse(`${BASE_URL}/spaces/${spaceId}/assets/${assetId}`, {
+    method: 'PUT',
+    body: JSON.stringify({
+      fields: fields,
+    }),
+  })
+  .then((response) => {
+    console.log('fetchUpdateAsset', response);
+    return response;
+  });
+};
+
+
+export const fetchDeleteAsset = (spaceId, entryId, contentTypeId, fields) => {
+  return fetchWithResponse(`${BASE_URL}/spaces/${spaceId}/assets/${entryId}`, {
+    method: 'DELETE',
+  })
+  .then((response) => {
+    console.log('fetchDeleteAsset', response);
     return response;
   });
 };

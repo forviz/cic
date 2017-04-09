@@ -28,7 +28,8 @@ const contentTypeController = require('./controllers/space/contentType');
 const entryController = require('./controllers/space/entry');
 const apiKeyController = require('./controllers/space/apikey');
 const assetController = require('./controllers/space/asset');
-// const cloudinaryController = require('./controllers/asset/cloudinary');
+
+const cloudinaryController = require('./controllers/services/cloudinary');
 
 const oauth2Controller = require('./controllers/oauth2/index');
 const authController = require('./controllers/oauth2/auth');
@@ -90,8 +91,6 @@ app.get(`${apiPrefix}/spaces/:space_id/entries`, entryController.getAllEntries);
 app.get(`${apiPrefix}/spaces/:space_id/entries/:entry_id`, entryController.getSingleEntry);
 
 
-// app.post(`${apiPrefix}/api/upload`, upload.single('myFile'), cloudinaryController.upload);
-
 // TODO QUERY entries
 
 /**
@@ -120,9 +119,16 @@ app.delete(`${apiPrefix}/spaces/:space_id/api_keys`, passportConfig.isBearerAuth
 app.delete(`${apiPrefix}/spaces/:space_id/api_keys/:key_id`, passportConfig.isBearerAuthenticated, apiKeyController.deleteKey);
 
 // Assets
-app.get(`${apiPrefix}/assets/:asset_id`, assetController.getAsset);
-app.post(`${apiPrefix}/assets/upload`, upload.single('file'), assetController.upload);
-// app.post('/api/upload', upload.single('myFile'), apiController.postFileUpload);
+app.get(`${apiPrefix}/spaces/:space_id/assets`, assetController.getAllAssets);
+app.get(`${apiPrefix}/spaces/:space_id/assets/:asset_id`, assetController.getSingleAsset);
+app.post(`${apiPrefix}/spaces/:space_id/assets/`, passportConfig.isBearerAuthenticated, assetController.createAsset);
+app.put(`${apiPrefix}/spaces/:space_id/assets/:asset_id`, passportConfig.isBearerAuthenticated, assetController.updateAsset);
+app.delete(`${apiPrefix}/spaces/:space_id/assets/:asset_id`, passportConfig.isBearerAuthenticated, assetController.deleteAsset);
+app.delete(`${apiPrefix}/spaces/:space_id/assets_truncate/`, passportConfig.isBearerAuthenticated, assetController.truncateAsset);
+
+// Upload Media (cloudinary)
+app.post(`${apiPrefix}/media/upload`, upload.single('file'), cloudinaryController.upload);
+app.get(`${apiPrefix}/media/:param?/:public_id`, cloudinaryController.getImage);
 
 
 // Image api

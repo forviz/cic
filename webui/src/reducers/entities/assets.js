@@ -9,7 +9,7 @@ const initialState = {
 const entries = (state = initialState, action) => {
   switch (action.type) {
 
-    case 'ENTITIES/ENTRY/RECEIVED': {
+    case 'ENTITIES/ASSET/RECEIVED': {
       return {
         ...state,
         entities: _.assign({}, state.entities, {

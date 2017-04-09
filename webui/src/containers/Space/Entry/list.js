@@ -1,4 +1,5 @@
 import React, { Component, PropTypes } from 'react';
+import moment from 'moment';
 import { Link } from 'react-router-dom';
 
 import { connect } from 'react-redux';
@@ -7,8 +8,12 @@ import { bindActionCreators } from 'redux';
 import * as Actions from './actions';
 import _ from 'lodash';
 
-import { Button, Table, Icon, Col, Row, Menu, Dropdown } from 'antd';
+import { Button, Table, Icon, Col, Row, Menu, Dropdown, message, Popconfirm } from 'antd';
 import { getActiveSpace, getSpaceEntries } from '../../../selectors';
+
+const getContentType = (contentTypes, contentTypeId) => {
+  return _.find(contentTypes, ct => ct._id === contentTypeId);
+};
 
 class EntryList extends Component {
 
@@ -24,7 +29,7 @@ class EntryList extends Component {
     }
   }
 
-  handleClickAddEntry = (a, b, c) => {
+  handleClickAddEntry = (a) => {
     const contentTypeId = a.item.props.contentTypeId;
     const { space } = this.props;
     const { createEmptyEntry } = this.props.actions;
@@ -32,19 +37,30 @@ class EntryList extends Component {
     createEmptyEntry(space._id, contentTypeId);
   }
 
+  confirmDeleteEntry = (entryId) => {
+    const { deleteEntry } = this.props.actions;
+    const { space } = this.props;
+    deleteEntry(space._id, entryId)
+    .then(response => {
+      message.success('Deleted Entry');
+    });
+  }
+
+  cancel = (e) => {
+    console.log(e);
+  }
+
   render() {
     const { space, entries } = this.props;
     if (!space) return (<div />);
-
-    console.log('render', entries);
 
     const { contentTypes } = space;
 
     const columns = [
       {
-        title: 'Name',
-        dataIndex: 'name',
-        key: 'name',
+        title: 'Title',
+        dataIndex: 'title',
+        key: 'title',
         render: (text, record) => <Link to={`/spaces/${space._id}/entries/${record._id}`}>{text || 'No title'}</Link>,
       },
       {
@@ -56,6 +72,7 @@ class EntryList extends Component {
         title: 'Updated',
         dataIndex: 'updated',
         key: 'updated',
+        render: (text) => moment(text).fromNow(),
       },
       {
         title: 'Author',
@@ -67,17 +84,37 @@ class EntryList extends Component {
         dataIndex: 'status',
         key: 'status',
       },
+      {
+        title: 'Action',
+        key: 'action',
+        render: (text, record) => (
+          <span>
+            <Popconfirm
+              title="Are you sure delete this entry?"
+              onConfirm={e => this.confirmDeleteEntry(record._id)}
+              onCancel={this.cancel}
+              okText="Yes"
+              cancelText="No"
+            >
+              <a href="#">Delete</a>
+            </Popconfirm>
+          </span>
+        ),
+      }
     ];
 
-    const data = _.map(entries, (entry, i) => ({
-      _id: entry,
-      key: i,
-      name: _.get(entry, 'fields.title'),
-      contentType: entry.contentTypeId,
-      updated: entry.updatedAt,
-      by: '',
-      status: entry.status,
-    }));
+    const data = _.map(entries, (entry, i) => {
+      const contentType = getContentType(contentTypes, entry.contentTypeId);
+      return {
+        _id: entry._id,
+        key: i,
+        title: _.get(entry, `fields.${contentType.displayField}`),
+        contentType: contentType.name,
+        updated: entry.updatedAt,
+        by: '',
+        status: entry.status,
+      }
+    });
 
     const addEntryMenu = (
       <Menu onClick={this.handleClickAddEntry}>
@@ -94,11 +131,10 @@ class EntryList extends Component {
         <div>
           <div style={{ marginBottom: 20 }}>
             <Dropdown overlay={addEntryMenu}>
-              <Button style={{ marginLeft: 8 }}>
+              <Button type="primary">
                 <Icon type="plus" /> Add Entry
               </Button>
             </Dropdown>
-            { /*<Button type="primary" onClick={this.handleClickAddEntry}><Icon type="plus" /> Add Entry</Button> */ }
           </div>
         </div>
         <Row>

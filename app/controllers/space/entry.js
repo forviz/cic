@@ -18,23 +18,6 @@ exports.getAllEntries = (req, res, next) => {
   });
 };
 
-/*
-exports.getSingleEntry = (req, res, next) => {
-  const spaceId = req.params.space_id;
-  const entryId = req.params.entry_id;
-
-  Space.findOne({ _id: spaceId })
-  .populate({
-    path: 'entries',
-    match: {
-      _id: entryId
-    }
-  }).exec((err, space) => {
-    if (err) { return next(err); }
-    const entry = _.find(space.entries, entry => entry._id.equals(entryId));
-    res.json(entry);
-  });
-};*/
 exports.getSingleEntry = (req, res, next) => {
   const entryId = req.params.entry_id;
   Entry.findOne({ _id: entryId }, (err, entry) => {
@@ -138,7 +121,9 @@ exports.deleteEntry = (req, res, next) => {
 
     // Remove entry ref from space
     Space.findOne({ _id: spaceId }, (err, space) => {
-      space.entries = _.filter(space.entries, entryId => entryId.equals(entryId));
+      if (err) return _helper.handleError(err, next);
+      space.entries = _.filter(space.entries, _id => !_id.equals(entryId));
+
       space.save((err2) => {
         if (err2) return _helper.handleError(err2, next);
         res.json({

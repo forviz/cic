@@ -13,9 +13,9 @@
   "author": "Pitipat Dop",
   "license": "MIT",
   "scripts": {
-    "dev": "cross-env NODE_ENV=development ./node_modules/.bin/nodemon app/index.js",
+    "start": "cross-env NODE_ENV=development ./node_modules/.bin/nodemon app/index.js",
     "build": "webpack --config webpack.config.production.js --display-error-details",
-    "start": "cross-env NODE_ENV=production node dev-client.js",
+    "start-client": "cross-env NODE_ENV=production node dev-client.js",
     "test": "mocha --reporter spec"
   },
   "dependencies": {

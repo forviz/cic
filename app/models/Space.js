@@ -16,6 +16,7 @@ const spaceSchema = new mongoose.Schema({
     name: String,
     identifier: String,
     description: String,
+    displayField: { type: String, default: 'title' },
     fields: [{
       id: String,
       name: String,
@@ -23,6 +24,7 @@ const spaceSchema = new mongoose.Schema({
       fieldType: String,
       required: Boolean,
       localized: Boolean,
+      type: { type: String, default: 'Text' },
       validations: {
         linkContentType: [String], // Link to another contentType
         // Takes an array of values and validates that the field
@@ -50,6 +52,7 @@ const spaceSchema = new mongoose.Schema({
     }],
   }],
   entries: [{ type: Schema.Types.ObjectId, ref: 'Entry' }],
+  assets: [{ type: Schema.Types.ObjectId, ref: 'Asset' }],
   createdAt: { type: 'Date', default: Date.now, required: true },
   updatedAt: { type: 'Date', default: Date.now, required: true },
 }, { timestamps: true });

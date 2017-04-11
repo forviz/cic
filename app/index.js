@@ -2,14 +2,19 @@ require('babel-register');
 require('babel-polyfill');
 
 const express = require('express');
+const flash = require('express-flash');
 const compression = require('compression');
 const session = require('express-session');
 const bodyParser = require('body-parser');
 const expressValidator = require('express-validator');
 
+const jwt = require('express-jwt');
+// const jwt = require('jsonwebtoken');
+
 const dotenv = require('dotenv');
 const logger = require('morgan');
 const chalk = require('chalk');
+
 // const errorHandler = require('errorhandler');
 const MongoStore = require('connect-mongo')(session);
 const path = require('path');
@@ -64,6 +69,8 @@ const allowCrossDomain = (req, res, next) => {
   next();
 };
 
+
+
 app.use(allowCrossDomain);
 
 app.use(session({
@@ -77,18 +84,58 @@ app.use(session({
 }));
 app.use(passport.initialize());
 app.use(passport.session());
+app.use(flash());
 app.use(logger('dev'));
 
+app.use((req, res, next) => {
+  res.locals.user = req.user;
+  next();
+});
+
+// app.use((req, res, next) => {
+//   // After successful login, redirect back to the intended page
+//   if (!req.user &&
+//       req.path !== '/login' &&
+//       req.path !== '/signup' &&
+//       !req.path.match(/^\/auth/) &&
+//       !req.path.match(/\./)) {
+//     req.session.returnTo = req.path;
+//   } else if (req.user) {
+//     req.session.returnTo = req.path;
+//   }
+//   next();
+// });
 
 /**
  * CIC App codebase: DELIVERY
  */
+
+app.get('/', (req, res, next) => {
+  console.log('req.user', req.user);
+  res.send({ user: req.user });
+});
+
+// const tokenAuthenticate = jwt({
+//   secret: 'shhhhh'
+// });
+
+const contentDeliveryAuthentication = (req, res, next) => {
+  next();
+};
+
+const contentManagementAuthentication = (req, res, next) => {
+  next();
+  //return passportConfig.isBearerAuthenticated
+};
+
 const apiPrefix = '/v1';
-app.get(`${apiPrefix}/spaces/:space_id`, spaceController.getSingle);
-app.get(`${apiPrefix}/spaces/:space_id/content_types`, contentTypeController.getAllContentTypes);
-app.get(`${apiPrefix}/spaces/:space_id/content_types/:content_type_id`, contentTypeController.getSingleContentType);
-app.get(`${apiPrefix}/spaces/:space_id/entries`, entryController.getAllEntries);
-app.get(`${apiPrefix}/spaces/:space_id/entries/:entry_id`, entryController.getSingleEntry);
+app.get(`${apiPrefix}/spaces/`, contentDeliveryAuthentication, spaceController.getAll);
+app.get(`${apiPrefix}/spaces/:space_id`, contentDeliveryAuthentication, spaceController.getSingle);
+app.get(`${apiPrefix}/spaces/:space_id/content_types`, contentDeliveryAuthentication, contentTypeController.getAllContentTypes);
+app.get(`${apiPrefix}/spaces/:space_id/content_types/:content_type_id`, contentDeliveryAuthentication, contentTypeController.getSingleContentType);
+app.get(`${apiPrefix}/spaces/:space_id/entries`, contentDeliveryAuthentication, entryController.getAllEntries);
+app.get(`${apiPrefix}/spaces/:space_id/entries/:entry_id`, contentDeliveryAuthentication, entryController.getSingleEntry);
+
 
 
 // TODO QUERY entries
@@ -96,35 +143,35 @@ app.get(`${apiPrefix}/spaces/:space_id/entries/:entry_id`, entryController.getSi
 /**
  * CIC App codebase: MANAGEMENT
  */
-app.get(`${apiPrefix}/spaces`, passportConfig.isBearerAuthenticated, spaceController.getAll);
-app.post(`${apiPrefix}/spaces`, passportConfig.isBearerAuthenticated, spaceController.createSpace);
-app.put(`${apiPrefix}/spaces/:space_id`, passportConfig.isBearerAuthenticated, spaceController.updateSpace);
-app.delete(`${apiPrefix}/spaces/:space_id`, passportConfig.isBearerAuthenticated, spaceController.deleteSpace);
 
-app.post(`${apiPrefix}/spaces/:space_id/content_types/`, passportConfig.isBearerAuthenticated, contentTypeController.createContentType);
-app.put(`${apiPrefix}/spaces/:space_id/content_types/:content_type_id`, passportConfig.isBearerAuthenticated, contentTypeController.updateContentType);
-app.delete(`${apiPrefix}/spaces/:space_id/content_types/:content_type_id`, passportConfig.isBearerAuthenticated, contentTypeController.deleteContentType);
+app.post(`${apiPrefix}/spaces`, contentManagementAuthentication, spaceController.createSpace);
+app.put(`${apiPrefix}/spaces/:space_id`, contentManagementAuthentication, spaceController.updateSpace);
+app.delete(`${apiPrefix}/spaces/:space_id`, contentManagementAuthentication, spaceController.deleteSpace);
+
+app.post(`${apiPrefix}/spaces/:space_id/content_types/`, contentManagementAuthentication, contentTypeController.createContentType);
+app.put(`${apiPrefix}/spaces/:space_id/content_types/:content_type_id`, contentManagementAuthentication, contentTypeController.updateContentType);
+app.delete(`${apiPrefix}/spaces/:space_id/content_types/:content_type_id`, contentManagementAuthentication, contentTypeController.deleteContentType);
 
 // CREATE entry
-app.post(`${apiPrefix}/spaces/:space_id/entries/`, passportConfig.isBearerAuthenticated, entryController.createEntry);
-app.put(`${apiPrefix}/spaces/:space_id/entries/:entry_id`, passportConfig.isBearerAuthenticated, entryController.updateEntry);
-app.delete(`${apiPrefix}/spaces/:space_id/entries/:entry_id`, passportConfig.isBearerAuthenticated, entryController.deleteEntry);
-app.delete(`${apiPrefix}/spaces/:space_id/entries_truncate/`, passportConfig.isBearerAuthenticated, entryController.truncateEntry);
+app.post(`${apiPrefix}/spaces/:space_id/entries/`, contentManagementAuthentication, entryController.createEntry);
+app.put(`${apiPrefix}/spaces/:space_id/entries/:entry_id`, contentManagementAuthentication, entryController.updateEntry);
+app.delete(`${apiPrefix}/spaces/:space_id/entries/:entry_id`, contentManagementAuthentication, entryController.deleteEntry);
+app.delete(`${apiPrefix}/spaces/:space_id/entries_truncate/`, contentManagementAuthentication, entryController.truncateEntry);
 
 // API Keys
-app.get(`${apiPrefix}/spaces/:space_id/api_keys`, passportConfig.isBearerAuthenticated, apiKeyController.getAllKey);
-app.post(`${apiPrefix}/spaces/:space_id/api_keys`, passportConfig.isBearerAuthenticated, apiKeyController.createKey);
-app.put(`${apiPrefix}/spaces/:space_id/api_keys/:key_id`, passportConfig.isBearerAuthenticated, apiKeyController.updateKey);
-app.delete(`${apiPrefix}/spaces/:space_id/api_keys`, passportConfig.isBearerAuthenticated, apiKeyController.clearAllKey);
-app.delete(`${apiPrefix}/spaces/:space_id/api_keys/:key_id`, passportConfig.isBearerAuthenticated, apiKeyController.deleteKey);
+app.get(`${apiPrefix}/spaces/:space_id/api_keys`, contentManagementAuthentication, apiKeyController.getAllKey);
+app.post(`${apiPrefix}/spaces/:space_id/api_keys`, contentManagementAuthentication, apiKeyController.createKey);
+app.put(`${apiPrefix}/spaces/:space_id/api_keys/:key_id`, contentManagementAuthentication, apiKeyController.updateKey);
+app.delete(`${apiPrefix}/spaces/:space_id/api_keys`, contentManagementAuthentication, apiKeyController.clearAllKey);
+app.delete(`${apiPrefix}/spaces/:space_id/api_keys/:key_id`, contentManagementAuthentication, apiKeyController.deleteKey);
 
 // Assets
-app.get(`${apiPrefix}/spaces/:space_id/assets`, assetController.getAllAssets);
-app.get(`${apiPrefix}/spaces/:space_id/assets/:asset_id`, assetController.getSingleAsset);
-app.post(`${apiPrefix}/spaces/:space_id/assets/`, passportConfig.isBearerAuthenticated, assetController.createAsset);
-app.put(`${apiPrefix}/spaces/:space_id/assets/:asset_id`, passportConfig.isBearerAuthenticated, assetController.updateAsset);
-app.delete(`${apiPrefix}/spaces/:space_id/assets/:asset_id`, passportConfig.isBearerAuthenticated, assetController.deleteAsset);
-app.delete(`${apiPrefix}/spaces/:space_id/assets_truncate/`, passportConfig.isBearerAuthenticated, assetController.truncateAsset);
+app.get(`${apiPrefix}/spaces/:space_id/assets`, contentManagementAuthentication, assetController.getAllAssets);
+app.get(`${apiPrefix}/spaces/:space_id/assets/:asset_id`, contentManagementAuthentication, assetController.getSingleAsset);
+app.post(`${apiPrefix}/spaces/:space_id/assets/`, contentManagementAuthentication, assetController.createAsset);
+app.put(`${apiPrefix}/spaces/:space_id/assets/:asset_id`, contentManagementAuthentication, assetController.updateAsset);
+app.delete(`${apiPrefix}/spaces/:space_id/assets/:asset_id`, contentManagementAuthentication, assetController.deleteAsset);
+app.delete(`${apiPrefix}/spaces/:space_id/assets_truncate/`, contentManagementAuthentication, assetController.truncateAsset);
 
 // Upload Media (cloudinary)
 app.post(`${apiPrefix}/media/upload`, upload.single('file'), cloudinaryController.upload);
@@ -140,6 +187,18 @@ app.get(`${apiPrefix}/media/:param?/:public_id`, cloudinaryController.getImage);
  * CIC App codebase: GOD
  */
 app.get('/access_tokens', clientController.getAccessTokens);
+
+/**
+ * CIC App codebase: AUTH
+ */
+app.get('/auth/google', passport.authenticate('google', { scope: 'profile email' }));
+app.get('/auth/google/callback', passport.authenticate('google', { failureRedirect: '/login' }), (req, res) => {
+  res.redirect(req.session.returnTo || '/');
+});
+app.get('/auth/facebook', passport.authenticate('facebook', { scope: ['email', 'public_profile'] }));
+app.get('/auth/facebook/callback', (req, res, next) => {
+  res.redirect(req.session.returnTo || '/');
+});
 
 /**
  * CIC App codebase: OAUTH2

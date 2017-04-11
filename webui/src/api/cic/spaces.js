@@ -2,6 +2,7 @@ import _ from 'lodash';
 import { BASE_URL, ACCESS_TOKEN, fetchWithResponse, convertToURLParam, responseError } from './helper';
 
 export const fetchUserSpaces = () => {
+
   return fetchWithResponse(`${BASE_URL}/spaces`)
   .then((response) => {
     // console.log('space', response);

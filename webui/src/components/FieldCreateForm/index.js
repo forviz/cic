@@ -161,6 +161,7 @@ class FieldCreateForm extends Component {
                   style={{ width: 200 }}
                 >
                   <Menu.Item key="Text"><Icon type="edit" /> Text</Menu.Item>
+                  <Menu.Item key="LongText"><Icon type="file-text" /> LongText</Menu.Item>
                   <Menu.Item key="Number"><Icon type="calculator" />Number</Menu.Item>
                   <Menu.Item key="Datetime"><Icon type="calendar" /> Date and Time</Menu.Item>
                   <Menu.Item key="Location"><Icon type="environment" />Location</Menu.Item>

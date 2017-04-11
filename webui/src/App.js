@@ -9,14 +9,18 @@ import {
   Link,
 } from 'react-router-dom'
 
+import { LocaleProvider } from 'antd';
+import enUS from 'antd/lib/locale-provider/en_US';
+
 import 'antd/dist/antd.css';
 import './App.css';
 
 import { Layout, Menu, Icon, Dropdown } from 'antd';
-const { Header } = Layout;
+const { Header, Content } = Layout;
 
 import * as Actions from './actions/application';
 import SpaceContainer from './containers/Space';
+import LoginContainer from './containers/Login';
 
 import { getUserSpaces } from './selectors';
 
@@ -60,33 +64,28 @@ class App extends Component {
     );
 
     return (
-      <Router>
-        <Layout>
-          <Header className="header">
-            <div className="logo" />
-            <Dropdown overlay={menu} trigger={['click']}>
-              <a className="ant-dropdown-link" href="#">
-                Spaces <Icon type="down" />
-              </a>
-            </Dropdown>
-            <Menu
-              theme="dark"
-              mode="horizontal"
-              defaultSelectedKeys={['2']}
-              style={{ lineHeight: '64px' }}
-            >
-              <Menu.Item key="1">nav 1</Menu.Item>
-            </Menu>
-          </Header>
-          <div>
-            <Route
-              key="space"
-              path="/spaces/:spaceId"
-              component={SpaceContainer}
-            />
-          </div>
-        </Layout>
-      </Router>
+      <LocaleProvider locale={enUS}>
+        <Router>
+          <Layout>
+            <Header className="header">
+              <div className="logo" />
+              <Dropdown overlay={menu} trigger={['click']}>
+                <a className="ant-dropdown-link" href="#">
+                  Spaces <Icon type="down" />
+                </a>
+              </Dropdown>
+            </Header>
+            <Content>
+              <Route key="login" path="/login" component={LoginContainer} />
+              <Route
+                key="space"
+                path="/spaces/:spaceId"
+                component={SpaceContainer}
+              />
+            </Content>
+          </Layout>
+        </Router>
+      </LocaleProvider>
     );
   }
 }

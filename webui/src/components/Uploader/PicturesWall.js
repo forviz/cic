@@ -2,10 +2,19 @@ import React, { Component, PropTypes } from 'react';
 import _ from 'lodash';
 import { Upload, Icon, Modal, message } from 'antd';
 
+const parseFileInfo = (file) => ({
+  uid: file.publicId,
+  name: file.fileName,
+  status: 'done',
+  url: file.url,
+});
+
 class PicturesWall extends Component {
 
   static propTypes = {
     multiple: PropTypes.bool,
+    file: PropTypes.object,
+    fileList: PropTypes.array,
   }
 
   static defaultProps = {
@@ -13,30 +22,29 @@ class PicturesWall extends Component {
     action: 'http://localhost:4000/v1/media/upload',
   }
 
-  state = {
-    previewVisible: false,
-    previewImage: '',
-    fileList: [],
-    // fileList: [{
-    //   uid: -1,
-    //   name: 'xxx.png',
-    //   status: 'done',
-    //   url: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
-    // }],
-  };
+  // state = {
+  //   previewVisible: false,
+  //   previewImage: '',
+  //   fileList: [],
+  // }
+
+  constructor(props) {
+    super(props);
+    console.log('PicturesWall::constructor', props);
+    const fileList = _.compact(props.fileList || [props.file]);
+
+    this.state = {
+      previewVisible: false,
+      previewImage: '',
+      fileList: fileList ? _.map(fileList, file => parseFileInfo(file)) : [],
+    }
+  }
 
   componentWillReceiveProps = (nextProps) => {
-    if (nextProps.fileList) {
+    const fileList = _.compact(nextProps.fileList || [nextProps.file]);
+    if (fileList) {
 
-      const fileListState = _.map([nextProps.fileList], (file) => {
-        return {
-          uid: file.publicId,
-          name: file.fileName,
-          status: 'done',
-          url: file.url,
-        }
-      });
-  
+      const fileListState = _.map(fileList, file => parseFileInfo(file));
       this.setState({
         fileList: fileListState,
       });
@@ -69,7 +77,7 @@ class PicturesWall extends Component {
   }
 
   render() {
-    console.log('PicturesWall', this.props);
+    console.log('PicturesWall::render', this.props, this.state);
     const { multiple, action } = this.props;
     const { previewVisible, previewImage, fileList } = this.state;
 

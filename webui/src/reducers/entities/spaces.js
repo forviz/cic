@@ -10,7 +10,7 @@ const initialState = {
 
 const spaces = (state = initialState, action) => {
   switch (action.type) {
-    
+
     case 'USER/SPACES/RECEIVED': {
       // const ids = _.map(action.spaces, space => space._id);
       return {

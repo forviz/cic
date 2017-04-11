@@ -6,6 +6,8 @@ import { Form, Input, Button } from 'antd';
 // import Uploader from '../Uploader';
 import PicturesWall from '../Uploader/PicturesWall';
 
+import mapImageInfoToFile from '../../helpers/mapImageInfoToFile';
+
 const hasErrors = (fieldsError) => {
   return Object.keys(fieldsError).some(field => fieldsError[field]);
 }
@@ -26,30 +28,6 @@ class AssetEditorForm extends Component {
         onSubmit(values);
       }
     });
-  }
-
-  // normFile = (e) => {
-  //   console.log('Form::Upload event:', e);
-  //   if (Array.isArray(e)) {
-  //     return e;
-  //   }
-  //   return e && e.fileList;
-  // }
-  mapImageInfoToFile = (info) => {
-    const file = info.file;
-    return {
-      publicId: _.get(file, 'response.public_id'),
-      fileName: _.get(file, 'name'),
-      contentType: _.get(file, 'type'),
-      url: _.get(file, 'response.url'),
-      details: {
-        image: {
-          width: _.get(file, 'response.width'),
-          height: _.get(file, 'response.height'),
-        },
-        size: _.get(file, 'size'),
-      }
-    }
   }
 
   render() {
@@ -73,8 +51,8 @@ class AssetEditorForm extends Component {
         </Form.Item>
         <Form.Item label="File">
           {getFieldDecorator('file', {
-            valuePropName: 'fileList',
-            getValueFromEvent: this.mapImageInfoToFile
+            valuePropName: 'file',
+            getValueFromEvent: mapImageInfoToFile
           })(
             <PicturesWall multiple={false} />
           )}
@@ -103,7 +81,6 @@ class AssetEditorForm extends Component {
 </Upload.Dragger> */
 
 const mapPropsToFields = (props) => {
-  console.log('mapPropsToFields', props);
   const asset = _.get(props, 'asset');
   return {
     title: {

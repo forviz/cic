@@ -53,12 +53,12 @@ export const fetchSpace = (spaceId) => {
   });
 };
 
-export const createUserSpace = (name) => {
+export const fetchCreateSpace = (name, { defaultLocale }) => {
   return fetchWithResponse(`${BASE_URL}/spaces`, {
     method: 'POST',
     body: JSON.stringify({
       name,
-      defaultLocale: 'en',
+      defaultLocale,
     })
   })
   .then((response) => {

@@ -115,6 +115,33 @@ app.post('/account/password', passportConfig.isAuthenticated, userController.pos
 app.post('/account/delete', passportConfig.isAuthenticated, userController.postDeleteAccount);
 app.get('/account/unlink/:provider', passportConfig.isAuthenticated, userController.getOauthUnlink);
 
+/* OAuth2 attempt: still fail
+// const oauth2Controller = require('./controllers/oauth2/index');
+// const authController = require('./controllers/oauth2/auth');
+// const clientController = require('./controllers/oauth2/client');
+
+app.get('/access_tokens', clientController.getAccessTokens);
+
+app.get('/auth/google', passport.authenticate('google', { scope: 'profile email' }));
+app.get('/auth/google/callback', passport.authenticate('google', { failureRedirect: '/login' }), (req, res) => {
+  res.redirect(req.session.returnTo || '/');
+});
+app.get('/auth/facebook', passport.authenticate('facebook', { scope: ['email', 'public_profile'] }));
+app.get('/auth/facebook/callback', (req, res, next) => {
+  res.redirect(req.session.returnTo || '/');
+});
+
+app.get('/oauth2/authorize', passportConfig.isAuthenticated, oauth2Controller.authorization);
+app.post('/oauth2/authorize', passportConfig.isAuthenticated, oauth2Controller.decision);
+
+ // Create endpoint handlers for oauth2 token
+app.post('/oauth2/token', authController.isClientAuthenticated, oauth2Controller.token);
+
+app.post('/clients', clientController.postClients);
+app.get('/clients', clientController.getClients);
+*/
+
+
 /**
  * Error Handler.
  */

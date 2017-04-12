@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import _ from 'lodash';
 
 import InputField from '../InputField';
-import { Form, Input, Button } from 'antd';
+import { Form, Button } from 'antd';
 
 import arrayToObject from '../../helpers/arrayToObject';
 

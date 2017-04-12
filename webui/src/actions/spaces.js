@@ -1,4 +1,4 @@
-import { fetchSpace, fetchUpdateSpace } from '../api/cic/spaces';
+import { fetchSpace, fetchCreateSpace, fetchUpdateSpace } from '../api/cic/spaces';
 // import { upload } from '../../api/cic/assets';
 
 // Fetch Space Info
@@ -15,6 +15,16 @@ export const getSpace = (spaceId) => {
   };
 };
 
+
+export const createNewSpace = (name, { defaultLocale }) => {
+
+  return (dispatch) => {
+    return fetchCreateSpace(name, { defaultLocale })
+    .then((res) => {
+      console.log('createSpace', res);
+    });
+  };
+};
 
 export const updateSpace = (spaceId, { name, defaultLocale }) => {
   return (dispatch) => {

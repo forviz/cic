@@ -10,6 +10,8 @@ const spaceSchema = new mongoose.Schema({
     description: String,
     deliveryKey: String,
     previewKey: String,
+    expireDate: { type: 'Date', default: +new Date() + 5*365*24*60*60*1000 },
+    active: { type: Boolean, default: true },
   }],
   contentTypes: [{
     _id: Schema.Types.ObjectId,

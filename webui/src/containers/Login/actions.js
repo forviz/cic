@@ -61,7 +61,7 @@ export const loginUser = (creds) => {
           var decoded = jwtDecode(user.token);
           console.log('decoded', decoded);
 
-          window.location = '/';
+          // window.location = '/';
 
         }
       }).catch(err => console.log("Error: ", err))

@@ -79,6 +79,7 @@ exports.createKey = (req, res, next) => {
   const objectId = mongoose.Types.ObjectId();
   const deliveryKey = cuid();
   const previewKey = cuid();
+  const expireDate = req.body.expire_date;
 
   Space.findOne({ _id: spaceId }, (err, space) => {
     if (err) { return next(err); }
@@ -88,6 +89,7 @@ exports.createKey = (req, res, next) => {
       name: name || space.name,
       deliveryKey,
       previewKey,
+      expireDate,
     };
 
     space.apiKeys.push(key);

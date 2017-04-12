@@ -1,6 +1,8 @@
 require('babel-register');
 require('babel-polyfill');
 
+const _ = require('lodash');
+const moment = require('moment');
 const express = require('express');
 const flash = require('express-flash');
 const compression = require('compression');
@@ -8,8 +10,8 @@ const session = require('express-session');
 const bodyParser = require('body-parser');
 const expressValidator = require('express-validator');
 
-const jwt = require('express-jwt');
-// const jwt = require('jsonwebtoken');
+// const jwt = require('express-jwt');
+const jwt = require('jsonwebtoken');
 
 const dotenv = require('dotenv');
 const logger = require('morgan');
@@ -20,6 +22,8 @@ const MongoStore = require('connect-mongo')(session);
 const path = require('path');
 const mongoose = require('mongoose');
 const multer = require('multer');
+
+const Space = require('./models/Space');
 
 const upload = multer({ dest: path.join(__dirname, 'uploads') });
 
@@ -100,10 +104,59 @@ app.use((req, res, next) => {
 // });
 
 const contentDeliveryAuthentication = (req, res, next) => {
-  next();
+  const spaceId = req.params.space_id;
+  const access_token = req.query.access_token;
+  console.log('spaceId', spaceId);
+  console.log('access_token', access_token);
+
+  
+
+  Space.findOne({ _id: spaceId,}, (err, space) => {
+    console.log('space', space);
+
+    if (err) {
+      return res.status(401).send({ 
+        code: 401,
+        message: 'This space id is invalid'
+      });
+    }
+
+    const apiKeysActive = space.apiKeys.filter(item => item.active === true)
+    if(apiKeysActive.length > 0){
+      const theKey = apiKeysActive.find(item => item.deliveryKey === access_token);
+      if (moment().isBefore(theKey.expireDate)){
+        next()
+        // res.status(401).send({ 
+        //   code: 401,
+        //   message: 'This space id is valid'
+        // });
+      } else {
+        res.status(401).send({ 
+          code: 401,
+          message: 'This token has expired'
+        });
+      }
+    }else{
+      res.status(401).send({ 
+        code: 401,
+        message: 'This space does not have api key'
+      });
+    }
+
+    
+  });
+
+  
+
+
 };
 
 const contentManagementAuthentication = (req, res, next) => {
+  const token = _.replace(req.get('Authorization'), 'Bearer ', '');
+  // const token = req.get('Authorization').replace('Bearer ', '');
+  console.log('token', token);
+  const result = jwt.verify(token, 'shhhhh');
+  console.log('token verify', result);
   next();
   //return passportConfig.isBearerAuthenticated
 };

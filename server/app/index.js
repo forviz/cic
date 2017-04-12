@@ -106,9 +106,6 @@ app.use((req, res, next) => {
 const contentDeliveryAuthentication = (req, res, next) => {
   const spaceId = req.params.space_id;
   const access_token = req.query.access_token;
-  console.log('spaceId', spaceId);
-  console.log('access_token', access_token);
-
   
 
   Space.findOne({ _id: spaceId,}, (err, space) => {

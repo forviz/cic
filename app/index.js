@@ -18,7 +18,6 @@ const chalk = require('chalk');
 // const errorHandler = require('errorhandler');
 const MongoStore = require('connect-mongo')(session);
 const path = require('path');
-const passport = require('passport');
 const mongoose = require('mongoose');
 const multer = require('multer');
 
@@ -26,7 +25,6 @@ const upload = multer({ dest: path.join(__dirname, 'uploads') });
 
 dotenv.load({ path: `.env.${process.env.NODE_ENV}` });
 
-const passportConfig = require('./config/passport');
 
 const spaceController = require('./controllers/space');
 const contentTypeController = require('./controllers/space/contentType');
@@ -36,9 +34,6 @@ const assetController = require('./controllers/space/asset');
 
 const cloudinaryController = require('./controllers/services/cloudinary');
 
-const oauth2Controller = require('./controllers/oauth2/index');
-const authController = require('./controllers/oauth2/auth');
-const clientController = require('./controllers/oauth2/client');
 
 /**
  * Create Express server.
@@ -82,8 +77,7 @@ app.use(session({
     autoReconnect: true
   })
 }));
-app.use(passport.initialize());
-app.use(passport.session());
+
 app.use(flash());
 app.use(logger('dev'));
 
@@ -92,28 +86,14 @@ app.use((req, res, next) => {
   next();
 });
 
-// app.use((req, res, next) => {
-//   // After successful login, redirect back to the intended page
-//   if (!req.user &&
-//       req.path !== '/login' &&
-//       req.path !== '/signup' &&
-//       !req.path.match(/^\/auth/) &&
-//       !req.path.match(/\./)) {
-//     req.session.returnTo = req.path;
-//   } else if (req.user) {
-//     req.session.returnTo = req.path;
-//   }
-//   next();
-// });
-
 /**
  * CIC App codebase: DELIVERY
  */
 
-app.get('/', (req, res, next) => {
-  console.log('req.user', req.user);
-  res.send({ user: req.user });
-});
+// app.get('/', (req, res, next) => {
+//   console.log('req.user', req.user);
+//   res.send({ user: req.user });
+// });
 
 // const tokenAuthenticate = jwt({
 //   secret: 'shhhhh'
@@ -186,32 +166,6 @@ app.get(`${apiPrefix}/media/:param?/:public_id`, cloudinaryController.getImage);
 /**
  * CIC App codebase: GOD
  */
-app.get('/access_tokens', clientController.getAccessTokens);
-
-/**
- * CIC App codebase: AUTH
- */
-app.get('/auth/google', passport.authenticate('google', { scope: 'profile email' }));
-app.get('/auth/google/callback', passport.authenticate('google', { failureRedirect: '/login' }), (req, res) => {
-  res.redirect(req.session.returnTo || '/');
-});
-app.get('/auth/facebook', passport.authenticate('facebook', { scope: ['email', 'public_profile'] }));
-app.get('/auth/facebook/callback', (req, res, next) => {
-  res.redirect(req.session.returnTo || '/');
-});
-
-/**
- * CIC App codebase: OAUTH2
- * passportConfig.isAuthenticated,
- */
-app.get('/oauth2/authorize', passportConfig.isAuthenticated, oauth2Controller.authorization);
-app.post('/oauth2/authorize', passportConfig.isAuthenticated, oauth2Controller.decision);
-
- // Create endpoint handlers for oauth2 token
-app.post('/oauth2/token', authController.isClientAuthenticated, oauth2Controller.token);
-
-app.post('/clients', clientController.postClients);
-app.get('/clients', clientController.getClients);
 
 /**
  * Start Express server.

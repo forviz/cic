@@ -104,13 +104,14 @@ app.use((req, res, next) => {
 // });
 
 const contentDeliveryAuthentication = (req, res, next) => {
+
+  const token = _.replace(req.get('Authorization'), 'Bearer ', '');
+  if (token !== '') return contentManagementAuthentication(req, res, next);
+  
   const spaceId = req.params.space_id;
   const access_token = req.query.access_token;
-  
 
   Space.findOne({ _id: spaceId,}, (err, space) => {
-    console.log('space', space);
-
     if (err) {
       return res.status(401).send({ 
         code: 401,
@@ -123,10 +124,6 @@ const contentDeliveryAuthentication = (req, res, next) => {
       const theKey = apiKeysActive.find(item => item.deliveryKey === access_token);
       if (moment().isBefore(theKey.expireDate)){
         next()
-        // res.status(401).send({ 
-        //   code: 401,
-        //   message: 'This space id is valid'
-        // });
       } else {
         res.status(401).send({ 
           code: 401,
@@ -139,13 +136,8 @@ const contentDeliveryAuthentication = (req, res, next) => {
         message: 'This space does not have api key'
       });
     }
-
     
   });
-
-  
-
-
 };
 
 const contentManagementAuthentication = (req, res, next) => {

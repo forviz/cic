@@ -35,10 +35,15 @@ export const getApiKeyId = (props) => {
   return props.match.params.keyId;
 }
 
-export const getActiveSpace = (state, props) => {
-  const spaceId = getSpaceId(props);
+export const getActiveSpaceFromId = (state, spaceId) => {
   return _.get(state.entities.spaces, `entities.${spaceId}`);
 }
+
+export const getActiveSpace = (state, props) => {
+  const spaceId = getSpaceId(props);
+  return getActiveSpaceFromId(state, spaceId);
+}
+
 
 export const getActiveContentType = (state, props) => {
   const contentTypeId = getContentTypeId(props);
@@ -59,9 +64,13 @@ export const getActiveApiKey= (state, props) => {
   return _.find(_.get(space, 'apiKeys'), k => k._id === keyId);
 }
 
+export const getSpaceEntriesFromSpaceId = (state, spaceId) => {
+  return _.filter(_.get(state, 'entities.entries.entities'), entry => entry._spaceId === spaceId);
+}
+
 export const getSpaceEntries = (state, ownProps) => {
   const space = getActiveSpace(state, ownProps);
-  return _.filter(_.get(state, 'entities.entries.entities'), entry => entry._spaceId === space._id);
+  return getSpaceEntriesFromSpaceId(state, space._id);
 }
 
 export const getSpaceAssets = (state, ownProps) => {

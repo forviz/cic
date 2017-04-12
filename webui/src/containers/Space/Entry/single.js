@@ -46,7 +46,11 @@ class EntrySingle extends Component {
       <Row>
         <Col>
           <h3>{entryTitle}</h3>
-          <EntryEditorForm contentType={contentType} entry={entry} onSubmit={this.handleSubmitForm} />
+          <EntryEditorForm
+            spaceId={space._id}
+            contentType={contentType}
+            entry={entry}
+            onSubmit={this.handleSubmitForm} />
         </Col>
       </Row>
     );

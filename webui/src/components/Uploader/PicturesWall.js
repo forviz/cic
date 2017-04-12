@@ -30,7 +30,6 @@ class PicturesWall extends Component {
 
   constructor(props) {
     super(props);
-    console.log('PicturesWall::constructor', props);
     const fileList = _.compact(props.fileList || [props.file]);
 
     this.state = {
@@ -77,7 +76,6 @@ class PicturesWall extends Component {
   }
 
   render() {
-    console.log('PicturesWall::render', this.props, this.state);
     const { multiple, action } = this.props;
     const { previewVisible, previewImage, fileList } = this.state;
 

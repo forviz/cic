@@ -15,6 +15,10 @@ const entries = (state = initialState, action) => {
         entities: _.assign({}, state.entities, {
           [action.item._id]: action.item,
         }),
+        fetchStatus: {
+          ...state.fetchStatus,
+          [action.item._id]: 'loaded',
+        }
       }
     }
 

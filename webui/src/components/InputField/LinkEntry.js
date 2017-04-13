@@ -1,62 +1,79 @@
-import React, { Component } from 'react';
-import { Select, Spin } from 'antd';
-import debounce from 'lodash.debounce';
+import React, { Component, PropTypes } from 'react';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
+import _ from 'lodash';
+
+import { Select, Spin, Tag } from 'antd';
 const Option = Select.Option;
 
+import * as EntryActions from '../../actions/entries';
+import { getActiveSpaceFromId, getSpaceEntriesFromSpaceId } from '../../selectors';
+
 class LinkSelect extends Component {
+
+  static propTypes = {
+    spaceId: PropTypes.string,
+  }
+
   constructor(props) {
     super(props);
     this.lastFetchId = 0;
-    this.fetchUser = debounce(this.fetchUser, 800);
   }
+
   state = {
     data: [],
     value: [],
     fetching: false,
   }
-  fetchUser = (value) => {
-    console.log('fetching user', value);
-    this.lastFetchId += 1;
-    const fetchId = this.lastFetchId;
-    this.setState({ fetching: true });
-    fetch('https://randomuser.me/api/?results=5')
-      .then(response => response.json())
-      .then((body) => {
-        if (fetchId !== this.lastFetchId) { // for fetch callback order
-          return;
-        }
-        const data = body.results.map(user => ({
-          text: `${user.name.first} ${user.name.last}`,
-          value: user.login.username,
-          fetching: false,
-        }));
-        this.setState({ data });
-      });
+
+  componentDidMount() {
+    const { space, getEntryInSpace } = this.props;
+    getEntryInSpace(space._id);
   }
-  handleChange = (value) => {
-    this.setState({
-      value,
-      data: [],
-      fetching: false,
-    });
+
+  handleChange = (key) => {
+    this.props.onChange({ type: 'Link', linkType: 'Entry', _id: key });
   }
+
   render() {
-    const { fetching, data, value } = this.state;
+    const { value, space, entries } = this.props;
+    const entryWithContentType = _.map(entries, entry => {
+      return { ...entry, contentType: _.find(space.contentTypes, ct => ct._id === entry.contentTypeId) };
+    })
+    const { fetching, data } = this.state;
+
     return (
       <Select
-        labelInValue
-        value={value}
-        placeholder="Select users"
+        size="large"
+        value={value._id}
+        placeholder="Select Entry"
         notFoundContent={fetching ? <Spin size="small" /> : null}
         filterOption={false}
         onSearch={this.fetchUser}
         onChange={this.handleChange}
-        style={{ width: '100%' }}
       >
-        {data.map(d => <Option key={d.value}>{d.text}</Option>)}
+        {entryWithContentType.map((entry, index) =>
+          <Option key={entry._id}>
+            <Tag color="green">{entry.contentType.name}</Tag> {_.get(entry, `fields.${entry.contentType.displayField}`)}
+          </Option>)}
       </Select>
     );
   }
 }
 
-export default LinkSelect;
+const mapStateToProps = (state, ownProps) => {
+  return {
+    value: ownProps.value,
+    space: getActiveSpaceFromId(state, ownProps.spaceId),
+    entries: getSpaceEntriesFromSpaceId(state, ownProps.spaceId),
+  };
+}
+const actions = {
+  getEntryInSpace: EntryActions.getEntryInSpace,
+};
+
+const mapDispatchToProps = (dispatch) => {
+  return bindActionCreators(actions, dispatch);
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(LinkSelect);

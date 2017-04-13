@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, PropTypes } from 'react';
 import _ from 'lodash';
 
 import InputField from '../InputField';
@@ -46,9 +46,7 @@ class EntryEditorForm extends Component {
   }
 
   render() {
-    const { contentType, entry } = this.props;
-    console.log('Edit Entry', contentType, entry);
-
+    const { spaceId, contentType, entry } = this.props;
     const fields = _.mapValues(arrayToObject(contentType.fields, 'identifier'), field => {
       return {
         label: field.name,
@@ -73,7 +71,7 @@ class EntryEditorForm extends Component {
                   initialValue: field.value,
                   rules: field.rules,
                 })(
-                  <InputField field={field} />
+                  <InputField field={field} spaceId={spaceId} />
                 )}
               </Form.Item>
             );

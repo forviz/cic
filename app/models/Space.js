@@ -4,6 +4,7 @@ const Schema = mongoose.Schema;
 const spaceSchema = new mongoose.Schema({
   name: String,
   defaultLocale: { type: String, default: 'en', required: true },
+  users: [{ type: Schema.Types.ObjectId, ref: 'User' }],
   apiKeys: [{
     _id: Schema.Types.ObjectId,
     name: String,

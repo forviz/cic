@@ -5,6 +5,14 @@ const Schema = mongoose.Schema;
 
 const userSchema = new mongoose.Schema({
   email: { type: String, unique: true },
+  spaces: [{ type: Schema.Types.ObjectId, ref: 'Space' }],
+  profile: {
+    name: String,
+    gender: String,
+    location: String,
+    website: String,
+    picture: String
+  },
   password: String,
   passwordResetToken: String,
   passwordResetExpires: Date,
@@ -18,15 +26,6 @@ const userSchema = new mongoose.Schema({
   steam: String,
   tokens: Array,
 
-  profile: {
-    name: String,
-    gender: String,
-    location: String,
-    website: String,
-    picture: String
-  },
-
-  spaces: [{ type: Schema.Types.ObjectId, ref: 'Space' }],
 }, { timestamps: true });
 
 /**

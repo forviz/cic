@@ -107,13 +107,13 @@ const contentDeliveryAuthentication = (req, res, next) => {
 
   const token = _.replace(req.get('Authorization'), 'Bearer ', '');
   if (token !== '') return contentManagementAuthentication(req, res, next);
-  
+
   const spaceId = req.params.space_id;
   const access_token = req.query.access_token;
 
   Space.findOne({ _id: spaceId,}, (err, space) => {
     if (err) {
-      return res.status(401).send({ 
+      return res.status(401).send({
         code: 401,
         message: 'This space id is invalid'
       });
@@ -125,18 +125,18 @@ const contentDeliveryAuthentication = (req, res, next) => {
       if (moment().isBefore(theKey.expireDate)){
         next()
       } else {
-        res.status(401).send({ 
+        res.status(401).send({
           code: 401,
           message: 'This token has expired'
         });
       }
     }else{
-      res.status(401).send({ 
+      res.status(401).send({
         code: 401,
         message: 'This space does not have api key'
       });
     }
-    
+
   });
 };
 
@@ -144,7 +144,7 @@ const contentManagementAuthentication = (req, res, next) => {
   const token = _.replace(req.get('Authorization'), 'Bearer ', '');
   // const token = req.get('Authorization').replace('Bearer ', '');
   console.log('token', token);
-  const result = jwt.verify(token, 'shhhhh');
+  const result = jwt.verify(token, 'forvizthailand');
   console.log('token verify', result);
   next();
   //return passportConfig.isBearerAuthenticated

@@ -7,35 +7,59 @@ import {
   BrowserRouter as Router,
   Route,
   Link,
+  Redirect,
+  withRouter
 } from 'react-router-dom'
 
-import { LocaleProvider } from 'antd';
 import enUS from 'antd/lib/locale-provider/en_US';
 
 import 'antd/dist/antd.css';
 import './App.css';
 
-import { Layout, Menu, Icon, Dropdown } from 'antd';
+import { Layout, Menu, Icon, Dropdown, LocaleProvider, Row, Col } from 'antd';
 const { Header, Content } = Layout;
 
 import * as Actions from './actions/application';
 import * as SpaceActions from './actions/spaces';
+import * as UserActions from './actions/users';
+
+import AppHeader from './containers/AppHeader';
+import HomeContainer from './containers/Home';
+import WelcomeContainer from './containers/Welcome';
 import SpaceContainer from './containers/Space';
 import LoginContainer from './containers/Login';
 
-import CreateNewSpaceModal from './components/CreateNewSpaceModal';
 import { getUserSpaces } from './selectors';
+
+import AuthService from './modules/auth/AuthService';
+
+const AUTH0_CLIENT_ID = process.env.REACT_APP_AUTH0_CLIENT_ID;
+const AUTH0_DOMAIN = process.env.REACT_APP_AUTH0_DOMAIN;
+const auth = new AuthService(AUTH0_CLIENT_ID, AUTH0_DOMAIN);
+
+
+const PrivateRoute = ({ component: Component, ...rest }) => {
+
+  return (<Route {...rest} render={props => (
+    auth.loggedIn() ? (
+      <Component {...props}/>
+    ) : (
+      <Redirect to={{
+        pathname: '/login',
+        state: { from: props.location }
+      }}/>
+    )
+  )}/>);
+}
 
 const mapStateToProps = (state) => {
   return {
-    user: state.user,
     userSpaces: getUserSpaces(state),
   }
 };
 
 const actions = {
   initApplication: Actions.initApplication,
-  createNewSpace: SpaceActions.createNewSpace,
 };
 
 const mapDispatchToProps = (dispatch) => {
@@ -44,8 +68,28 @@ const mapDispatchToProps = (dispatch) => {
 
 class App extends Component {
 
-  state = {
-    showCreateSpaceModal: false,
+  constructor(props) {
+    super(props);
+    this.state = {
+      userProfile: auth.getProfile(),
+    }
+
+    // On Login Success
+    auth.on('login_success', (authResult) => {
+      console.log('Login success', authResult);
+    });
+
+    // On Receive Profile
+    auth.on('profile_updated', (newProfile) => {
+      console.log('profile_updated', newProfile);
+      this.setState({ userProfile: newProfile });
+    });
+
+    // On Logout Success
+    auth.on('logout_success', () => {
+      this.setState({ userProfile: undefined });
+    });
+
   }
 
   componentDidMount() {
@@ -53,83 +97,32 @@ class App extends Component {
     actions.initApplication();
   }
 
-  handleCreateNewSpace = (e) => {
-    const form = this.form;
-    form.validateFields((err, values) => {
-      if (err) {
-        return;
-      }
-
-      console.log('Received values of form: ', values);
-
-      const { createNewSpace } = this.props.actions;
-      createNewSpace(values.name, { defaultLocale: values.defaultLocale })
-      .then(response => {
-        form.resetFields();
-        this.setState({ showCreateSpaceModal: false });
-      });
-    });
+  handleLogin = () => {
+    auth.login();
   }
 
-  handleClickMenu = ({ key }) => {
-    if (key === 'add-new-space') {
-      this.setState({
-        showCreateSpaceModal: true,
-      });
-    }
-  }
-
-  closeCreateNewSpaceModal = () => {
-    this.setState({
-      showCreateSpaceModal: false,
-    });
-  }
-
-  createSpaceFormRef = (form) => {
-    this.form = form;
+  handleLogout = () => {
+    auth.logout();
   }
 
   render() {
 
-    const { userSpaces } = this.props;
-
-    const menu = (
-      <Menu onClick={this.handleClickMenu}>
-        {
-          userSpaces.map(space =>
-            <Menu.Item key={space._id}>
-              <Link to={`/spaces/${space._id}/content_types`}>{space.name || 'No name'}</Link>
-            </Menu.Item>
-          )
-        }
-        <Menu.Divider />
-        <Menu.Item key="add-new-space">
-          <Icon type="plus" /> Add new Space
-        </Menu.Item>
-      </Menu>
-    );
-
+    const { userSpaces, isAuthenticated } = this.props;
+    const { userProfile } = this.state;
     return (
       <LocaleProvider locale={enUS}>
         <Router>
           <Layout>
-            <Header className="header">
-              <div className="logo" />
-              <Dropdown overlay={menu} trigger={['click']}>
-                <a className="ant-dropdown-link" href="#">
-                  Spaces <Icon type="down" />
-                </a>
-              </Dropdown>
-              <CreateNewSpaceModal
-                ref={this.createSpaceFormRef}
-                visible={this.state.showCreateSpaceModal}
-                onSubmit={this.handleCreateNewSpace}
-                onCancel={this.closeCreateNewSpaceModal}
-              />
-            </Header>
+            <AppHeader
+              userProfile={userProfile}
+              onLogin={this.handleLogin}
+              onLogout={this.handleLogout}
+            />
             <Content>
-              <Route key="login" path="/login" component={LoginContainer} />
-              <Route
+              <Route key="home" path="/" exact component={HomeContainer} />
+              <Route key="login" path="/login" exact component={LoginContainer} />
+              <PrivateRoute key="welcome" path="/welcome" exact component={WelcomeContainer} />
+              <PrivateRoute
                 key="space"
                 path="/spaces/:spaceId"
                 component={SpaceContainer}

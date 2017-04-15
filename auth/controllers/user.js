@@ -4,14 +4,19 @@ const nodemailer = require('nodemailer');
 const passport = require('passport');
 const User = require('../models/User');
 
+const jwt = require('jsonwebtoken');
+
 /**
  * GET /login
  * Login page.
  */
 exports.getLogin = (req, res) => {
+  req.session.returnTo = req.query.redirect;
+
   if (req.user) {
-    return res.redirect('/');
+    return res.redirect(req.session.returnTo);
   }
+
   res.render('account/login', {
     title: 'Login'
   });
@@ -22,10 +27,11 @@ exports.getLogin = (req, res) => {
  * Sign in using email and password.
  */
 exports.postLogin = (req, res, next) => {
+  req.session.returnTo = req.query.redirect;
+
   req.assert('email', 'Email is not valid').isEmail();
   req.assert('password', 'Password cannot be blank').notEmpty();
-  req.sanitize('email').normalizeEmail({ remove_dots: false });
-
+  // req.sanitize('email').normalizeEmail({ remove_dots: false });
   const errors = req.validationErrors();
 
   if (errors) {
@@ -42,7 +48,9 @@ exports.postLogin = (req, res, next) => {
     req.logIn(user, (err) => {
       if (err) { return next(err); }
       req.flash('success', { msg: 'Success! You are logged in.' });
-      res.redirect(req.session.returnTo || '/');
+
+      const token = jwt.sign({ uid: user._id, email: user.email }, 'forvizthailand');
+      res.redirect(`${req.session.returnTo}?token=${token}` || '/');
     });
   })(req, res, next);
 };
@@ -52,8 +60,9 @@ exports.postLogin = (req, res, next) => {
  * Log out.
  */
 exports.logout = (req, res) => {
+  const redirectTo = req.query.redirect;
   req.logout();
-  res.redirect('/');
+  res.redirect(redirectTo);
 };
 
 /**

@@ -19,7 +19,7 @@ exports.getToken = (req, res, next) => {
     }
     req.logIn(user, (err) => {
       if (err) { return next(err); }
-      const token = jwt.sign({ email: email }, 'shhhhh');
+      const token = jwt.sign({ uid: user._id }, 'forvizthailand');
 
       res.send({
         msg: 'Success! You are logged in.',

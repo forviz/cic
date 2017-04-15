@@ -5,6 +5,10 @@ export const getUser = (state) => {
   return state.session.user;
 }
 
+export const getIsAuthenticated = (state) => {
+  return state.session.user.isAuthenticated;
+}
+
 export const getUserSpaces = (state) => {
   const spaceIds = _.get(getUser(state), 'spaces');
   return _.map(spaceIds, id => _.get(state, `entities.spaces.entities.${id}`));

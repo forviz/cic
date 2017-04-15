@@ -1,22 +1,27 @@
 import _ from 'lodash';
-// const jwtDecode = require('jwt-decode');
 
+import { getIsAuthenticated } from '../selectors';
 import { fetchUserSpaces } from '../api/cic/spaces';
 
 export const initApplication = () => {
-  return (dispatch) => {
+  return (dispatch, getState) => {
 
-    // const token = localStorage.getItem('id_token');
-    // console.log('token', token);
-    // var decoded = jwtDecode(token);
-    // console.log('decoded', decoded);
+    // const queryParam = queryString.parse(location.search);
+    // if (queryParam.token) {
+    //   localStorage.setItem('id_token', queryParam.token);
+    //   window.location = '/';
+    // }
 
-    fetchUserSpaces()
-    .then((spaces) => {
-      dispatch({
-        type: 'USER/SPACES/RECEIVED',
-        spaces,
+    const isAuthenticated = getIsAuthenticated(getState());
+
+    if (isAuthenticated) {
+      fetchUserSpaces()
+      .then((spaces) => {
+        dispatch({
+          type: 'USER/SPACES/RECEIVED',
+          spaces,
+        });
       });
-    });
+    }
   };
 };

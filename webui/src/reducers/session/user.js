@@ -11,8 +11,8 @@ const initialState = {
   // access_token: 'ciylb9lc80000t5xzerjd5a9q',
   // bearer_token: 'fbPcSrbF5Cfc3BjhIyJ9R75JU9ABimOx8iyecOg0UFMtBazuXOzHMbG60FaVWFdHCO0Y69x7JrmkgkBr60YoFWfkReS0DKnYZB9AZPHzgAmiMl3lLpHCF5qPbP8uz5lFIlGI7WhRLE3kOS2t0ILLnjrZOAhZNvNxxyNYTwKyDXAaNTwF1XJDnqS0ApTOXf7ED6iR1QxXWzo0HirrnEh65jrovKeJlBLmJ00VfDMq3P3IAX5iUK6RB7rFfkCcFnX0',
   isFetching: false,
-  isAuthenticated: localStorage.getItem('token') ? true : false,
-  token: localStorage.getItem('token'),
+  isAuthenticated: localStorage.getItem('id_token') ? true : false,
+  token: localStorage.getItem('id_token'),
   spaces: [],
 }
 

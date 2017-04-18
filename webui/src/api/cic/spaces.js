@@ -1,6 +1,17 @@
 import _ from 'lodash';
 import { BASE_URL, ACCESS_TOKEN, fetchWithResponse, convertToURLParam, responseError } from './helper';
 
+export const fetchInitWithUser = (userId) => {
+  return fetchWithResponse(`${BASE_URL}/users/${userId}`)
+  .then((response) => {
+    console.log('fetchInitWithUser', response);
+    if (response) return response;
+
+    throw responseError({
+      appMessage: 'Cannot find spaces',
+    });
+  });
+}
 export const fetchUserSpaces = () => {
 
   return fetchWithResponse(`${BASE_URL}/spaces`)

@@ -4,22 +4,16 @@ import { connect } from 'react-redux';
 import _ from 'lodash';
 
 import {
-  BrowserRouter as Router,
   Link,
-  withRouter,
 } from 'react-router-dom'
 
 import { Layout, Col, Row, Menu, Dropdown, Icon } from 'antd';
 const Header = Layout.Header;
+const SubMenu = Menu.SubMenu;
+const MenuItemGroup = Menu.ItemGroup;
 
-import AuthService from '../../modules/auth/AuthService';
 import * as SpaceActions from '../../actions/spaces';
 import CreateNewSpaceModal from '../../components/CreateNewSpaceModal';
-
-
-const mapStateToProps = (state) => {
-  return {};
-};
 
 const actions = {
   createNewSpace: SpaceActions.createNewSpace,
@@ -33,6 +27,7 @@ class AppHeader extends Component {
 
   static propTypes = {
     // auth: PropTypes.instanceOf(AuthService),
+    userSpaces: PropTypes.array,
     onLogin: PropTypes.func,
     onLogout: PropTypes.func,
   }
@@ -52,7 +47,7 @@ class AppHeader extends Component {
         return;
       }
 
-      const { createNewSpace } = this.props.actions;
+      const { createNewSpace } = this.props;
       createNewSpace(values.name, { defaultLocale: values.defaultLocale })
       .then(response => {
         form.resetFields();
@@ -81,62 +76,43 @@ class AppHeader extends Component {
 
   renderLeftMenu = () => {
 
-    const userSpaces = [];
-
-    const spaceMenu = (
-      <Menu onClick={this.handleClickMenu}>
-        {
-          userSpaces.map(space =>
-            <Menu.Item key={space._id}>
-              <Link to={`/spaces/${space._id}/content_types`}>{space.name || 'No name'}</Link>
-            </Menu.Item>
-          )
-        }
-        <Menu.Divider />
-        <Menu.Item key="add-new-space">
-          <Icon type="plus" /> Add new Space
-        </Menu.Item>
-      </Menu>
-    );
+    const { userSpaces } = this.props;
 
     return (
       <Menu
         theme="dark"
         mode="horizontal"
-        defaultSelectedKeys={['2']}
         style={{ lineHeight: '64px' }}
+        onClick={this.handleClickMenu}
       >
-        <Menu.Item key="1">
-          <Dropdown overlay={spaceMenu} trigger={['click']}>
-            <a className="ant-dropdown-link" href="#">
-              Spaces <Icon type="down" />
-            </a>
-          </Dropdown>
-        </Menu.Item>
+        <SubMenu title={'Spaces'}>
+          {
+            userSpaces.map(space =>
+              <Menu.Item key={space._id}>
+                <Link to={`/spaces/${space._id}/content_types`}>{space.name || 'No name'}</Link>
+              </Menu.Item>
+            )
+          }
+          <Menu.Item key="add-new-space">
+            <Icon type="plus" /> Add new Space
+          </Menu.Item>
+        </SubMenu>
       </Menu>
     );
   }
 
   renderUserMenu = (userProfile) => {
-
-    const userDropdownMenu = (
-      <Menu onClick={this.props.onLogout}>
-        <Menu.Item key="logout">Logout</Menu.Item>
-      </Menu>
-    );
-
     return (
       <Menu
         theme="dark"
         mode="horizontal"
         defaultSelectedKeys={['1']}
         style={{ lineHeight: '64px' }}
+        onClick={this.props.onLogout}
       >
-        <Menu.Item key="1">
-          <Dropdown overlay={userDropdownMenu} trigger={['click']}>
-            <a className="ant-dropdown-link" href="#">{userProfile.name} <Icon type="down" /></a>
-          </Dropdown>
-        </Menu.Item>
+        <SubMenu title={<span><img src={userProfile.picture} alt="Profile" width="32" height="32" style={{ position: 'relative', top: 4, marginBottom: -8, left: -4 }} /> {userProfile.email}</span>}>
+          <Menu.Item key="logout">Logout</Menu.Item>
+        </SubMenu>
       </Menu>
     );
   }
@@ -182,4 +158,4 @@ class AppHeader extends Component {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(AppHeader);
+export default connect(undefined, mapDispatchToProps)(AppHeader);

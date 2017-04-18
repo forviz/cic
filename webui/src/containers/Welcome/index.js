@@ -1,9 +1,7 @@
 import React, { Component } from 'react';
 import _ from 'lodash';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 
-import { Icon, Card, Row, Col } from 'antd';
+import { Card, Row, Col } from 'antd';
 
 class Welcome extends Component {
 

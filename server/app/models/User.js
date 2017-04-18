@@ -1,3 +1,4 @@
+import _ from 'lodash';
 const bcrypt = require('bcrypt-nodejs');
 const crypto = require('crypto');
 const mongoose = require('mongoose');
@@ -16,7 +17,14 @@ const userSchema = new mongoose.Schema({
   password: String,
   passwordResetToken: String,
   passwordResetExpires: Date,
-
+  identities: [
+    {
+      provider: String,
+      user_id: String,
+      connection: String,
+      isSocial: { type: Boolean, default: true },
+    }
+  ],
   facebook: String,
   twitter: String,
   google: String,
@@ -43,6 +51,25 @@ userSchema.pre('save', function save(next) {
     });
   });
 });
+
+export const getProvider = (identity) => {
+  return _.head(_.split(identity, '|'));
+};
+
+
+userSchema.statics.findByIdentity = function (identity, cb) {
+  const identityProvider = getProvider(identity);
+  return this.findOne({
+    identities: {
+      $elemMatch: {
+        provider: identityProvider
+      }
+    }
+  }, cb);
+  // return this.findOne({ [`identities.${identityProvider}`]: identity }, cb);
+};
+
+// {'local.rooms': {$elemMatch: {name: req.body.username}}}
 
 /**
  * Helper method for validating user's password.

@@ -10,8 +10,10 @@ const session = require('express-session');
 const bodyParser = require('body-parser');
 const expressValidator = require('express-validator');
 
-// const jwt = require('express-jwt');
-const jwt = require('jsonwebtoken');
+// const jwtWebToken = require('jsonwebtoken');
+const jwt = require('express-jwt');
+const jwks = require('jwks-rsa');
+
 
 const dotenv = require('dotenv');
 const logger = require('morgan');
@@ -140,32 +142,45 @@ const contentDeliveryAuthentication = (req, res, next) => {
   });
 };
 
-const contentManagementAuthentication = (req, res, next) => {
-  const token = _.replace(req.get('Authorization'), 'Bearer ', '');
-  // const token = req.get('Authorization').replace('Bearer ', '');
-  console.log('token', token);
-  const result = jwt.verify(token, 'forvizthailand');
-  console.log('token verify', result);
-  next();
-  //return passportConfig.isBearerAuthenticated
-};
+// const contentManagementAuthentication = (req, res, next) => {
+//   const token = _.replace(req.get('Authorization'), 'Bearer ', '');
+//   console.log('token', token);
+//   const result = jwtWebToken.verify(token, 'Ueoj1TEGMuR5rIRJsfDKvlft4vsm7qsIYKFYBZ_r_K9B-3IU1Weugk_yon0n2LX-');
+//   console.log('result', result);
+//   next();
+// };
+
+const contentManagementAuthentication = jwt({
+  secret: jwks.expressJwtSecret({
+    cache: true,
+    rateLimit: true,
+    jwksRequestsPerMinute: 5,
+    jwksUri: "https://forviz.au.auth0.com/.well-known/jwks.json",
+    handleSigningKeyError: (err, cb) => {
+      if (err instanceof jwks.SigningKeyNotFoundError) {
+        return cb(new Error('This is bad'));
+      }
+      return cb(err);
+    }
+  }),
+  audience: 'content.forviz.com',
+  issuer: "https://forviz.au.auth0.com/",
+  algorithms: ['RS256']
+});
 
 const apiPrefix = '/v1';
-app.get(`${apiPrefix}/spaces/`, contentDeliveryAuthentication, spaceController.getAll);
 app.get(`${apiPrefix}/spaces/:space_id`, contentDeliveryAuthentication, spaceController.getSingle);
 app.get(`${apiPrefix}/spaces/:space_id/content_types`, contentDeliveryAuthentication, contentTypeController.getAllContentTypes);
 app.get(`${apiPrefix}/spaces/:space_id/content_types/:content_type_id`, contentDeliveryAuthentication, contentTypeController.getSingleContentType);
 app.get(`${apiPrefix}/spaces/:space_id/entries`, contentDeliveryAuthentication, entryController.getAllEntries);
 app.get(`${apiPrefix}/spaces/:space_id/entries/:entry_id`, contentDeliveryAuthentication, entryController.getSingleEntry);
 
-
-
 // TODO QUERY entries
 
 /**
  * CIC App codebase: MANAGEMENT
  */
-
+ app.get(`${apiPrefix}/spaces/`, contentManagementAuthentication, spaceController.getAll);
 app.post(`${apiPrefix}/spaces`, contentManagementAuthentication, spaceController.createSpace);
 app.put(`${apiPrefix}/spaces/:space_id`, contentManagementAuthentication, spaceController.updateSpace);
 app.delete(`${apiPrefix}/spaces/:space_id`, contentManagementAuthentication, spaceController.deleteSpace);

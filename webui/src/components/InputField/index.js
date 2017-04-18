@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import moment from 'moment';
 import _ from 'lodash';
-import { Input, InputNumber, Select, DatePicker, Switch } from 'antd';
+import { Input, InputNumber, DatePicker, Switch } from 'antd';
 // import Uploader from '../Uploader';
 import PicturesWall from '../Uploader/PicturesWall';
 import LinkEntry from './LinkEntry';

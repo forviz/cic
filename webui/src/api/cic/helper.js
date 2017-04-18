@@ -5,12 +5,12 @@ export const ACCESS_TOKEN = 'ciylb9lc80000t5xzerjd5a9q';
 
 export const BASE_URL = 'http://localhost:4000/v1';
 // const BEARER_TOKEN = 'fbPcSrbF5Cfc3BjhIyJ9R75JU9ABimOx8iyecOg0UFMtBazuXOzHMbG60FaVWFdHCO0Y69x7JrmkgkBr60YoFWfkReS0DKnYZB9AZPHzgAmiMl3lLpHCF5qPbP8uz5lFIlGI7WhRLE3kOS2t0ILLnjrZOAhZNvNxxyNYTwKyDXAaNTwF1XJDnqS0ApTOXf7ED6iR1QxXWzo0HirrnEh65jrovKeJlBLmJ00VfDMq3P3IAX5iUK6RB7rFfkCcFnX0';
-const BEARER_TOKEN = localStorage.getItem('id_token');
-
-const headers = {
-  Authorization: `Bearer ${BEARER_TOKEN}`,
-  'Content-Type': 'application/json',
-};
+// const BEARER_TOKEN = localStorage.getItem('access_token');
+//
+// const headers = {
+//   Authorization: `Bearer ${BEARER_TOKEN}`,
+//   'Content-Type': 'application/json',
+// };
 
 export const getValue = (obj) => {
   if (_.isString(obj)) return obj;
@@ -65,6 +65,13 @@ export const responseError = props => new AppError({ ...props, code: 600, name: 
 
 
 export function prepareRequest(request) {
+
+  const BEARER_TOKEN = localStorage.getItem('access_token');
+  const headers = {
+    Authorization: `Bearer ${BEARER_TOKEN}`,
+    'Content-Type': 'application/json',
+  };
+
   return {
     // default
     method: _.get(request, 'method', 'GET'),

@@ -3,10 +3,7 @@ import _ from 'lodash';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
-import { Link } from 'react-router-dom';
-import { Icon, Card, Row, Col } from 'antd';
-
-import * as Actions from './actions';
+import { Card, Row, Col } from 'antd';
 
 const mapStateToProps = (state) => {
   return {

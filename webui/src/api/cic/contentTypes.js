@@ -2,13 +2,15 @@ import _ from 'lodash';
 import { BASE_URL, fetchWithResponse } from './helper';
 
 
-export const fetchCreateContentType = (spaceId, { name, identifier, description }) => {
+export const fetchCreateContentType = (spaceId, { name, identifier, description, displayField, fields }) => {
   return fetchWithResponse(`${BASE_URL}/spaces/${spaceId}/content_types/`, {
     method: 'POST',
     body: JSON.stringify({
       name,
       identifier,
       description,
+      displayField,
+      fields,
     })
   })
   .then((response) => {

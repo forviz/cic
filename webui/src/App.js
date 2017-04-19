@@ -109,7 +109,6 @@ class App extends Component {
   render() {
 
     const { userSpaces } = this.props;
-    console.log('App', this.props);
     const { userProfile } = this.state;
     return (
       <LocaleProvider locale={enUS}>

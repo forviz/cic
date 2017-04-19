@@ -93,6 +93,7 @@ exports.createSpace = async (req, res, next) => {
     res.json({
       status: 'SUCCESS',
       detail: 'Create space successfully',
+      space: space,
     });
   });
 };

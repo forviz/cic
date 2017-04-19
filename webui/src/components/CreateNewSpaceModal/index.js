@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import _ from 'lodash';
 
-import { Modal, Form, Input, Radio, Row, Col, Select, Tabs } from 'antd';
+import { Modal, Form, Input, Radio, Row, Col, Select, Tabs, Card } from 'antd';
 const Option = Select.Option;
 const RadioGroup = Radio.Group;
 const TabPane = Tabs.TabPane;
@@ -39,26 +39,19 @@ class CreateNewSpaceModal extends Component {
       >
         <Form layout="vertical">
           <Row gutter={16}>
-            <Col span={8}>
-              <Form.Item label="Organization">
-                {getFieldDecorator('organization', {
-                })(
-                  <Input />
-                )}
-              </Form.Item>
-            </Col>
-            <Col span={8}>
+            <Col span={14}>
               <Form.Item label="Name">
                 {getFieldDecorator('name', {
                   rules: [{ required: true, message: 'Please input the name of space!' }],
                 })(
-                  <Input />
+                  <Input placeholder="Project Name, client name, Store name, etc." />
                 )}
               </Form.Item>
             </Col>
-            <Col span={8}>
+            <Col span={10}>
               <Form.Item label="Locale">
                 {getFieldDecorator('defaultLocale', {
+                  initialValue: 'en',
                 })(
                   <Select>
                     <Option value="en">English</Option>
@@ -74,20 +67,32 @@ class CreateNewSpaceModal extends Component {
               <Radio style={radioStyle} value="template">Create an example space. I would like to see how things work first.</Radio>
             </RadioGroup>
           </Row>
+          <p>&nbsp;</p>
           {
             this.state.createType === 'template' &&
-              <Row gutter={16}>
-                <Form.Item>
-                  {getFieldDecorator('template', {
-                  })(
-                    <Tabs defaultActiveKey="website">
-                      <TabPane tab="Website" key="website">Content of Tab Pane 1</TabPane>
-                      <TabPane tab="Condo" key="condo">Content of Tab Pane 2</TabPane>
-                      <TabPane tab="Shopping Directory" key="directory">Content of Tab Pane 3</TabPane>
-                    </Tabs>
-                  )}
-                </Form.Item>
-              </Row>
+              <Card>
+                <Row gutter={16}>
+                  <Form.Item>
+                    {getFieldDecorator('template', {
+                      initialValue: 'website',
+                    })(
+                      <Tabs defaultActiveKey="website">
+                        <TabPane tab="Website" key="website">Create Template for website, consists of static pages and posts.</TabPane>
+                        <TabPane tab="Condo" key="condo">
+                          <p>A template for condo Project</p>
+                          <ul>
+                            <li>Floor</li>
+                            <li>Unit Type</li>
+                            <li>Unit</li>
+                            <li>Gallery</li>
+                          </ul>
+                        </TabPane>
+                        <TabPane tab="Shopping Directory" key="directory">Content of Tab Pane 3</TabPane>
+                      </Tabs>
+                    )}
+                  </Form.Item>
+                </Row>
+              </Card>
           }
         </Form>
       </Modal>

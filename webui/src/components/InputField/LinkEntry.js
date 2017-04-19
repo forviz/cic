@@ -37,9 +37,10 @@ class LinkSelect extends Component {
 
   render() {
     const { value, space, entries } = this.props;
-    const entryWithContentType = _.map(entries, entry => {
-      return { ...entry, contentType: _.find(space.contentTypes, ct => ct._id === entry.contentTypeId) };
-    })
+    console.log('LinkEntry::field', this.props);
+    // const entryWithContentType = _.map(entries, entry => {
+    //   return { ...entry, contentType: _.find(space.contentTypes, ct => ct._id === entry.contentTypeId) };
+    // });
     const { fetching, data } = this.state;
 
     return (
@@ -52,7 +53,7 @@ class LinkSelect extends Component {
         onSearch={this.fetchUser}
         onChange={this.handleChange}
       >
-        {entryWithContentType.map((entry, index) =>
+        {entries.map((entry, index) =>
           <Option key={entry._id}>
             <Tag color="green">{entry.contentType.name}</Tag> {_.get(entry, `fields.${entry.contentType.displayField}`)}
           </Option>)}
@@ -62,10 +63,34 @@ class LinkSelect extends Component {
 }
 
 const mapStateToProps = (state, ownProps) => {
+
+  const linkContentType = _.get(ownProps, 'field.src.validations.linkContentType', []);
+
+  // Get All Entries
+  const allEntries = getSpaceEntriesFromSpaceId(state, ownProps.spaceId);
+
+  // Get Space
+  const space = getActiveSpaceFromId(state, ownProps.spaceId);
+
+  // Attach ContentType to Entry
+  const entryWithContentType = _.map(allEntries, entry => {
+    return { ...entry, contentType: _.find(space.contentTypes, ct => ct._id === entry.contentTypeId) };
+  });
+
+  // Filter Entries by linkContentType
+  let filteredEntries;
+  if (linkContentType.length > 0) {
+    filteredEntries = _.filter(entryWithContentType, entry => {
+      return _.includes(linkContentType, entry.contentType.identifier);
+    });
+  } else {
+    filteredEntries = allEntries;
+  }
+
   return {
     value: ownProps.value,
     space: getActiveSpaceFromId(state, ownProps.spaceId),
-    entries: getSpaceEntriesFromSpaceId(state, ownProps.spaceId),
+    entries: filteredEntries,
   };
 }
 const actions = {

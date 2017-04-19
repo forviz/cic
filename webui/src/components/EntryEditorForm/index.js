@@ -24,6 +24,7 @@ const mapValidationToRules = (field) => {
     const inString = _.join(_.get(validations, 'in'), ',');
     rules.push({ type: 'enum', enum: _.get(validations, 'in'), message: `Must be one of ${inString}` });
   }
+
   // console.log(rules);
   return rules;
 };
@@ -54,6 +55,7 @@ class EntryEditorForm extends Component {
         value: _.get(entry, `fields.${field.identifier}`, ''),
         identifier: field.identifier,
         rules: mapValidationToRules(field),
+        src: field,
       }
     });
 

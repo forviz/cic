@@ -39,6 +39,7 @@ export default class AuthService extends EventEmitter {
 
     this.setToken(token);
     console.log('_doAuthentication', authResult);
+    debugger;
     const decoded = jwtDecode(token);
 
     // Async loads the user profile data

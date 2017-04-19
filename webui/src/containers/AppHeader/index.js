@@ -17,6 +17,7 @@ import CreateNewSpaceModal from '../../components/CreateNewSpaceModal';
 
 const actions = {
   createNewSpace: SpaceActions.createNewSpace,
+  populateSpaceWithTemplate: SpaceActions.populateSpaceWithTemplate,
 };
 
 const mapDispatchToProps = (dispatch) => {
@@ -46,13 +47,24 @@ class AppHeader extends Component {
       if (err) {
         return;
       }
-
+      console.log(values);
       const { createNewSpace } = this.props;
+
       createNewSpace(values.name, { defaultLocale: values.defaultLocale })
       .then(response => {
         form.resetFields();
         this.setState({ showCreateSpaceModal: false });
+
+        console.log('createNewSpace', response);
+        const spaceId = response.space._id;
+        if (!_.isEmpty(values.template)) {
+          // Create with template
+          const { populateSpaceWithTemplate } = this.props;
+          populateSpaceWithTemplate(spaceId, values.template);
+
+        }
       });
+
     });
   }
 
@@ -134,7 +146,6 @@ class AppHeader extends Component {
   render () {
 
     const { userProfile } = this.props;
-    console.log('userProfile', userProfile);
     return (
       <Header className="header">
         <div className="logo" />

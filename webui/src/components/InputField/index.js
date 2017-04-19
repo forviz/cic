@@ -11,7 +11,7 @@ import mapImageInfoToFile from '../../helpers/mapImageInfoToFile';
 class InputField extends Component {
 
   render() {
-    const { spaceId, value, onChange } = this.props;
+    const { spaceId, field, value, onChange } = this.props;
     const type = _.get(this.props, 'field.type');
     switch (type) {
       case 'LongText': return (<Input type="textarea" rows={8} value={value} onChange={onChange} />);
@@ -19,7 +19,8 @@ class InputField extends Component {
       case 'Datetime': return (<DatePicker value={moment(value)} onChange={onChange} />);
       case 'Boolean': return (<Switch checked={value} onChange={onChange} />);
       case 'Media': return (<PicturesWall multiple={false} fileList={[value]} onChange={info => onChange(mapImageInfoToFile(info))} />);
-      case 'Link': return (<LinkEntry spaceId={spaceId} value={value} onChange={onChange} />);
+      case 'Link':
+        return (<LinkEntry spaceId={spaceId} field={field} value={value} onChange={onChange} />);
       default: return <Input value={value} onChange={onChange} />
     }
   }

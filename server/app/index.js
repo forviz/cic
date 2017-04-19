@@ -147,8 +147,9 @@ const contentDeliveryAuthentication = (req, res, next) => {
 //   console.log('token', token);
 //   const result = jwtWebToken.verify(token, 'Ueoj1TEGMuR5rIRJsfDKvlft4vsm7qsIYKFYBZ_r_K9B-3IU1Weugk_yon0n2LX-');
 //   console.log('result', result);
-//   next();
+//   if (result === true) next();
 // };
+
 
 const contentManagementAuthentication = jwt({
   secret: jwks.expressJwtSecret({
@@ -167,6 +168,7 @@ const contentManagementAuthentication = jwt({
   issuer: "https://forviz.au.auth0.com/",
   algorithms: ['RS256']
 });
+
 
 const apiPrefix = '/v1';
 app.get(`${apiPrefix}/spaces/:space_id`, contentDeliveryAuthentication, spaceController.getSingle);

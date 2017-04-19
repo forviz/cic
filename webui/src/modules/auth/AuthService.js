@@ -11,18 +11,16 @@ export default class AuthService extends EventEmitter {
     this.lock = new Auth0Lock(clientId, domain, {
       auth: {
         allowedConnections: ['Username-Password-Authentication', 'facebook', 'google'],
-        connectionScopes: {
-          facebook: ['email', 'public_profile'],
-        },
         redirectUrl: `${window.location.origin}/`,
         responseType: 'id_token token',
         params: {
-          scope: 'openid profile email name picture',
+          scope: 'openid profile email',
           audience: 'content.forviz.com',
         },
         oidcConformant: true
       },
-    })
+    });
+
     // Add callback for lock `authenticated` event
     this.lock.on('authenticated', this._doAuthentication.bind(this))
     // Add callback for lock `authorization_error` event
@@ -39,9 +37,8 @@ export default class AuthService extends EventEmitter {
 
     this.setToken(token);
     console.log('_doAuthentication', authResult);
-    debugger;
     const decoded = jwtDecode(token);
-
+    console.log('decoded', decoded);
     // Async loads the user profile data
     this.lock.getUserInfo(token, (error, profile) => {
       if (error) {

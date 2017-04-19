@@ -24,10 +24,16 @@ const spaceSchema = new mongoose.Schema({
       id: String,
       name: String,
       identifier: String,
-      fieldType: String,
       required: Boolean,
       localized: Boolean,
       type: { type: String, default: 'Text' },
+      items: {
+        type: String,
+        linkType: String,
+        validations: {
+          linkContentType: [String],
+        },
+      },
       validations: {
         linkContentType: [String], // Link to another contentType
         // Takes an array of values and validates that the field

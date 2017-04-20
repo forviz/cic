@@ -37,6 +37,7 @@ class EntryEditorForm extends Component {
   }
 
   handleSubmit = (saveStatus = 'publish') => {
+    console.log('status', saveStatus);
      this.props.form.validateFields((err, values) => {
       if (!err) {
         // const valuesWithStatus = { ...values, status : saveStatus }
@@ -51,21 +52,32 @@ randerSaveBotton(entryStatus) {
     case 'draft': {
       const menu = (
         <Menu onClick={e => this.handleSubmit('archive')}>
-        <Menu.Item key="archive">Save to Archive</Menu.Item>
+          <Menu.Item key="archive">Save to Archive</Menu.Item>
         </Menu>
         );
       return(
-        <Dropdown.Button onClick={e => this.handleSubmit('publish')}  overlay={menu}>Publish </Dropdown.Button>
+        <Dropdown.Button type="primary" onClick={e => this.handleSubmit('publish')}  overlay={menu}>Publish </Dropdown.Button>
         )
     }
         case 'publish': {
       const menu = (
-        <Menu onClick={e => this.handleSubmit('archive')}>
-        <Menu.Item key="archive">Save to Archive</Menu.Item>
+        <Menu onClick={(item, key, keyPath) => this.handleSubmit(item.key)}>
+          <Menu.Item key="archive">Archived</Menu.Item>
+          <Menu.Item key="draft">Draft</Menu.Item>
         </Menu>
         );
       return(
-        <Dropdown.Button onClick={e => this.handleSubmit('publish')}  overlay={menu}>Publish </Dropdown.Button>
+        <Dropdown.Button type="primary" onClick={e => this.handleSubmit('publish')}  overlay={menu}>Change status </Dropdown.Button>
+        )
+    }
+        case 'archive': {
+      const menu = (
+        <Menu onClick={e => this.handleSubmit('unarchive')}>
+          <Menu.Item key="unarchive">Unarchive</Menu.Item>
+        </Menu>
+        );
+      return(
+        <Dropdown.Button type="primary" onClick={e => this.handleSubmit('publish')}  overlay={menu}>Unarchive</Dropdown.Button>
         )
     }
   }

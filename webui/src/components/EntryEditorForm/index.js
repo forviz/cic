@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import _ from 'lodash';
 
 import InputField from '../InputField';
-import { Form, Button } from 'antd';
+import { Menu, Dropdown, Form, Button } from 'antd';
 
 import arrayToObject from '../../helpers/arrayToObject';
 
@@ -36,16 +36,40 @@ class EntryEditorForm extends Component {
     this.props.form.validateFields();
   }
 
-  handleSubmit = (e) => {
-    e.preventDefault();
-    this.props.form.validateFields((err, values) => {
+  handleSubmit = (saveStatus = 'publish') => {
+     this.props.form.validateFields((err, values) => {
       if (!err) {
+        // const valuesWithStatus = { ...values, status : saveStatus }
         const { onSubmit } = this.props;
-        onSubmit(values);
+        onSubmit(values , saveStatus);
       }
     });
   }
 
+randerSaveBotton(entryStatus) {
+  switch (entryStatus ) {
+    case 'draft': {
+      const menu = (
+        <Menu onClick={e => this.handleSubmit('archive')}>
+        <Menu.Item key="archive">Save to Archive</Menu.Item>
+        </Menu>
+        );
+      return(
+        <Dropdown.Button onClick={e => this.handleSubmit('publish')}  overlay={menu}>Publish </Dropdown.Button>
+        )
+    }
+        case 'publish': {
+      const menu = (
+        <Menu onClick={e => this.handleSubmit('archive')}>
+        <Menu.Item key="archive">Save to Archive</Menu.Item>
+        </Menu>
+        );
+      return(
+        <Dropdown.Button onClick={e => this.handleSubmit('publish')}  overlay={menu}>Publish </Dropdown.Button>
+        )
+    }
+  }
+}
   render() {
     const { spaceId, contentType, entry } = this.props;
     const fields = _.mapValues(arrayToObject(contentType.fields, 'identifier'), field => {
@@ -60,8 +84,13 @@ class EntryEditorForm extends Component {
     });
 
     const { getFieldDecorator, getFieldsError } = this.props.form;
+    const menu = (
+        <Menu >
+          <Menu.Item key="1">Save as archive</Menu.Item>
+        </Menu>
+        );
     return (
-      <Form layout="horizontal" onSubmit={this.handleSubmit}>
+      <Form layout="horizontal">
         {
           _.map(fields, (field, identifier) => {
             return (
@@ -80,13 +109,15 @@ class EntryEditorForm extends Component {
           })
         }
         <Form.Item>
-          <Button
-            type="primary"
+         {/* <Button
+            type="danger"
             htmlType="submit"
             disabled={hasErrors(getFieldsError())}
           >
             Save
-          </Button>
+          </Button>*/}
+          <p>status: {entry.status}</p>
+          {this.randerSaveBotton(entry.status)}
         </Form.Item>
       </Form>
     );

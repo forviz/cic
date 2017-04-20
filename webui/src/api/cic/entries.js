@@ -36,7 +36,7 @@ export const fetchCreateEntry = (spaceId, contentTypeId, data = {}) => {
 };
 
 
-export const fetchUpdateEntry = (spaceId, entryId, contentTypeId, fields) => {
+export const fetchUpdateEntry = (spaceId, entryId, contentTypeId, fields, status = 'draft') => {
   return fetchWithResponse(`${BASE_URL}/spaces/${spaceId}/entries/${entryId}`, {
     method: 'PUT',
     headers: {
@@ -44,6 +44,7 @@ export const fetchUpdateEntry = (spaceId, entryId, contentTypeId, fields) => {
     },
     body: JSON.stringify({
       fields: fields,
+      status: status,
     }),
   })
   .then((response) => {

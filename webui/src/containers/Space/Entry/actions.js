@@ -43,9 +43,9 @@ export const createEmptyEntry = (spaceId, contentTypeId) => {
   }
 };
 
-export const updateEntry = (spaceId, entryId, contentType, fields) => {
+export const updateEntry = (spaceId, entryId, contentType, fields, status) => {
   return (dispatch) => {
-    return fetchUpdateEntry(spaceId, entryId, contentType._id, fields)
+    return fetchUpdateEntry(spaceId, entryId, contentType._id, fields, status)
     .then((updateResponse) => {
       window.location = `/spaces/${spaceId}/entries/`;
       return updateResponse;

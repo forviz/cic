@@ -34,6 +34,7 @@ const updateEntry = (req, res, next) => {
   const entryId = req.params.entry_id;
   const contentTypeId = req.headers['x-cic-content-type'];
   const fields = req.body.fields;
+  const status = req.body.status;
   console.log('updateEntry', fields);
 
   Space.findOne({ _id: spaceId }, (err, space) => {
@@ -66,6 +67,7 @@ const updateEntry = (req, res, next) => {
       // Update entry
       Entry.findOne({ _id: entryId }, (err, entry) => {
         entry.fields = fields;
+        entry.status = status;
         entry.save((err1) => {
           if (err1) return _helper.handleError(err1, next);
           res.json({

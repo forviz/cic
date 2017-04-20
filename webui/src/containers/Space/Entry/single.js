@@ -22,13 +22,13 @@ class EntrySingle extends Component {
     }
   }
 
-  handleSubmitForm = (values) => {
+  handleSubmitForm = (values, saveStatus) => {
     const { space, entry, contentType } = this.props;
     const spaceId = space._id;
     const entryId = entry._id;
 
     const { updateEntry } = this.props.actions;
-    updateEntry(spaceId, entryId, contentType, values)
+    updateEntry(spaceId, entryId, contentType, values, saveStatus)
     .then(res => {
       message.info('Entry saved');
     })

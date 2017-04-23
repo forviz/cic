@@ -29,7 +29,7 @@ const Space = require('./models/Space');
 
 const upload = multer({ dest: path.join(__dirname, 'uploads') });
 
-dotenv.load({ path: `.env.${process.env.NODE_ENV}` });
+dotenv.load({ path: '.env' });
 
 
 const spaceController = require('./controllers/space');
@@ -56,7 +56,7 @@ mongoose.connection.on('error', () => {
   process.exit();
 });
 
-app.set('port', process.env.APIPORT || 4000);
+app.set('port', process.env.PORT || 4000);
 app.use(compression());
 app.use(expressValidator());
 app.use(bodyParser.json());

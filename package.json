@@ -18,7 +18,8 @@
     "start": "cross-env NODE_ENV=development ./node_modules/.bin/nodemon app/index.js",
     "build": "webpack --config webpack.config.production.js --display-error-details",
     "start-client": "cross-env NODE_ENV=production node dev-client.js",
-    "test": "mocha --reporter spec"
+    "test": "mocha --reporter spec",
+    "heroku-subfolder": "git subtree push --prefix server heroku master"
   },
   "dependencies": {
     "async": "^2.1.2",

@@ -223,8 +223,13 @@ app.get(`${apiPrefix}/media/:param?/:public_id`, cloudinaryController.getImage);
 
 
 /**
- * CIC App codebase: GOD
+ * CIC App codebase: WEBUI
  */
+app.use(express.static(path.join(__dirname, 'webui')));
+
+app.get('/*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'webui', 'index.html'));
+});
 
 /**
  * Start Express server.

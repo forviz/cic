@@ -72,13 +72,6 @@ class AssetEditorForm extends Component {
   }
 }
 
-/*<Upload.Dragger name="files" action="http://localhost:4000/v1/media/upload">
-  <p className="ant-upload-drag-icon">
-    <Icon type="inbox" />
-  </p>
-  <p className="ant-upload-text">Click or drag file to this area to upload</p>
-  <p className="ant-upload-hint">Support for a single or bulk upload. Strictly prohibit from uploading company data or other band files</p>
-</Upload.Dragger> */
 
 const mapPropsToFields = (props) => {
   const asset = _.get(props, 'asset');

@@ -161,7 +161,59 @@ export const populateSpaceWithTemplate = (spaceId, template) => {
           });
         });
         break;
-      case 'directory': break;
+      case 'directory':
+        /* Create Shop, , Category, Floor, Facilities */
+
+        return Promise.all([
+          fetchCreateContentType(spaceId, {
+            name: 'Shop',
+            identifier: 'shop',
+            description: 'Tenant in store',
+            displayField: 'title',
+            fields: [
+              { name: 'Title', identifier: 'title', type: 'Text', required: true },
+              { name: 'Category', identifier: 'type', type: 'Link', validations:{ linkContentType: ['category'] } },
+              { name: 'Floor', identifier: 'type', type: 'Link', validations:{ linkContentType: ['floor'] } },
+              {
+                name: 'Logo',
+                identifier: 'logo',
+                type: 'Media',
+              },
+              {
+                name: 'Gallery',
+                identifier: 'gallery',
+                type: 'Array',
+                items: {
+                  type: 'Media',
+                }, required: false
+              }
+            ],
+          }),
+          fetchCreateContentType(spaceId, {
+            name: 'Category',
+            identifier: 'category',
+            description: 'Shop Category',
+            displayField: 'title',
+            fields: [
+              { name: 'Title', identifier: 'title', type: 'Text', required: true },
+              { name: 'Detail', identifier: 'detail', type: 'LongText', required: false }
+            ],
+          }),
+          fetchCreateContentType(spaceId, {
+            name: 'Floor',
+            identifier: 'floor',
+            description: 'Store Floor',
+            displayField: 'title',
+            fields: [
+              { name: 'Title', identifier: 'title', type: 'Text', required: true },
+            ],
+          }),
+        ], (response) => {
+          dispatch({
+            type: 'CREATE/TEMPLATE/COMPLETE',
+          });
+        });
+        break;
       default: break;
     }
   }

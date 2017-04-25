@@ -148,7 +148,7 @@ class ContentTypeList extends Component {
     const actionMenus = (
       <Menu>
         <Menu.Item key="export">
-          <a href={`${API_PATH}spaces/${space._id}/content_types?access_token=${deliveryKey}`} target="_blank">Preview JSON</a>
+          <a href={`${API_PATH}/spaces/${space._id}/content_types?access_token=${deliveryKey}`} target="_blank">Preview JSON</a>
         </Menu.Item>
       </Menu>
     );

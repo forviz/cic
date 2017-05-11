@@ -118,7 +118,7 @@ class Space extends Component {
                 <Route path="/spaces/:spaceId/settings" render={() => <Link to={`/spaces/${space._id}/settings`}>Settings</Link>} />
               </Breadcrumb.Item>
               <Breadcrumb.Item>
-                <Route path="/spaces/:spaceId/content_types/:contentTypeId" render={({ match }) => <span>{match.params.contentTypeId}</span>} />
+                <Route path="/spaces/:spaceId/content_types/:contentTypeId" render={({ match }) => <span>{_.get(_.find(space.contentTypes, ct => ct._id === match.params.contentTypeId), 'name')}</span>} />
                 <Route path="/spaces/:spaceId/entries/:entryId" render={({ match }) => <span>{match.params.entryId}</span>} />
               </Breadcrumb.Item>
             </Breadcrumb>

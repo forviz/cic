@@ -34,83 +34,80 @@ exports.getSingleEntry = (req, res, next) => {
 
 // UPDATE CONTENT TYPE
 const updateEntry = (req, res, next) => {
-    const spaceId = req.params.space_id;
-    const entryId = req.params.entry_id;
-    const contentTypeId = req.headers['x-cic-content-type'];
-    const fields = req.body.fields;
-    console.log('updateEntry', fields);
+  
+  const spaceId = req.params.space_id;
+  const entryId = req.params.entry_id;
+  const contentTypeId = req.headers['x-cic-content-type'];
+  const fields = req.body.fields;
+  const status = req.body.status;
+  console.log('updateEntry', fields);
 
-    Space.findOne({_id: spaceId}, (err, space) => {
-        if (err) {
-            return next(err);
-        }
+  Space.findOne({ _id: spaceId }, (err, space) => {
+    if (err) { return next(err); }
 
-        // Check contentType
-        const contentTypeInfo = _.find(space.contentTypes, ct => ct._id.equals(contentTypeId));
+    // Check contentType
+    const contentTypeInfo = _.find(space.contentTypes, ct => ct._id.equals(contentTypeId));
 
-        if (!contentTypeInfo) {
-            res.json({
-                status: 'UNSUCCESSFUL',
-                detail: `Invalid contentType ${contentTypeId}`,
-            });
-            return;
-        }
+    if (!contentTypeInfo) {
+      res.json({
+        status: 'UNSUCCESSFUL',
+        detail: `Invalid contentType ${contentTypeId}`,
+      });
+      return;
+    }
 
-        const isExistingInSpace = _.find(space.entries, entry => entry.equals(entryId));
-        if (isExistingInSpace) {
+    const isExistingInSpace = _.find(space.entries, entry => entry.equals(entryId));
+    if (isExistingInSpace) {
 
-            const validation = _helper.validateFields(fields, contentTypeInfo);
-            if (!validation.valid) {
-                res.json({
-                    status: 'UNSUCCESSFUL',
-                    message: validation.message,
-                });
-                return;
-            }
+      const validation = _helper.validateFields(fields, contentTypeInfo);
+      if (!validation.valid) {
+        res.json({
+          status: 'UNSUCCESSFUL',
+          message: validation.message,
+        });
+        return;
+      }
 
-            // Not update spaces.entry
-            // Update entry
-            Entry.findOne({_id: entryId}, (err, entry) => {
-                entry.fields = fields;
-                entry.save((err1) => {
-                    if (err1)
-                        return _helper.handleError(err1, next);
-                    res.json({
-                        status: 'SUCCESS',
-                        detail: 'Updating entry successfully',
-                        entry,
-                    });
-                });
-            });
-        } else {
-            // 1. Create and Insert new entry
-            // 2. Update spaces.entry
-            const newEntry = new Entry({
-                contentTypeId,
-                fields,
-                status: 'draft',
-                _spaceId: spaceId,
-            });
+      // Not update spaces.entry
+      // Update entry
+      Entry.findOne({ _id: entryId }, (err, entry) => {
+        entry.fields = fields;
+        entry.status = status;
+        entry.save((err1) => {
+          if (err1) return _helper.handleError(err1, next);
+          res.json({
+            status: 'SUCCESS',
+            detail: 'Updating entry successfully',
+            entry,
+          });
+        });
+      });
+    } else {
+      // 1. Create and Insert new entry
+      // 2. Update spaces.entry
+      const newEntry = new Entry({
+        contentTypeId,
+        fields,
+        status: 'draft',
+        _spaceId: spaceId,
+      });
 
-            newEntry.save((err) => {
-                if (err)
-                    return _helper.handleError(err, next);
+      newEntry.save((err) => {
+        if (err) return _helper.handleError(err, next);
 
-                // Update space
-                space.entries.push(newEntry._id);
-                space.save((err2) => {
-                    if (err2) {
-                        return next(err2);
-                    }
-                    res.json({
-                        status: 'SUCCESS',
-                        detail: 'Create new entry successfully',
-                        entry: newEntry,
-                    });
-                });
-            });
-        }
-    });
+        // Update space
+        space.entries.push(newEntry._id);
+        space.save((err2) => {
+          if (err2) { return next(err2); }
+          res.json({
+            status: 'SUCCESS',
+            detail: 'Create new entry successfully',
+            entry: newEntry,
+          });
+        });
+      });
+    }
+  });
 };
 
 exports.updateEntry = updateEntry;

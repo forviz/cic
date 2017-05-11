@@ -9,7 +9,7 @@ const entrySchema = new Schema({
   status: {
     type: String,
     default: 'draft',
-    enum: ['draft', 'published']
+    enum: ['draft', 'publish', 'archive']
   },
   createdAt: { type: 'Date', default: Date.now, required: true },
   updatedAt: { type: 'Date', default: Date.now, required: true },

@@ -38,6 +38,8 @@ const entryController = require('./controllers/space/entry');
 const apiKeyController = require('./controllers/space/apikey');
 const assetController = require('./controllers/space/asset');
 
+const organizationController = require('./controllers/account/organization');
+
 const cloudinaryController = require('./controllers/services/cloudinary');
 
 
@@ -176,6 +178,13 @@ app.get(`${apiPrefix}/spaces/:space_id/content_types`, contentDeliveryAuthentica
 app.get(`${apiPrefix}/spaces/:space_id/content_types/:content_type_id`, contentDeliveryAuthentication, contentTypeController.getSingleContentType);
 app.get(`${apiPrefix}/spaces/:space_id/entries`, contentDeliveryAuthentication, entryController.getAllEntries);
 app.get(`${apiPrefix}/spaces/:space_id/entries/:entry_id`, contentDeliveryAuthentication, entryController.getSingleEntry);
+
+app.get(`${apiPrefix}/organizations`, organizationController.getAll);
+app.get(`${apiPrefix}/organizations/:organization_id`, organizationController.getSingle);
+app.post(`${apiPrefix}/organizations`, organizationController.createOrganization);
+app.get(`${apiPrefix}/organizations/:organization_id/members`, organizationController.getAllMemberOrganization); // get all member in organization
+app.post(`${apiPrefix}/organizations/:organization_id/members`, organizationController.createMemberOrganization);// add member in organization
+app.delete(`${apiPrefix}/organizations/:organization_id/members/:user_id`, organizationController.delMemberOrganization);// delete member in organization
 
 // TODO QUERY entries
 

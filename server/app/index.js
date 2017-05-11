@@ -179,12 +179,12 @@ app.get(`${apiPrefix}/spaces/:space_id/content_types/:content_type_id`, contentD
 app.get(`${apiPrefix}/spaces/:space_id/entries`, contentDeliveryAuthentication, entryController.getAllEntries);
 app.get(`${apiPrefix}/spaces/:space_id/entries/:entry_id`, contentDeliveryAuthentication, entryController.getSingleEntry);
 
-app.get(`${apiPrefix}/organizations`, organizationController.getAll);
-app.get(`${apiPrefix}/organizations/:organization_id`, organizationController.getSingle);
-app.post(`${apiPrefix}/organizations`, organizationController.createOrganization);
-app.get(`${apiPrefix}/organizations/:organization_id/members`, organizationController.getAllMemberOrganization); // get all member in organization
-app.post(`${apiPrefix}/organizations/:organization_id/members`, organizationController.createMemberOrganization);// add member in organization
-app.delete(`${apiPrefix}/organizations/:organization_id/members/:user_id`, organizationController.delMemberOrganization);// delete member in organization
+app.get(`${apiPrefix}/organizations`, contentManagementAuthentication, organizationController.getAll);
+app.get(`${apiPrefix}/organizations/:organization_id`, contentManagementAuthentication, organizationController.getSingle);
+app.post(`${apiPrefix}/organizations`, contentManagementAuthentication, organizationController.createOrganization);
+app.get(`${apiPrefix}/organizations/:organization_id/members`, contentManagementAuthentication, organizationController.getAllMemberOrganization); // get all member in organization
+app.post(`${apiPrefix}/organizations/:organization_id/members`, contentManagementAuthentication, organizationController.createMemberOrganization);// add member in organization
+app.delete(`${apiPrefix}/organizations/:organization_id/members/:user_id`, contentManagementAuthentication, organizationController.delMemberOrganization);// delete member in organization
 
 // TODO QUERY entries
 

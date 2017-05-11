@@ -68,5 +68,5 @@ const spaceSchema = new mongoose.Schema({
 
 
 const Space = mongoose.model('Space', spaceSchema);
-
+ 
 module.exports = Space;

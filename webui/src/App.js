@@ -121,7 +121,7 @@ class App extends Component {
               onLogout={this.handleLogout}
             />
             <Content>
-              <Route key="home" path="/" exact component={HomeContainer} />
+              <Route key="home" path="/" exact render={(routeProps) => <HomeContainer {...routeProps} auth={auth} userProfile={userProfile} userSpaces={userSpaces} />} />
               <PrivateRoute key="welcome" path="/welcome" exact component={WelcomeContainer} />
               <PrivateRoute
                 key="space"

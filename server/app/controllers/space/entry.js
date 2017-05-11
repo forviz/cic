@@ -9,31 +9,37 @@ const _helper = require('./helper');
  * Entries
  */
 exports.getAllEntries = (req, res, next) => {
-  const spaceId = req.params.space_id;
-  Space.findOne({ _id: spaceId }).populate('entries').exec((err, space) => {
-    if (err) { return next(err); }
-    res.json({
-      items: space.entries,
+    const spaceId = req.params.space_id;
+    Space.findOne({_id: spaceId}).populate('entries').exec((err, space) => {
+        if (err) {
+            return next(err);
+        }
+        res.json({
+            items: space.entries,
+        });
     });
-  });
 };
 
 exports.getSingleEntry = (req, res, next) => {
-  const entryId = req.params.entry_id;
-  Entry.findOne({ _id: entryId }, (err, entry) => {
-    if (err) { return next(err); }
-    res.json({
-      item: entry,
+    const entryId = req.params.entry_id;
+    Entry.findOne({_id: entryId}, (err, entry) => {
+        if (err) {
+            return next(err);
+        }
+        res.json({
+            item: entry,
+        });
     });
-  });
 }
 
 // UPDATE CONTENT TYPE
 const updateEntry = (req, res, next) => {
+  
   const spaceId = req.params.space_id;
   const entryId = req.params.entry_id;
   const contentTypeId = req.headers['x-cic-content-type'];
   const fields = req.body.fields;
+  const status = req.body.status;
   console.log('updateEntry', fields);
 
   Space.findOne({ _id: spaceId }, (err, space) => {
@@ -66,6 +72,7 @@ const updateEntry = (req, res, next) => {
       // Update entry
       Entry.findOne({ _id: entryId }, (err, entry) => {
         entry.fields = fields;
+        entry.status = status;
         entry.save((err1) => {
           if (err1) return _helper.handleError(err1, next);
           res.json({
@@ -107,50 +114,57 @@ exports.updateEntry = updateEntry;
 
 // CREATE CONTENT TYPE
 exports.createEntry = (req, res, next) => {
-  // Create new objectId
-  const entryId = mongoose.Types.ObjectId();
-  req.params.entry_id = entryId;
-  return updateEntry(req, res, next);
+    // Create new objectId
+    const entryId = mongoose.Types.ObjectId();
+    req.params.entry_id = entryId;
+    return updateEntry(req, res, next);
 };
 
 exports.deleteEntry = (req, res, next) => {
-  const spaceId = req.params.space_id;
-  const entryId = req.params.entry_id;
-  Entry.remove({ _id: entryId }, (err) => {
-    if (err) return _helper.handleError(err, next);
+    const spaceId = req.params.space_id;
+    const entryId = req.params.entry_id;
+    Entry.remove({_id: entryId}, (err) => {
+        if (err)
+            return _helper.handleError(err, next);
 
-    // Remove entry ref from space
-    Space.findOne({ _id: spaceId }, (err, space) => {
-      if (err) return _helper.handleError(err, next);
-      space.entries = _.filter(space.entries, _id => !_id.equals(entryId));
+        // Remove entry ref from space
+        Space.findOne({_id: spaceId}, (err, space) => {
+            if (err)
+                return _helper.handleError(err, next);
+            space.entries = _.filter(space.entries, _id => !_id.equals(entryId));
 
-      space.save((err2) => {
-        if (err2) return _helper.handleError(err2, next);
-        res.json({
-          status: 'SUCCESS',
-          detail: 'delete entry successfully',
+            space.save((err2) => {
+                if (err2)
+                    return _helper.handleError(err2, next);
+                res.json({
+                    status: 'SUCCESS',
+                    detail: 'delete entry successfully',
+                });
+            });
         });
-      });
     });
-  });
 };
 
 exports.truncateEntry = (req, res, next) => {
-  const spaceId = req.params.space_id;
-  Space.findOne({ _id: spaceId }, (err, space) => {
-    if (err) { return next(err); }
-    space.entries = [];
-    space.save((err) => {
-      if (err) return _helper.handleError(err, next);
+    const spaceId = req.params.space_id;
+    Space.findOne({_id: spaceId}, (err, space) => {
+        if (err) {
+            return next(err);
+        }
+        space.entries = [];
+        space.save((err) => {
+            if (err)
+                return _helper.handleError(err, next);
 
-      Entry.remove({ _spaceId: spaceId }, (err2) => {
-        if (err2) return _helper.handleError(err2, next);
-        res.json({
-          status: 'SUCCESS',
-          detail: 'clear all entries in space successfully',
-          space,
+            Entry.remove({_spaceId: spaceId}, (err2) => {
+                if (err2)
+                    return _helper.handleError(err2, next);
+                res.json({
+                    status: 'SUCCESS',
+                    detail: 'clear all entries in space successfully',
+                    space,
+                });
+            });
         });
-      });
     });
-  });
 };

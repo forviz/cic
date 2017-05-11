@@ -77,17 +77,36 @@ class CreateNewSpaceModal extends Component {
                       initialValue: 'website',
                     })(
                       <Tabs defaultActiveKey="website">
-                        <TabPane tab="Website" key="website">Create Template for website, consists of static pages and posts.</TabPane>
-                        <TabPane tab="Condo" key="condo">
-                          <p>A template for condo Project</p>
-                          <ul>
-                            <li>Floor</li>
-                            <li>Unit Type</li>
-                            <li>Unit</li>
-                            <li>Gallery</li>
-                          </ul>
+                        <TabPane tab="Website" key="website">
+                          <Row gutter={16}>
+                            <Col span={12}>
+                              <img src={`${process.env.PUBLIC_URL}/img/space-template-website.jpg`} alt="Template web" width="100%" />
+                            </Col>
+                            <Col span={12}>
+                              <p style={{ lineHeight: 1.6 }}>Create Template for website, consists of static pages and posts.</p>
+                            </Col>
+                          </Row>
                         </TabPane>
-                        <TabPane tab="Shopping Directory" key="directory">Content of Tab Pane 3</TabPane>
+                        <TabPane tab="Condo" key="condo">
+                          <Row gutter={16}>
+                            <Col span={12}>
+                              <img src={`${process.env.PUBLIC_URL}/img/space-template-condo.jpg`} alt="Template Condo" width="100%" />
+                            </Col>
+                            <Col span={12}>
+                              <p style={{ lineHeight: 1.6 }}>Template สำหรับทำอสังหาริมทรัพย์ ชนิดของ Unit, Unit ชั้นและตึก ฯลฯ.</p>
+                            </Col>
+                          </Row>
+                        </TabPane>
+                        <TabPane tab="Shopping Directory" key="directory">
+                          <Row gutter={16}>
+                            <Col span={12}>
+                              <img src={`${process.env.PUBLIC_URL}/img/space-template-directory.jpg`} alt="Template Directory" width="100%" />
+                            </Col>
+                            <Col span={12}>
+                              <p style={{ lineHeight: 1.6 }}>Template สำหรับโปรเจค Directory มี Unit, Floor, Category, etc.</p>
+                            </Col>
+                          </Row>
+                        </TabPane>
                       </Tabs>
                     )}
                   </Form.Item>

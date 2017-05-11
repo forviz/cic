@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const spaceSchema = new mongoose.Schema({
+const spaceSchema = new Schema({
   name: String,
   defaultLocale: { type: String, default: 'en', required: true },
   // users: [{ type: Schema.Types.ObjectId, ref: 'User' }],
@@ -69,5 +69,5 @@ const spaceSchema = new mongoose.Schema({
 
 
 const Space = mongoose.model('Space', spaceSchema);
-
+ 
 module.exports = Space;

@@ -70,10 +70,7 @@ userSchema.statics.findByIdentity = function (identity, cb) {
       }
     }
   }, cb);
-  // return this.findOne({ [`identities.${identityProvider}`]: identity }, cb);
 };
-
-// {'local.rooms': {$elemMatch: {name: req.body.username}}}
 
 /**
  * Helper method for validating user's password.

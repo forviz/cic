@@ -6,36 +6,7 @@ const User = require('../../models/User');
 const Entry = require('../../models/Entry');
 
 
-/**
- * Get
- */
-//const getUserFromIdentity = async (identity) => {
-//  try {
-//    const user = await User.findByIdentity(identity);
-//    if (user) return user;
-//
-//    // Else create new one
-//    const newUser = new User();
-//    const [provider, providerId] = _.split(identity, '|');
-//    newUser.identities = [
-//      {
-//        provider,
-//        user_id: providerId,
-//        connection: provider,
-//        isSocial: true
-//      }
-//    ];
-//    const result = await newUser.save();
-//    return newUser;
-//  } catch (e) {
-//    console.log(e);
-//  }
-//}
-
-
 exports.getAllEntries = async (req, res, next) => {
-//  const userOpenId = getIdentityFromToken(req);
-//  const user = await getUserFromIdentity(userOpenId);
     try {
         const spaceId = req.params.space_id;
         const result = await Space.find({"_id": spaceId})

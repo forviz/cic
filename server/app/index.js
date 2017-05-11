@@ -175,8 +175,8 @@ const contentManagementAuthentication = jwt({
 
 const apiPrefix = '/v1';
 
-app.get(`${apiPrefix}/spaces/:space_id/entries`, testController.getEntry);
-app.get(`${apiPrefix}/spaces/:space_id/entries/:entry_id`, testController.getEntry);
+app.get(`${apiPrefix}/spaces/:space_id/entries`, contentDeliveryAuthentication, testController.getEntry);
+app.get(`${apiPrefix}/spaces/:space_id/entries/:entry_id`, contentDeliveryAuthentication, testController.getEntry);
 
 app.get(`${apiPrefix}/spaces/:space_id`, contentDeliveryAuthentication, spaceController.getSingle);
 app.get(`${apiPrefix}/spaces/:space_id/content_types`, contentDeliveryAuthentication, contentTypeController.getAllContentTypes);

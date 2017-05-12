@@ -15,8 +15,8 @@ const checkObjectId = (data) => {
         if (!mongooseObject.isValid(data))
             throw {error: 'Not objectID!!'};
     } else {
-        for (let indexData in data) {
-            if (!mongooseObject.isValid(data[indexData]))
+        for (let keyData in data) {
+            if (!mongooseObject.isValid(data[keyData]))
                 throw {error: 'Not objectID!!'};
         }
     }
@@ -41,26 +41,26 @@ const getQuery = (q) => {
 
 
     const _q = {};
-    for (let index in q) {
-        const indexQuery = queryString[index] ? queryString[index] : index;
-        if (typeof (q[index]) === 'object') {
-            for (let __index in q[index]) {
-                if (queryString[__index]) {
-                    if (typeof (_q[indexQuery]) !== 'object') {
-                        _q[indexQuery] = {};
+    for (let key in q) {
+        const keyQuery = queryString[key] ? queryString[key] : key;
+        if (typeof (q[key]) === 'object') {
+            for (let __key in q[key]) {
+                if (queryString[__key]) {
+                    if (typeof (_q[keyQuery]) !== 'object') {
+                        _q[keyQuery] = {};
                     }
-                    const tempVal = (__index === 'in' || __index === 'nin') ? q[index][__index].split(',') : q[index][__index];
-                    _q[indexQuery][queryString[__index]] = tempVal;
+                    const tempVal = (__key === 'in' || __key === 'nin') ? q[key][__key].split(',') : q[key][__key];
+                    _q[keyQuery][queryString[__key]] = tempVal;
                 }
             }
         } else {
-            _q[indexQuery] = {
-                $eq: q[index]
+            _q[keyQuery] = {
+                $eq: q[key]
             };
         }
-        if (isObjectId.indexOf(indexQuery) >= 0) {
-            for (let tempIndex in _q[indexQuery]) {
-                checkObjectId(_q[indexQuery][tempIndex]);
+        if (isObjectId.indexOf(keyQuery) >= 0) {
+            for (let tempIndex in _q[keyQuery]) {
+                checkObjectId(_q[keyQuery][tempIndex]);
             }
         }
     }

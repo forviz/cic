@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const mongooseObject = mongoose.Types.ObjectId;
 const _ = require('lodash');
 
 const Entry = require('../../models/Entry');
@@ -8,6 +9,19 @@ const _helper = require('./helper');
 /**
  * Entries
  */
+
+const checkObjectId = (data) => {
+    if (typeof (data) !== 'object') {
+        if (!mongooseObject.isValid(data))
+            throw {error: 'Not objectID!!'};
+    } else {
+        for (let indexData in data) {
+            if (!mongooseObject.isValid(data[indexData]))
+                throw {error: 'Not objectID!!'};
+        }
+    }
+    return true;
+}
 
 const getQuery = async (q) => {
     const queryString = {
@@ -21,18 +35,21 @@ const getQuery = async (q) => {
         'in': '$in',
         'nin': '$nin'
     };
+    const isObjectId = [
+        "_id", "contentTypeId", "_spaceId"
+    ];
 
 
     const _q = {};
     for (let index in q) {
         const indexQuery = queryString[index] ? queryString[index] : index;
-        if (typeof (q[indexQuery]) === 'object') {
-            for (let __index in q[indexQuery]) {
+        if (typeof (q[index]) === 'object') {
+            for (let __index in q[index]) {
                 if (queryString[__index]) {
                     if (typeof (_q[indexQuery]) !== 'object') {
                         _q[indexQuery] = {};
                     }
-                    const tempVal = (__index === 'in' || __index === 'nin') ? q[indexQuery][__index].split(',') : q[indexQuery][__index];
+                    const tempVal = (__index === 'in' || __index === 'nin') ? q[index][__index].split(',') : q[index][__index];
                     _q[indexQuery][queryString[__index]] = tempVal;
                 }
             }
@@ -41,155 +58,161 @@ const getQuery = async (q) => {
                 $eq: q[index]
             };
         }
+        if (isObjectId.indexOf(indexQuery) >= 0) {
+            for (let tempIndex in _q[indexQuery]) {
+                await checkObjectId(_q[indexQuery][tempIndex]);
+            }
+        }
     }
 //    console.log(_q);
 
     return _q;
 }
 
-exports.getEntry = async (req, res, next) => {
-//  const userOpenId = getIdentityFromToken(req);
-//  const user = await getUserFromIdentity(userOpenId);
+const getEntry = async (query, spaceId, entryId = null) => {
+    const reqQuery = query;
+    let select = "", skip = 0, limit = 0;
+    if (reqQuery.select) {
+        select = reqQuery.select;
+        delete reqQuery.select;
+    }
+    if (reqQuery.skip) {
+        skip = parseInt(reqQuery.skip);
+        delete reqQuery.skip;
+    }
+    if (reqQuery.limit) {
+        limit = parseInt(reqQuery.limit);
+        delete reqQuery.limit;
+    }
+
+    const _getQuery = await getQuery(reqQuery);
+
+    await checkObjectId(spaceId);
+
+    const _query = {
+        ..._getQuery,
+        _spaceId: {$eq: spaceId}
+    };
+    if (entryId !== null) {
+        await checkObjectId(entryId);
+        _query["_id"] = {$eq: entryId};
+    }
+//        console.log(_query);
+
+    return await Entry.find(_query).select(select).limit(limit).skip(skip);
+}
+
+
+exports.getAllEntries = async (req, res, next) => {
     try {
         const spaceId = req.params.space_id;
-        const entryId = req.params.entry_id;
-
         const reqQuery = req.query;
-        let select = "", skip = 0, limit = 0;
-        if (reqQuery.select) {
-            select = reqQuery.select;
-            delete reqQuery.select;
-        }
-        if (reqQuery.skip) {
-            skip = parseInt(reqQuery.skip);
-            delete reqQuery.skip;
-        }
-        if (reqQuery.limit) {
-            limit = parseInt(reqQuery.limit);
-            delete reqQuery.limit;
-        }
 
-        const _getQuery = await getQuery(reqQuery);
-
-        const _query = {
-            ..._getQuery,
-            _spaceId: {$eq: spaceId}
-        };
-        if (entryId)
-            _query["_id"] = {$eq: entryId};
-
-        console.log(_query);
-
-        const result = await Entry.find(_query).select(select).limit(limit).skip(skip);
+        const result = await getEntry(reqQuery, spaceId);
         res.json({
             items: result,
         });
     } catch (e) {
-        next(e);
+        res.status(500).json(e);
     }
-}
-
-
-exports.getAllEntries = (req, res, next) => {
-    const spaceId = req.params.space_id;
-    Space.findOne({_id: spaceId}).populate('entries').exec((err, space) => {
-        if (err) {
-            return next(err);
-        }
-        res.json({
-            items: space.entries,
-        });
-    });
 };
 
-exports.getSingleEntry = (req, res, next) => {
-    const entryId = req.params.entry_id;
-    Entry.findOne({_id: entryId}, (err, entry) => {
-        if (err) {
-            return next(err);
-        }
+exports.getSingleEntry = async(req, res, next) => {
+    try {
+        const spaceId = req.params.space_id;
+        const entryId = req.params.entry_id;
+        const reqQuery = req.query;
+        const result = await getEntry(reqQuery, spaceId, entryId);
         res.json({
-            item: entry,
+            item: (result.length > 0) ? result[0] : [],
         });
-    });
+    } catch (e) {
+        res.status(500).json(e);
+    }
 }
 
 // UPDATE CONTENT TYPE
 const updateEntry = (req, res, next) => {
-  
-  const spaceId = req.params.space_id;
-  const entryId = req.params.entry_id;
-  const contentTypeId = req.headers['x-cic-content-type'];
-  const fields = req.body.fields;
-  const status = req.body.status;
-  console.log('updateEntry', fields);
 
-  Space.findOne({ _id: spaceId }, (err, space) => {
-    if (err) { return next(err); }
+    const spaceId = req.params.space_id;
+    const entryId = req.params.entry_id;
+    const contentTypeId = req.headers['x-cic-content-type'];
+    const fields = req.body.fields;
+    const status = req.body.status;
+    console.log('updateEntry', fields);
 
-    // Check contentType
-    const contentTypeInfo = _.find(space.contentTypes, ct => ct._id.equals(contentTypeId));
+    Space.findOne({_id: spaceId}, (err, space) => {
+        if (err) {
+            return next(err);
+        }
 
-    if (!contentTypeInfo) {
-      res.json({
-        status: 'UNSUCCESSFUL',
-        detail: `Invalid contentType ${contentTypeId}`,
-      });
-      return;
-    }
+        // Check contentType
+        const contentTypeInfo = _.find(space.contentTypes, ct => ct._id.equals(contentTypeId));
 
-    const isExistingInSpace = _.find(space.entries, entry => entry.equals(entryId));
-    if (isExistingInSpace) {
+        if (!contentTypeInfo) {
+            res.json({
+                status: 'UNSUCCESSFUL',
+                detail: `Invalid contentType ${contentTypeId}`,
+            });
+            return;
+        }
 
-      const validation = _helper.validateFields(fields, contentTypeInfo);
-      if (!validation.valid) {
-        res.json({
-          status: 'UNSUCCESSFUL',
-          message: validation.message,
-        });
-        return;
-      }
+        const isExistingInSpace = _.find(space.entries, entry => entry.equals(entryId));
+        if (isExistingInSpace) {
 
-      // Not update spaces.entry
-      // Update entry
-      Entry.findOne({ _id: entryId }, (err, entry) => {
-        entry.fields = fields;
-        entry.status = status;
-        entry.save((err1) => {
-          if (err1) return _helper.handleError(err1, next);
-          res.json({
-            status: 'SUCCESS',
-            detail: 'Updating entry successfully',
-            entry,
-          });
-        });
-      });
-    } else {
-      // 1. Create and Insert new entry
-      // 2. Update spaces.entry
-      const newEntry = new Entry({
-        contentTypeId,
-        fields,
-        status: 'draft',
-        _spaceId: spaceId,
-      });
+            const validation = _helper.validateFields(fields, contentTypeInfo);
+            if (!validation.valid) {
+                res.json({
+                    status: 'UNSUCCESSFUL',
+                    message: validation.message,
+                });
+                return;
+            }
 
-      newEntry.save((err) => {
-        if (err) return _helper.handleError(err, next);
+            // Not update spaces.entry
+            // Update entry
+            Entry.findOne({_id: entryId}, (err, entry) => {
+                entry.fields = fields;
+                entry.status = status;
+                entry.save((err1) => {
+                    if (err1)
+                        return _helper.handleError(err1, next);
+                    res.json({
+                        status: 'SUCCESS',
+                        detail: 'Updating entry successfully',
+                        entry,
+                    });
+                });
+            });
+        } else {
+            // 1. Create and Insert new entry
+            // 2. Update spaces.entry
+            const newEntry = new Entry({
+                contentTypeId,
+                fields,
+                status: 'draft',
+                _spaceId: spaceId,
+            });
 
-        // Update space
-        space.entries.push(newEntry._id);
-        space.save((err2) => {
-          if (err2) { return next(err2); }
-          res.json({
-            status: 'SUCCESS',
-            detail: 'Create new entry successfully',
-            entry: newEntry,
-          });
-        });
-      });
-    }
-  });
+            newEntry.save((err) => {
+                if (err)
+                    return _helper.handleError(err, next);
+
+                // Update space
+                space.entries.push(newEntry._id);
+                space.save((err2) => {
+                    if (err2) {
+                        return next(err2);
+                    }
+                    res.json({
+                        status: 'SUCCESS',
+                        detail: 'Create new entry successfully',
+                        entry: newEntry,
+                    });
+                });
+            });
+        }
+    });
 };
 
 exports.updateEntry = updateEntry;

@@ -23,7 +23,7 @@ const checkObjectId = (data) => {
     return true;
 }
 
-const getQuery = async (q) => {
+const getQuery = (q) => {
     const queryString = {
         "content_type": "contentTypeId",
         'eq': '$eq',
@@ -60,17 +60,16 @@ const getQuery = async (q) => {
         }
         if (isObjectId.indexOf(indexQuery) >= 0) {
             for (let tempIndex in _q[indexQuery]) {
-                await checkObjectId(_q[indexQuery][tempIndex]);
+                checkObjectId(_q[indexQuery][tempIndex]);
             }
         }
     }
-//    console.log(_q);
 
     return _q;
 }
 
 const getEntry = async (query, spaceId, entryId = null) => {
-    const reqQuery = query;
+    const reqQuery = {...query};
     let select = "", skip = 0, limit = 0;
     if (reqQuery.select) {
         select = reqQuery.select;
@@ -85,29 +84,29 @@ const getEntry = async (query, spaceId, entryId = null) => {
         delete reqQuery.limit;
     }
 
-    const _getQuery = await getQuery(reqQuery);
+    const _getQuery = getQuery(reqQuery);
 
-    await checkObjectId(spaceId);
+    checkObjectId(spaceId);
 
     const _query = {
         ..._getQuery,
         _spaceId: {$eq: spaceId}
     };
     if (entryId !== null) {
-        await checkObjectId(entryId);
+        checkObjectId(entryId);
         _query["_id"] = {$eq: entryId};
     }
 //        console.log(_query);
 
     return await Entry.find(_query).select(select).limit(limit).skip(skip);
+
 }
 
 
-exports.getAllEntries = async (req, res, next) => {
+exports.getAllEntries = async(req, res, next) => {
     try {
         const spaceId = req.params.space_id;
         const reqQuery = req.query;
-
         const result = await getEntry(reqQuery, spaceId);
         res.json({
             items: result,

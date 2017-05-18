@@ -40,7 +40,6 @@ const apiKeyController = require('./controllers/space/apikey');
 const assetController = require('./controllers/space/asset');
 
 const organizationController = require('./controllers/account/organization');
-const testController = require('./controllers/test/');
 
 const cloudinaryController = require('./controllers/services/cloudinary');
 
@@ -174,11 +173,11 @@ const contentManagementAuthentication = jwt({
     algorithms: ['RS256']
 });
 
-
+ 
 const apiPrefix = '/v1';
 
-app.get(`${apiPrefix}/spaces/:space_id/entries`, contentDeliveryAuthentication, testController.getEntry);
-app.get(`${apiPrefix}/spaces/:space_id/entries/:entry_id`, contentDeliveryAuthentication, testController.getEntry);
+app.get(`${apiPrefix}/spaces/:space_id/entries`, contentDeliveryAuthentication, entryController.getAllEntries);
+app.get(`${apiPrefix}/spaces/:space_id/entries/:entry_id`, contentDeliveryAuthentication, entryController.getSingleEntry);
 
 app.get(`${apiPrefix}/spaces/:space_id`, contentDeliveryAuthentication, spaceController.getSingle);
 app.get(`${apiPrefix}/spaces/:space_id/content_types`, contentDeliveryAuthentication, contentTypeController.getAllContentTypes);

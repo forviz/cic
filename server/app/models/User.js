@@ -7,6 +7,7 @@ const Schema = mongoose.Schema;
 const userSchema = new mongoose.Schema({
   email: { type: String, unique: true },
   spaces: [{ type: Schema.Types.ObjectId, ref: 'Space' }],
+  organizations : [{ type: Schema.Types.ObjectId, ref: 'Organization' }],
   profile: {
     name: String,
     gender: String,
@@ -59,6 +60,9 @@ export const getProvider = (identity) => {
 
 userSchema.statics.findByIdentity = function (identity, cb) {
   const identityProvider = getProvider(identity);
+
+  console.log("identityProvider:: ", identityProvider);
+  
   return this.findOne({
     identities: {
       $elemMatch: {

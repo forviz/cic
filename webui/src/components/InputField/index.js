@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import moment from 'moment';
 import _ from 'lodash';
 import { Input, InputNumber, DatePicker, Switch } from 'antd';
+import LongText from './LongText';
 // import Uploader from '../Uploader';
 import PicturesWall from '../Uploader/PicturesWall';
 import LinkEntry from './LinkEntry';
@@ -14,7 +15,7 @@ class InputField extends Component {
     const { spaceId, field, value, onChange } = this.props;
     const type = _.get(this.props, 'field.type');
     switch (type) {
-      case 'LongText': return (<Input type="textarea" rows={8} value={value} onChange={onChange} />);
+      case 'LongText': return (<LongText value={value} onChange={onChange} />);
       case 'Number': return (<InputNumber value={value} onChange={onChange} />);
       case 'Datetime': return (<DatePicker value={moment(value)} onChange={onChange} />);
       case 'Boolean': return (<Switch checked={value} onChange={onChange} />);

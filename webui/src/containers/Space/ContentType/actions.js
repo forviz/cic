@@ -23,6 +23,20 @@ export const deleteContentType = (spaceId, contentTypeId) => {
 export const addField = (spaceId, contentTypeId, contentType, values) => {
   return (dispatch) => {
 
+    /*
+      values.isSingle === true =>
+      { type: values.type },
+
+      values.isSingle === false =>
+      {
+        type: 'Array',
+        items: {
+          type: values.type,
+        }
+      },
+    */
+   const typeObj = values.isMultiple !== true ? { type: values.type } : { type: 'Array', items: { type: values.type } };
+
     const _contentTypeToUpdate = _.assign({}, contentType, {
       displayField: (values.isDisplayField === true) ? values.identifier : contentType.displayField,
       fields: [...contentType.fields, {

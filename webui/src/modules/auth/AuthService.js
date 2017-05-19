@@ -17,7 +17,8 @@ export default class AuthService extends EventEmitter {
           scope: 'openid profile email',
           audience: 'content.forviz.com',
         },
-        oidcConformant: true
+        oidcConformant: true,
+        sso: true,
       },
     });
 

@@ -27,7 +27,7 @@ const multer = require('multer');
 
 const Space = require('./models/Space');
 
-const upload = multer({dest: path.join(__dirname, 'uploads')});
+const upload = multer({ dest: path.join(__dirname, 'uploads') });
 
 
 dotenv.load({ path: '.env' });
@@ -55,22 +55,22 @@ const app = express();
 mongoose.Promise = global.Promise;
 mongoose.connect(process.env.MONGODB_URI || process.env.MONGOLAB_URI);
 mongoose.connection.on('error', () => {
-    console.log('%s MongoDB connection error. Please make sure MongoDB is running.', chalk.red('✗'));
-    process.exit();
+  console.log('%s MongoDB connection error. Please make sure MongoDB is running.', chalk.red('✗'));
+  process.exit();
 });
 
 app.set('port', process.env.PORT || 4000);
 app.use(compression());
 app.use(expressValidator());
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.urlencoded({ extended: true }));
 
 // CORS middleware
 const allowCrossDomain = (req, res, next) => {
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Methods', 'GET,HEAD,OPTIONS,POST,PUT,DELETE');
-    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, X-CIC-Content-Type');
-    next();
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET,HEAD,OPTIONS,POST,PUT,DELETE');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, X-CIC-Content-Type');
+  next();
 };
 
 
@@ -78,21 +78,21 @@ const allowCrossDomain = (req, res, next) => {
 app.use(allowCrossDomain);
 
 app.use(session({
-    resave: true,
-    saveUninitialized: true,
-    secret: process.env.SESSION_SECRET,
-    store: new MongoStore({
-        url: process.env.MONGODB_URI || process.env.MONGOLAB_URI,
-        autoReconnect: true
-    })
+  resave: true,
+  saveUninitialized: true,
+  secret: process.env.SESSION_SECRET,
+  store: new MongoStore({
+    url: process.env.MONGODB_URI || process.env.MONGOLAB_URI,
+    autoReconnect: true
+  })
 }));
 
 app.use(flash());
 app.use(logger('dev'));
 
 app.use((req, res, next) => {
-    res.locals.user = req.user;
-    next();
+  res.locals.user = req.user;
+  next();
 });
 
 /**
@@ -110,70 +110,61 @@ app.use((req, res, next) => {
 
 const contentDeliveryAuthentication = (req, res, next) => {
 
-    const token = _.replace(req.get('Authorization'), 'Bearer ', '');
-    if (token !== '')
-        return contentManagementAuthentication(req, res, next);
+  const token = _.replace(req.get('Authorization'), 'Bearer ', '');
+  if (token !== '')
+      return contentManagementAuthentication(req, res, next);
 
-    const spaceId = req.params.space_id;
-    const access_token = req.query.access_token;
+  const spaceId = req.params.space_id;
+  const access_token = req.query.access_token;
 
-    Space.findOne({_id: spaceId, }, (err, space) => {
-        if (err) {
-            return res.status(401).send({
-                code: 401,
-                message: 'This space id is invalid'
-            });
-        }
+  Space.findOne({_id: spaceId, }, (err, space) => {
+    if (err) {
+      return res.status(401).send({
+        code: 401,
+        message: 'This space id is invalid'
+      });
+    }
 
-        const apiKeysActive = space.apiKeys.filter(item => item.active === true)
-        if (apiKeysActive.length > 0) {
-            const theKey = apiKeysActive.find(item => item.deliveryKey === access_token);
-            if (moment().isBefore(theKey.expireDate)) {
-                next()
-            } else {
-                res.status(401).send({
-                    code: 401,
-                    message: 'This token has expired'
-                });
-            }
-        } else {
-            res.status(401).send({
-                code: 401,
-                message: 'This space does not have api key'
-            });
-        }
+    const apiKeysActive = space.apiKeys.filter(item => item.active === true)
+    if (apiKeysActive.length > 0) {
+      const theKey = apiKeysActive.find(item => item.deliveryKey === access_token);
+      if (moment().isBefore(theKey.expireDate)) {
+        next()
+      } else {
+        res.status(401).send({
+          code: 401,
+          message: 'This token has expired'
+        });
+      }
+    } else {
+      res.status(401).send({
+        code: 401,
+        message: 'This space does not have api key'
+      });
+    }
 
-    });
+  });
 };
 
-// const contentManagementAuthentication = (req, res, next) => {
-//   const token = _.replace(req.get('Authorization'), 'Bearer ', '');
-//   console.log('token', token);
-//   const result = jwtWebToken.verify(token, 'Ueoj1TEGMuR5rIRJsfDKvlft4vsm7qsIYKFYBZ_r_K9B-3IU1Weugk_yon0n2LX-');
-//   console.log('result', result);
-//   if (result === true) next();
-// };
+const contentManagementAuthentication = process.env.NODE_ENV !== 'test' ? jwt({
+  secret: jwks.expressJwtSecret({
+    cache: true,
+    rateLimit: true,
+    jwksRequestsPerMinute: 5,
+    jwksUri: "https://forviz.au.auth0.com/.well-known/jwks.json",
+    handleSigningKeyError: (err, cb) => {
+      if (err instanceof jwks.SigningKeyNotFoundError) {
+        return cb(new Error('This is bad'));
+      }
+      return cb(err);
+    }
+  }),
+  audience: 'content.forviz.com',
+  issuer: "https://forviz.au.auth0.com/",
+  algorithms: ['RS256']
+}) : jwt({ secret: 'testing' });
 
 
-const contentManagementAuthentication = jwt({
-    secret: jwks.expressJwtSecret({
-        cache: true,
-        rateLimit: true,
-        jwksRequestsPerMinute: 5,
-        jwksUri: "https://forviz.au.auth0.com/.well-known/jwks.json",
-        handleSigningKeyError: (err, cb) => {
-            if (err instanceof jwks.SigningKeyNotFoundError) {
-                return cb(new Error('This is bad'));
-            }
-            return cb(err);
-        }
-    }),
-    audience: 'content.forviz.com',
-    issuer: "https://forviz.au.auth0.com/",
-    algorithms: ['RS256']
-});
-
- 
 const apiPrefix = '/v1';
 
 app.get(`${apiPrefix}/spaces/:space_id/entries`, contentDeliveryAuthentication, entryController.getAllEntries);
@@ -255,9 +246,8 @@ app.get(`/spaces/:space_id`, contentDeliveryAuthentication, entryController.getA
 
 
 app.listen(app.get('port'), () => {
-    console.log('%s CICAPP service is running at http://localhost:%d in %s mode', chalk.green('✓'), app.get('port'), app.get('env'));
-
-    console.log('  Press CTRL-C to stop\n');
+  console.log('%s CICAPP service is running at http://localhost:%d in %s mode', chalk.green('✓'), app.get('port'), app.get('env'));
+  console.log('  Press CTRL-C to stop\n');
 });
 
 

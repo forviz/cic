@@ -33,7 +33,7 @@ export const getUserFromIdentity = async (identity) => {
 }
 
 const getOrganizationsFromUser = async (user) => {
-  try{
+  try {
 
     const organizations = await Organization.findByIdentity(user._id);
     console.log('check organizations', organizations);
@@ -112,7 +112,7 @@ exports.createSpace = async (req, res, next) => {
   console.log("organization:: ", organizations);
 
   const organizationToUse = organizations[0];
-  
+
   const space = new Space({
     name: spaceName,
     defaultLocale,

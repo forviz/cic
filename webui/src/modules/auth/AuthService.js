@@ -10,14 +10,15 @@ export default class AuthService extends EventEmitter {
     // Configure Auth0
     this.lock = new Auth0Lock(clientId, domain, {
       auth: {
-        allowedConnections: ['Username-Password-Authentication', 'facebook', 'google'],
+        allowedConnections: ['Username-Password-Authentication', 'facebook', 'google', 'twitter'],
         redirectUrl: `${window.location.origin}/`,
         responseType: 'id_token token',
         params: {
           scope: 'openid profile email',
           audience: 'content.forviz.com',
         },
-        oidcConformant: true
+        oidcConformant: true,
+        sso: true,
       },
     });
 

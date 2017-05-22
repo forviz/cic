@@ -136,11 +136,8 @@ class ContentTypeSingle extends Component {
 
     return (
       <div>
-        <Row type="flex" justify="space-between">
-          <Col span={18}>
-            <h1>{contentType.name}</h1>
-          </Col>
-          <Col span={6}>
+        <Row>
+          <Col>
             <div style={{ marginBottom: 20 }}>
               <Button type="primary" onClick={this.handleClickAddField}><Icon type="plus" /> Add Field</Button>
             </div>

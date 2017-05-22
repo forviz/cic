@@ -6,9 +6,9 @@ const fs = require('fs');
 
 
 /* Cloudinary */
-const CLOUDINARY_CLOUDNAME = 'pitipatdop';
-const CLOUDINARY_APIKEY = '647979826422471';
-const CLOUDINARY_APISECRET = 'MAie91dIiOb0acRzVkZZM4H1_OQ';
+const CLOUDINARY_CLOUDNAME = process.env.CLOUDINARY_CLOUDNAME;
+const CLOUDINARY_APIKEY = process.env.CLOUDINARY_APIKEY;
+const CLOUDINARY_APISECRET = process.env.CLOUDINARY_APISECRET;
 
 cloudinary.config({
   cloud_name: CLOUDINARY_CLOUDNAME,

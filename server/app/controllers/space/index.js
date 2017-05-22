@@ -3,12 +3,13 @@ const _ = require('lodash');
 import { getAccessToken, decodeToken, getIdentityFromToken } from '../../utils/jwtUtils';
 const Space = require('../../models/Space');
 const User = require('../../models/User');
+const Organization = require('../../models/Organization');
 
 
 /**
  * Get
  */
-const getUserFromIdentity = async (identity) => {
+export const getUserFromIdentity = async (identity) => {
   try {
     const user = await User.findByIdentity(identity);
     if (user) return user;
@@ -30,6 +31,29 @@ const getUserFromIdentity = async (identity) => {
     console.log(e);
   }
 }
+
+const getOrganizationsFromUser = async (user) => {
+  try{
+
+    const organizations = await Organization.findByIdentity(user._id);
+    console.log('check organizations', organizations);
+    if (!_.isEmpty(organizations)) return organizations;
+
+    // Else create new one
+    const newOrganization = new Organization();
+    newOrganization.name = 'Default';
+    newOrganization.users.Owners = [user._id];
+
+    user.organizations.push(newOrganization._id);
+    await user.save();
+    await newOrganization.save();
+    return [newOrganization];
+
+  } catch (e) {
+    console.log(e);
+  }
+}
+
 // exports.getAll = (req, res, next) => {
 //
 //   const userOpenId = getUserFromToken(req);
@@ -81,22 +105,72 @@ exports.createSpace = async (req, res, next) => {
 
   const userOpenId = getIdentityFromToken(req);
   const user = await getUserFromIdentity(userOpenId);
+  console.log("userOpenId:: ", userOpenId);
+  console.log("user createSpace:: ", user);
+
+  const organizations = await getOrganizationsFromUser(user);
+  console.log("organization:: ", organizations);
+
+  const organizationToUse = organizations[0];
+  
+  const space = new Space({
+    name: spaceName,
+    defaultLocale,
+    users: [user._id],
+    organization: organizationToUse._id
+  });
+
+  organizationToUse.spaces.push(space._id);
+
+  await space.save();
+  await organizationToUse.save();
+
+  // space.save((err) => {
+  //   if (err) { return next(err); }
+    res.json({
+      status: 'SUCCESS',
+      detail: 'Create space successfully',
+      space: space,
+      user: user,
+      organization: organizationToUse,
+    });
+  // });
+};
+/*exports.createSpace = async (req, res, next) => {
+  const spaceName = req.body.name;
+  const defaultLocale = req.body.defaultLocale;
+  // const organization_id = req.body.organization_id;
+
+  const userOpenId = getIdentityFromToken(req);
+  const user = await getUserFromIdentity(userOpenId);
+
+  const organization2 = await getOrganizationFromIdentity(userOpenId);
+
+  console.log("user:: ", user);
+  console.log("organization:: ", organization2);
 
   const space = new Space({
     name: spaceName,
     defaultLocale,
     users: [user._id],
+    //organization: organization_id
   });
 
-  space.save((err) => {
-    if (err) { return next(err); }
-    res.json({
-      status: 'SUCCESS',
-      detail: 'Create space successfully',
-      space: space,
-    });
-  });
-};
+  const organization = new Organization();
+  organization.spaces = [space._id];
+
+  // await space.save();
+  // await user.save();
+
+  // space.save((err) => {
+  //   if (err) { return next(err); }
+  //   res.json({
+  //     status: 'SUCCESS',
+  //     detail: 'Create space successfully',
+  //     space: space,
+  //   });
+  // });
+};*/
 
 exports.deleteSpace = (req, res, next) => {
   const spaceId = req.params.space_id;

@@ -8,8 +8,10 @@ import { bindActionCreators } from 'redux';
 import * as Actions from './actions';
 import _ from 'lodash';
 
-import { Button, Table, Icon, Col, Row, Menu, Dropdown, message, Popconfirm } from 'antd';
+import { Button, Table, Icon, Col, Row, Menu, Dropdown, message, Popconfirm, Tag } from 'antd';
 import { getActiveSpace, getSpaceEntries } from '../../../selectors';
+
+const API_PATH = process.env.REACT_APP_API_PATH;
 
 const getContentType = (contentTypes, contentTypeId) => {
   return _.find(contentTypes, ct => ct._id === contentTypeId);
@@ -83,6 +85,14 @@ class EntryList extends Component {
         title: 'Status',
         dataIndex: 'status',
         key: 'status',
+        render: (text, record) => {
+          switch (text) {
+            case 'publish': return (<Tag color="green">Publish</Tag>);
+            case 'draft': return (<Tag color="yellow">Draft</Tag>);
+            case 'archive': return (<Tag>Archive</Tag>);
+            default: return (<Tag>{text}</Tag>);
+          }
+        }
       },
       {
         title: 'Action',
@@ -126,17 +136,35 @@ class EntryList extends Component {
       </Menu>
     );
 
+    const deliveryKey = _.get(space, 'apiKeys.0.deliveryKey');
+    const actionMenus = (
+      <Menu>
+        <Menu.Item key="export">
+          <a href={`${API_PATH}/spaces/${space._id}/entries?access_token=${deliveryKey}`} target="_blank">Preview JSON</a>
+        </Menu.Item>
+      </Menu>
+    );
+
     return (
       <div>
-        <div>
-          <div style={{ marginBottom: 20 }}>
-            <Dropdown overlay={addEntryMenu}>
-              <Button type="primary">
-                <Icon type="plus" /> Add Entry
-              </Button>
+        <Row>
+          <Col span={12}>
+            <div style={{ marginBottom: 20 }}>
+              <Dropdown overlay={addEntryMenu}>
+                <Button type="primary">
+                  <Icon type="plus" /> Add Entry
+                </Button>
+              </Dropdown>
+            </div>
+          </Col>
+          <Col span={12} style={{ textAlign: 'right' }}>
+            <Dropdown overlay={actionMenus}>
+              <a className="ant-dropdown-link" href="#">
+                Actions <Icon type="down" />
+              </a>
             </Dropdown>
-          </div>
-        </div>
+          </Col>
+        </Row>
         <Row>
           <Col>
             <Table columns={columns} dataSource={data} />

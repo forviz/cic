@@ -7,10 +7,11 @@ import { bindActionCreators } from 'redux';
 import * as Actions from './actions';
 import _ from 'lodash';
 
-import { Popconfirm, message, Button, Table, Icon, Col, Row } from 'antd';
+import { Popconfirm, message, Button, Table, Icon, Col, Row, Dropdown, Menu } from 'antd';
+
+const API_PATH = process.env.REACT_APP_API_PATH;
 
 import { getActiveSpace } from '../../../selectors';
-
 import ContentTypeCreateForm from '../../../components/ContentTypeCreateForm';
 
 class ContentTypeList extends Component {
@@ -114,11 +115,6 @@ class ContentTypeList extends Component {
         key: 'by',
       },
       {
-        title: 'Status',
-        dataIndex: 'status',
-        key: 'status',
-      },
-      {
         title: 'Action',
         key: 'action',
         render: (text, record) => (
@@ -148,13 +144,29 @@ class ContentTypeList extends Component {
       status: '',
     }));
 
+    const deliveryKey = _.get(space, 'apiKeys.0.deliveryKey');
+    const actionMenus = (
+      <Menu>
+        <Menu.Item key="export">
+          <a href={`${API_PATH}/spaces/${space._id}/content_types?access_token=${deliveryKey}`} target="_blank">Preview JSON</a>
+        </Menu.Item>
+      </Menu>
+    );
+
     return (
       <div>
-        <div>
-          <div style={{ marginBottom: 20 }}>
+        <Row>
+          <Col span={12} style={{ marginBottom: 20 }}>
             <Button type="primary" onClick={this.handleSelectAddContentType}><Icon type="plus" /> Add Content Type</Button>
-          </div>
-        </div>
+          </Col>
+          <Col span={12} style={{ textAlign: 'right' }}>
+            <Dropdown overlay={actionMenus}>
+              <a className="ant-dropdown-link" href="#">
+                Actions <Icon type="down" />
+              </a>
+            </Dropdown>
+          </Col>
+        </Row>
         <Row>
           <Col>
             <Table columns={columns} dataSource={data} />

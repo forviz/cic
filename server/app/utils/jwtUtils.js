@@ -20,5 +20,7 @@ export const decodeToken = (token) => {
 export const getIdentityFromToken = (req) => {
   const accessToken = getAccessToken(req);
   const userData = decodeToken(accessToken);
+  // console.log("accessToken:: ", accessToken);
+  console.log("userData:: ", userData);
   return userData.sub;
 }

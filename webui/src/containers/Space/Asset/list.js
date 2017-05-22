@@ -11,7 +11,7 @@ import _ from 'lodash';
 import { Button, Table, Icon, Col, Row, message, Popconfirm } from 'antd';
 import { getActiveSpace, getSpaceAssets } from '../../../selectors';
 
-const MEDIA_SERVICE_ENDPOINT = 'http://localhost:4000/v1/media/';
+const MEDIA_SERVICE_ENDPOINT = process.env.REACT_APP_MEDIA_ENDPOINT;
 
 class AssetList extends Component {
 

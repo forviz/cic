@@ -23,16 +23,10 @@ export const deleteContentType = (spaceId, contentTypeId) => {
 export const addField = (spaceId, contentTypeId, contentType, values) => {
   return (dispatch) => {
 
+    const typeObj = values.isMultiple !== true ? { type:values.type } : { type:'Array', items:{ type:values.type } };
     const _contentTypeToUpdate = _.assign({}, contentType, {
       displayField: (values.isDisplayField === true) ? values.identifier : contentType.displayField,
-      fields: [...contentType.fields, {
-        name: values.name,
-        type: values.type,
-        identifier: values.identifier,
-        required: _.get(values, 'required', false),
-        localized: _.get(values, 'localized', false),
-        validations: _.get(values, 'validations'),
-      }]
+      fields: [...contentType.fields, values]
     });
 
     return fetchUpdateContentType(spaceId, contentTypeId, _contentTypeToUpdate)
@@ -47,19 +41,12 @@ export const updateField = (spaceId, contentTypeId, contentType, values) => {
   return (dispatch) => {
 
     const fieldId = values._id;
-
+    const typeObj = values.isMultiple !== true ? { type:values.type } : { type:'Array', items:{ type:values.type } };
     const _contentTypeToUpdate = _.assign({}, contentType, {
       displayField: (values.isDisplayField === true) ? values.identifier : contentType.displayField,
       fields: _.map(contentType.fields, field => {
         if (field._id === fieldId) {
-          return {
-            name: values.name,
-            type: values.type,
-            identifier: values.identifier,
-            required: _.get(values, 'required', false),
-            localized: _.get(values, 'localized', false),
-            validations: _.get(values, 'validations'),
-          };
+          return { ...field, ...values };
         }
         return field;
       })

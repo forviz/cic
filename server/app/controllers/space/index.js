@@ -16,6 +16,7 @@ export const getUserFromIdentity = async (identity) => {
 
     // Else create new one
     const newUser = new User();
+    newUser.email = '';
     const [provider, providerId] = _.split(identity, '|');
     newUser.identities = [
       {

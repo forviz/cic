@@ -52,13 +52,9 @@ class EntryList extends Component {
     console.log(e);
   }
 
-  render() {
-    const { space, entries } = this.props;
-    if (!space) return (<div />);
-
-    const { contentTypes } = space;
-
-    const columns = [
+  tableColumns = () => {
+    const { space } = this.props;
+    return [
       {
         title: 'Title',
         dataIndex: 'title',
@@ -112,8 +108,13 @@ class EntryList extends Component {
         ),
       }
     ];
+  }
 
-    const data = _.map(entries, (entry, i) => {
+  tableData = () => {
+    const { space, entries } = this.props;
+    const { contentTypes } = space;
+    
+    return _.map(entries, (entry, i) => {
       const contentType = getContentType(contentTypes, entry.contentTypeId);
       return {
         _id: entry._id,
@@ -125,6 +126,16 @@ class EntryList extends Component {
         status: entry.status,
       }
     });
+  }
+
+  render() {
+    const { space, entries } = this.props;
+    if (!space) return (<div />);
+
+    const { contentTypes } = space;
+
+    const columns = this.tableColumns();
+    const data = this.tableData();
 
     const addEntryMenu = (
       <Menu onClick={this.handleClickAddEntry}>

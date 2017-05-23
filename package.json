@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "lint": "eslint *.js server/app webui/src",
     "deploy-heroku": "git subtree push --prefix server heroku master"
   },
   "repository": {

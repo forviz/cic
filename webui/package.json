@@ -20,10 +20,12 @@
     "react-redux": "^5.0.3",
     "react-router": "^4.0.0",
     "react-router-dom": "^4.0.0",
+    "react-validation": "^2.10.9",
     "redux": "^3.6.0",
     "redux-thunk": "^2.2.0",
     "reselect": "^3.0.0",
-    "sha1": "^1.1.1"
+    "sha1": "^1.1.1",
+    "validator": "^7.0.0"
   },
   "devDependencies": {
     "ncp": "^2.0.0",

@@ -74,10 +74,21 @@ exports.getAll = async (req, res, next) => {
   const userOpenId = getIdentityFromToken(req);
   const user = await getUserFromIdentity(userOpenId);
 
+  console.log("userId:: ", user._id);
+
   try {
-    const result = await Space.find({ users: user._id });
+    // const result = await Space.find({ users: user._id });
+
+    const userOrgazation = await Organization.find({$or: [
+      {$or : [{'users.Members':user._id},{'users.Owners':user._id}] }
+    ] });
+
+    const result = await Space.find({
+          organization: { $in: _.map(userOrgazation, '_id') }
+       });
+
     res.json({
-      items: result,
+      results: result
     });
   } catch (e) {
     next(e);
@@ -112,7 +123,7 @@ exports.createSpace = async (req, res, next) => {
   console.log("organization:: ", organizations);
 
   const organizationToUse = organizations[0];
-  
+
   const space = new Space({
     name: spaceName,
     defaultLocale,

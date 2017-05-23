@@ -4,12 +4,12 @@ process.env.NODE_ENV = 'test';
 const jwt = require('jsonwebtoken');
 const token = jwt.sign({ foo: 'bar' }, 'testing');
 
-const mongoose = require("mongoose");
 const Space = require('../app/models/Space');
 
 // Require the dev-dependencies
 const chai = require('chai');
 const chaiHttp = require('chai-http');
+
 const server = require('../app');
 const should = chai.should();
 

@@ -24,3 +24,11 @@ export const getIdentityFromToken = (req) => {
   console.log("userData:: ", userData);
   return userData.sub;
 }
+
+export const getEmailFromToken = (req) => {
+  const accessToken = getAccessToken(req);
+  const userData = decodeToken(accessToken);
+  // console.log("accessToken:: ", accessToken);
+  console.log("userData:: ", userData);
+  return userData.sub;
+}

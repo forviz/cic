@@ -13,22 +13,10 @@ export const getAccessToken = (req) => {
 };
 
 
-export const decodeToken = (token) => {
-  return jwtDecode(token);
-}
+export const decodeToken = token => jwtDecode(token);
 
 export const getIdentityFromToken = (req) => {
   const accessToken = getAccessToken(req);
   const userData = decodeToken(accessToken);
-  // console.log("accessToken:: ", accessToken);
-  console.log("userData:: ", userData);
   return userData.sub;
-}
-
-export const getEmailFromToken = (req) => {
-  const accessToken = getAccessToken(req);
-  const userData = decodeToken(accessToken);
-  // console.log("accessToken:: ", accessToken);
-  console.log("userData:: ", userData);
-  return userData.sub;
-}
+};

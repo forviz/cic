@@ -1,6 +1,6 @@
-const mongoose = require('mongoose');
+import { getIdentityFromToken } from '../../utils/jwtUtils';
+
 const _ = require('lodash');
-import { getAccessToken, decodeToken, getEmailFromToken, getIdentityFromToken } from '../../utils/jwtUtils';
 const Space = require('../../models/Space');
 const User = require('../../models/User');
 const Organization = require('../../models/Organization');

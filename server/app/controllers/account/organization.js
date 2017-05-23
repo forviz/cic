@@ -1,15 +1,16 @@
-import {getUserFromIdentity} from '../space/index';
-import { getAccessToken, decodeToken, getIdentityFromToken } from '../../utils/jwtUtils';
+import { getUserFromIdentity } from '../space/index';
+import { getIdentityFromToken } from '../../utils/jwtUtils';
+
 const mongoose = require('mongoose');
 
 const _ = require('lodash');
 const Organization = require('../../models/Organization');
+
 const mongooseObject = mongoose.Types.ObjectId;
 
+exports.getAll2 = (req, res) => {
 
-exports.getAll2 = function (req, res, next) {
-
-  Organization.find({ }, function (err, organizations) {
+  Organization.find({ }, (err, organizations) => {
     res.json({
       items: organizations
     });
@@ -17,7 +18,7 @@ exports.getAll2 = function (req, res, next) {
 }
 
 
-exports.getAll = async (req, res, next) => {
+exports.getAll = async (req, res) => {
 
   const organizations = await Organization.find({ });
 
@@ -27,27 +28,15 @@ exports.getAll = async (req, res, next) => {
 }
 
 exports.getSingle = async (req, res, next) => {
-   const organizationId = req.params.organization_id;
-   Organization.findOne({ _id: organizationId }).exec((err, organization) => {
-     if (err) { return next(err); }
-     res.json({
-       title: 'find organization',
-       organization,
-     });
-   });
-}
-
-  /*
-  try {
-    const result = await Organization.find({ });
+  const organizationId = req.params.organization_id;
+  Organization.findOne({ _id: organizationId }).exec((err, organization) => {
+    if (err) { return next(err); }
     res.json({
-      items: result,
+      title: 'find organization',
+      organization,
     });
-  } catch (e) {
-    next(e);
-  }*/
-
-
+  });
+};
 
 exports.createOrganization = async (req, res, next) => {
 
@@ -89,7 +78,7 @@ exports.getAllMemberOrganization = async (req, res, next) => {
       console.log("iii");
       throw { 'message' : 'Not objectId'};
     }
-    
+
     // const result = await Organization.find({ _id: organizationId });
     const result = await Organization.find({ _id: organizationId }).populate('users.Members');
 

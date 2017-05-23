@@ -1,6 +1,6 @@
-import { getIdentityFromToken } from '../../utils/jwtUtils';
-
+const mongoose = require('mongoose');
 const _ = require('lodash');
+import { getAccessToken, decodeToken, getIdentityFromToken } from '../../utils/jwtUtils';
 const Space = require('../../models/Space');
 const User = require('../../models/User');
 const Organization = require('../../models/Organization');
@@ -17,7 +17,6 @@ export const getUserFromIdentity = async (identity) => {
     // Else create new one
     const newUser = new User();
     newUser.email = '';
-
     const [provider, providerId] = _.split(identity, '|');
     newUser.identities = [
       {
@@ -76,10 +75,19 @@ exports.getAll = async (req, res, next) => {
   const userOpenId = getIdentityFromToken(req);
   const user = await getUserFromIdentity(userOpenId);
 
+  console.log("userId:: ", user._id);
+
   try {
-    const result = await Space.find({ users: user._id });
+    // const result = await Space.find({ users: user._id });
+
+    const userOrgazation = await Organization.find({$or: [{'users.Members':user._id},{'users.Owners':user._id}] });
+
+    const result = await Space.find({
+          organization: { $in: _.map(userOrgazation, '_id') }
+       });
+
     res.json({
-      items: result,
+      results: result
     });
   } catch (e) {
     next(e);

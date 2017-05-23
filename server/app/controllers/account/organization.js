@@ -1,7 +1,10 @@
 import {getUserFromIdentity} from '../space/index';
 import { getAccessToken, decodeToken, getIdentityFromToken } from '../../utils/jwtUtils';
+const mongoose = require('mongoose');
+
 const _ = require('lodash');
 const Organization = require('../../models/Organization');
+const mongooseObject = mongoose.Types.ObjectId;
 
 
 exports.getAll2 = function (req, res, next) {
@@ -79,7 +82,14 @@ exports.getAllMemberOrganization = async (req, res, next) => {
 
   const organizationId = req.params.organization_id;
 
+
+
   try {
+    if(!mongooseObject.isValid(organizationId)){
+      console.log("iii");
+      throw { 'message' : 'Not objectId'};
+    }
+    
     // const result = await Organization.find({ _id: organizationId });
     const result = await Organization.find({ _id: organizationId }).populate('users.Members');
 

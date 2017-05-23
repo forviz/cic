@@ -173,7 +173,7 @@ const contentManagementAuthentication = jwt({
     algorithms: ['RS256']
 });
 
- 
+
 const apiPrefix = '/v1';
 
 app.get(`${apiPrefix}/spaces/:space_id/entries`, contentDeliveryAuthentication, entryController.getAllEntries);

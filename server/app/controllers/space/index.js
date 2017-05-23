@@ -1,6 +1,6 @@
-const mongoose = require('mongoose');
+import { getIdentityFromToken } from '../../utils/jwtUtils';
+
 const _ = require('lodash');
-import { getAccessToken, decodeToken, getIdentityFromToken } from '../../utils/jwtUtils';
 const Space = require('../../models/Space');
 const User = require('../../models/User');
 const Organization = require('../../models/Organization');
@@ -16,6 +16,8 @@ export const getUserFromIdentity = async (identity) => {
 
     // Else create new one
     const newUser = new User();
+    newUser.email = '';
+
     const [provider, providerId] = _.split(identity, '|');
     newUser.identities = [
       {
@@ -112,7 +114,7 @@ exports.createSpace = async (req, res, next) => {
   console.log("organization:: ", organizations);
 
   const organizationToUse = organizations[0];
-  
+
   const space = new Space({
     name: spaceName,
     defaultLocale,

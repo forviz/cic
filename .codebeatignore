@@ -1,2 +1,2 @@
-server/app/webui/**/*
-webui/build/**/*
+server/app/webui/**
+webui/build/**

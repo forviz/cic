@@ -9,7 +9,6 @@ import EditableTagGroup from '../../components/EditableTagGroup';
 
 import Pattern from '../../helpers/regex-pattern';
 
-
 const getValidationRangeMin = (model) => _.get(model, 'validations.range.min' ,'');
 const getValidationRangeMax = (model) => _.get(model, 'validations.range.max' ,'');
 const getValidationPattern = (model) => _.get(model, 'validations.regexp.pattern' ,'');
@@ -22,9 +21,13 @@ const shouldCheckValidationRange = (model) => {
 }
 
 const mapFieldsToProps = (fieldsValue) => {
+
+  console.log("mapFieldsToProps -------------- ", fieldsValue.isMultiple);
+  const type = _.head(fieldsValue.type);
+  const typeObj = fieldsValue.isMultiple !== true ? { type: type } : { type:'Array', items:{ type: type } };
   return {
-    ..._.pick(fieldsValue, ['_id', 'name', 'identifier', 'required', 'isDisplayField']),
-    type: _.head(fieldsValue.type),
+    ..._.pick(fieldsValue, ['_id', 'name', 'identifier', 'required', 'isDisplayField', 'isMultiple']),
+    ...typeObj,
     validations: {
       linkContentType: '',
       in: _.get(fieldsValue, 'validations-options', []),
@@ -44,16 +47,20 @@ const mapFieldsToProps = (fieldsValue) => {
 }
 
 const mapPropsToFields = (props) => {
+
   const model = props.field;
   const fields = {
     _id: {
       value: _.get(model, '_id' ,''),
     },
     type: {
-      value: [_.get(model, 'type')],
+      value: [_.get(model, 'type') !== 'Array' ? _.get(model, 'type') : _.get(model, 'items.type')],
     },
     isDisplayField: {
       value: _.get(model, 'isDisplayField'),
+    },
+    isMultiple:{
+      value: _.get(model, 'type') === 'Array',
     },
     name: {
       value: _.get(model, 'name' ,''),
@@ -94,7 +101,7 @@ const mapPropsToFields = (props) => {
   };
 
   // console.log('mapPropsToFields:props', props);
-  // console.log('mapPropsToFields:fields', fields);
+  console.log('mapPropsToFields:fields', fields);
   return fields;
 }
 
@@ -200,6 +207,13 @@ class FieldCreateForm extends Component {
                   valuePropName: 'checked',
                 })(
                   <Checkbox>This field represent as title.</Checkbox>
+                )}
+              </Form.Item>
+              <Form.Item>
+                {getFieldDecorator('isMultiple', {
+                  valuePropName: 'checked',
+                })(
+                  <Checkbox>List.</Checkbox>
                 )}
               </Form.Item>
               <Collapse>

@@ -4,6 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "test:server": "cd server && npm run test",
+    "test:webui": "cd webui && npm run test",
+    "test": "npm run test:server",
     "lint": "eslint *.js server/app webui/src",
     "deploy-heroku": "git subtree push --prefix server heroku master"
   },

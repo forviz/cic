@@ -34,7 +34,7 @@ export const getUserFromIdentity = async (identity) => {
 }
 
 const getOrganizationsFromUser = async (user) => {
-  try{
+  try {
 
     const organizations = await Organization.findByIdentity(user._id);
     console.log('check organizations', organizations);

@@ -22,14 +22,9 @@ class PicturesWall extends Component {
     action: process.env.REACT_APP_MEDIA_ENDPOINT,
   }
 
-  // state = {
-  //   previewVisible: false,
-  //   previewImage: '',
-  //   fileList: [],
-  // }
-
   constructor(props) {
     super(props);
+    console.log('PictureWall.constructor', props);
     const fileList = _.compact(props.fileList || [props.file]);
 
     this.state = {
@@ -40,6 +35,7 @@ class PicturesWall extends Component {
   }
 
   componentWillReceiveProps = (nextProps) => {
+    console.log('PictureWall.componentWillReceiveProps', nextProps);
     const fileList = _.compact(nextProps.fileList || [nextProps.file]);
     if (fileList) {
 

@@ -36,6 +36,8 @@
     "eslint-plugin-react": "^7.0.1"
   },
   "dependencies": {
+    "babel-polyfill": "^6.23.0",
+    "babel-register": "^6.24.1",
     "bcrypt-nodejs": "0.0.3",
     "body-parser": "^1.17.2",
     "chalk": "^1.1.3",

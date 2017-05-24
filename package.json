@@ -6,6 +6,7 @@
   "scripts": {
     "lint": "eslint *.js server/app webui/src",
     "start:server": "cross-env NODE_ENV=development ./node_modules/.bin/nodemon server/app/index.js",
+    "start": "npm run start:server",
     "deploy-heroku": "git subtree push --prefix server heroku master"
   },
   "repository": {

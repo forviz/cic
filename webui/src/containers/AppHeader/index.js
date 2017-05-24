@@ -1,4 +1,5 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import _ from 'lodash';
@@ -7,13 +8,13 @@ import {
   Link,
 } from 'react-router-dom'
 
-import { Layout, Col, Row, Menu, Dropdown, Icon } from 'antd';
-const Header = Layout.Header;
-const SubMenu = Menu.SubMenu;
-const MenuItemGroup = Menu.ItemGroup;
+import { Layout, Col, Row, Menu, Icon } from 'antd';
 
 import * as SpaceActions from '../../actions/spaces';
 import CreateNewSpaceModal from '../../components/CreateNewSpaceModal';
+
+const Header = Layout.Header;
+const SubMenu = Menu.SubMenu;
 
 const actions = {
   createNewSpace: SpaceActions.createNewSpace,
@@ -76,6 +77,7 @@ class AppHeader extends Component {
           showCreateSpaceModal: true,
         });
         break;
+      default: break;
     }
 
   }

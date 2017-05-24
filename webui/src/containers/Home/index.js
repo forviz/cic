@@ -8,8 +8,9 @@ import {
 } from 'react-router-dom'
 
 import { Card, Row, Col, Steps, Button, Tooltip } from 'antd';
-const Step = Steps.Step;
 import * as SpaceActions from '../../actions/spaces';
+
+const Step = Steps.Step;
 
 const mapStateToProps = (state) => {
   return {
@@ -69,7 +70,7 @@ class Home extends Component {
       <Row gutter={16}>
         {
           _.map(userSpaces, space =>
-            <Col span={8}>
+            <Col span={8} key={space._id}>
               <Link to={`spaces/${space._id}/content_types`}>
                 <Tooltip placement="bottom" title="Click to enter space">
                   <Card loading title={space.name} style={{ marginBottom: 16, textAlign: 'center' }}>

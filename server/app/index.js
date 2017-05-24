@@ -165,6 +165,7 @@ const contentManagementAuthentication = process.env.NODE_ENV !== 'test' ? jwt({
 }) : jwt({ secret: 'testing' });
 
 
+
 const apiPrefix = '/v1';
 
 app.get(`${apiPrefix}/spaces/:space_id/entries`, contentDeliveryAuthentication, entryController.getAllEntries);

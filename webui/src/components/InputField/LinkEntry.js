@@ -1,13 +1,14 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 
 import { Select, Spin, Tag } from 'antd';
-const Option = Select.Option;
-
 import * as EntryActions from '../../actions/entries';
 import { getActiveSpaceFromId, getSpaceEntriesFromSpaceId } from '../../selectors';
+
+const Option = Select.Option;
 
 class LinkSelect extends Component {
 

@@ -1,4 +1,5 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 
 import { connect } from 'react-redux';
@@ -8,11 +9,10 @@ import * as Actions from './actions';
 import _ from 'lodash';
 
 import { Popconfirm, message, Button, Table, Icon, Col, Row, Dropdown, Menu } from 'antd';
-
-const API_PATH = process.env.REACT_APP_API_PATH;
-
 import { getActiveSpace } from '../../../selectors';
 import ContentTypeCreateForm from '../../../components/ContentTypeCreateForm';
+
+const API_PATH = process.env.REACT_APP_API_PATH;
 
 class ContentTypeList extends Component {
 

@@ -1,8 +1,10 @@
 import _ from 'lodash';
 
 export default (info) => {
+  console.log('mapImageInfoToFile', info);
   const file = info.file;
   return {
+    uid: _.get(file, 'uid'),
     publicId: _.get(file, 'response.public_id'),
     fileName: _.get(file, 'name'),
     contentType: _.get(file, 'type'),

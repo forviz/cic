@@ -3,7 +3,8 @@ import _ from 'lodash';
 import { Upload, Icon, Modal, message } from 'antd';
 
 const parseFileInfo = (file) => ({
-  uid: file.publicId,
+  uid: file.uid,
+  publicId: file.publicId,
   name: file.fileName,
   status: 'done',
   url: file.url,
@@ -22,14 +23,9 @@ class PicturesWall extends Component {
     action: process.env.REACT_APP_MEDIA_ENDPOINT,
   }
 
-  // state = {
-  //   previewVisible: false,
-  //   previewImage: '',
-  //   fileList: [],
-  // }
-
   constructor(props) {
     super(props);
+    console.log('PictureWall.constructor', props);
     const fileList = _.compact(props.fileList || [props.file]);
 
     this.state = {
@@ -40,6 +36,7 @@ class PicturesWall extends Component {
   }
 
   componentWillReceiveProps = (nextProps) => {
+    console.log('PictureWall.componentWillReceiveProps', nextProps);
     const fileList = _.compact(nextProps.fileList || [nextProps.file]);
     if (fileList) {
 
@@ -80,7 +77,7 @@ class PicturesWall extends Component {
     const { previewVisible, previewImage, fileList } = this.state;
 
     const uploadButton = (
-      <div>
+      <div key="upload-button">
         <Icon type="plus" />
         <div className="ant-upload-text">Upload</div>
       </div>
@@ -88,6 +85,7 @@ class PicturesWall extends Component {
     return (
       <div className="clearfix">
         <Upload
+          key="file"
           multiple={multiple}
           action={action}
           listType="picture-card"

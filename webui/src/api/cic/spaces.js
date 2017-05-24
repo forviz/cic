@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { BASE_URL, ACCESS_TOKEN, fetchWithResponse, convertToURLParam, responseError } from './helper';
+import { BASE_URL, fetchWithResponse, convertToURLParam, responseError } from './helper';
 
 export const fetchInitWithUser = (userId) => {
   return fetchWithResponse(`${BASE_URL}/users/${userId}`)
@@ -27,9 +27,7 @@ export const fetchUserSpaces = () => {
 };
 
 export const fetchSpaceEntries = (spaceId) => {
-  const urlParam = convertToURLParam({
-    access_token: ACCESS_TOKEN,
-  });
+  const urlParam = convertToURLParam({});
 
   return fetchWithResponse(`${BASE_URL}/spaces/${spaceId}/entries/${urlParam}`)
   .then((response) => {
@@ -47,9 +45,7 @@ export const fetchSpaceEntries = (spaceId) => {
 
 export const fetchSpace = (spaceId) => {
 
-  const urlParam = convertToURLParam({
-    access_token: ACCESS_TOKEN,
-  });
+  const urlParam = convertToURLParam({});
 
   return fetchWithResponse(`${BASE_URL}/spaces/${spaceId}${urlParam}`)
   .then((response) => {

@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import _ from 'lodash';
 
 import { Modal, Form, Input, Radio, Row, Col, Select, Tabs, Card } from 'antd';
 const Option = Select.Option;

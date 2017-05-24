@@ -59,11 +59,7 @@ export const getProvider = (identity) => {
 
 
 userSchema.statics.findByIdentity = function (identity, cb) {
-  // const identityProvider = getProvider(identity);
   const [identityProvider, identityNumber] = _.split(identity, '|');
-
-  console.log("identityProvider:: ", identityProvider);
-
   return this.findOne({
     identities: {
       $elemMatch: {

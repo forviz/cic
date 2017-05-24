@@ -22,14 +22,11 @@ const organizationSchema = new Schema({
 			type: Schema.Types.ObjectId,
 			ref: 'Space'
 	}]
-},{timestamps: true});
+},{ timestamps: true });
 
 organizationSchema.statics.findByIdentity = function (user_id, cb) {
-
-  console.log("user_id:: ", user_id);
   return this.find({ 'users.Owners': user_id }, cb);
 };
-
 
 const Organization = mongoose.model('Organization', organizationSchema);
 

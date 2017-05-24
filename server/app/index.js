@@ -27,7 +27,7 @@ const multer = require('multer');
 
 const Space = require('./models/Space');
 
-const upload = multer({dest: path.join(__dirname, 'uploads')});
+const upload = multer({ dest: path.join(__dirname, 'uploads') });
 
 
 dotenv.load({ path: '.env' });

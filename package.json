@@ -1,6 +1,9 @@
 {
   "name": "cic",
   "version": "1.0.0",
+  "engines": {
+    "node": "6.10.1"
+  },
   "description": "",
   "main": "index.js",
   "scripts": {

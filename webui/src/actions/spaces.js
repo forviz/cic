@@ -100,7 +100,6 @@ export const populateSpaceWithTemplate = (spaceId, template) => {
             type: 'CREATE/TEMPLATE/COMPLETE',
           });
         });
-        break;
       case 'condo':
         /* Create UnitType, Unit, Floor */
 
@@ -160,7 +159,6 @@ export const populateSpaceWithTemplate = (spaceId, template) => {
             type: 'CREATE/TEMPLATE/COMPLETE',
           });
         });
-        break;
       case 'directory':
         /* Create Shop, , Category, Floor, Facilities */
 
@@ -213,7 +211,6 @@ export const populateSpaceWithTemplate = (spaceId, template) => {
             type: 'CREATE/TEMPLATE/COMPLETE',
           });
         });
-        break;
       default: break;
     }
   }

@@ -2,12 +2,11 @@ import React, { Component } from 'react';
 import _ from 'lodash';
 
 import { Modal, Form, Select, Checkbox, Input, Switch, Row, Col, Menu, Icon, Collapse, Radio } from 'antd';
+import EditableTagGroup from '../../components/EditableTagGroup';
+import Pattern from '../../helpers/regex-pattern';
+
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
-
-import EditableTagGroup from '../../components/EditableTagGroup';
-
-import Pattern from '../../helpers/regex-pattern';
 
 const getValidationRangeMin = (model) => _.get(model, 'validations.range.min' ,'');
 const getValidationRangeMax = (model) => _.get(model, 'validations.range.max' ,'');

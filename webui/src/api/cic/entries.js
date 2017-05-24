@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import { BASE_URL, fetchWithResponse } from './helper';
 
 export const fetchEntryInSpace = (spaceId) => {

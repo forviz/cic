@@ -15,7 +15,6 @@ import 'antd/dist/antd.css';
 import './App.css';
 
 import { Layout, LocaleProvider } from 'antd';
-const { Content } = Layout;
 
 import * as Actions from './actions/application';
 
@@ -28,10 +27,11 @@ import { getUserSpaces } from './selectors';
 
 import AuthService from './modules/auth/AuthService';
 
+const { Content } = Layout;
+
 const AUTH0_CLIENT_ID = process.env.REACT_APP_AUTH0_CLIENT_ID;
 const AUTH0_DOMAIN = process.env.REACT_APP_AUTH0_DOMAIN;
 const auth = new AuthService(AUTH0_CLIENT_ID, AUTH0_DOMAIN);
-
 
 const PrivateRoute = ({ component: Component, ...rest }) => {
 

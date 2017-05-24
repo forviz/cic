@@ -1,6 +1,4 @@
 import React, { Component, PropTypes } from 'react';
-import _ from 'lodash';
-
 import { Row, Col, Card } from 'antd';
 
 import MediumEditor from './Medium';

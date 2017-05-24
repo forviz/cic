@@ -10,8 +10,6 @@ import {
 
 
 import { Layout, Breadcrumb } from 'antd';
-const { Content, Sider } = Layout;
-
 import SpaceSidebar from './Sidebar';
 
 import ContentTypeListContainer from './ContentType/list';
@@ -26,6 +24,8 @@ import SpaceSettingContainer from './Settings';
 
 import * as Actions from './actions';
 import { getActiveSpace } from '../../selectors';
+
+const { Content, Sider } = Layout;
 
 const mapStateToProps = (state, ownProps) => {
 

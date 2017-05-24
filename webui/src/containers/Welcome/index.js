@@ -1,6 +1,4 @@
 import React, { Component } from 'react';
-import _ from 'lodash';
-
 import { Card, Row, Col } from 'antd';
 
 class Welcome extends Component {

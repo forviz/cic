@@ -2,7 +2,8 @@
   "name": "cic",
   "version": "1.0.0",
   "engines": {
-    "node": "6.10.1"
+    "node": "6.10.1",
+    "npm": "3.10.10"
   },
   "description": "",
   "main": "index.js",
@@ -15,7 +16,8 @@
     "prebuild": "npm run build:client",
     "build": "babel server --ignore server/app/webui -s -D -d build",
     "postbuild": "rimraf build/app/webui && ncp webui/build build/app/webui",
-    "start": "node build/app"
+    "start": "node build/app",
+    "start:prod": "NODE_ENV=production node build/app"
   },
   "repository": {
     "type": "git",

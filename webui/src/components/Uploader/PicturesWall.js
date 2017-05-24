@@ -3,7 +3,8 @@ import _ from 'lodash';
 import { Upload, Icon, Modal, message } from 'antd';
 
 const parseFileInfo = (file) => ({
-  uid: file.publicId,
+  uid: file.uid,
+  publicId: file.publicId,
   name: file.fileName,
   status: 'done',
   url: file.url,

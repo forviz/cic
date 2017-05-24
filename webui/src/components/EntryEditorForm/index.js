@@ -2,13 +2,9 @@ import React, { Component } from 'react';
 import _ from 'lodash';
 
 import InputField from '../InputField';
-import { Menu, Dropdown, Form, Button } from 'antd';
+import { Menu, Dropdown, Form } from 'antd';
 
 import arrayToObject from '../../helpers/arrayToObject';
-
-const hasErrors = (fieldsError) => {
-  return Object.keys(fieldsError).some(field => fieldsError[field]);
-}
 
 const mapValidationToRules = (field) => {
   const validations = field.validations;

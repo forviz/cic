@@ -80,7 +80,7 @@ class PicturesWall extends Component {
     const { previewVisible, previewImage, fileList } = this.state;
 
     const uploadButton = (
-      <div>
+      <div key="upload-button">
         <Icon type="plus" />
         <div className="ant-upload-text">Upload</div>
       </div>
@@ -88,6 +88,7 @@ class PicturesWall extends Component {
     return (
       <div className="clearfix">
         <Upload
+          key="file"
           multiple={multiple}
           action={action}
           listType="picture-card"

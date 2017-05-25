@@ -1,4 +1,6 @@
 language: node_js
+env:
+  - SESSION_SECRET=secret
 services:
   - mongodb
 cache:

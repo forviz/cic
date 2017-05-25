@@ -9,6 +9,7 @@ const chai = require('chai');
 const chaiHttp = require('chai-http');
 const server = require('../../app');
 
+const should = chai.should();
 const token = jwt.sign({ foo: 'bar' }, 'testing');
 
 chai.use(chaiHttp);

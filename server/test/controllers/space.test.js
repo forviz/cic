@@ -1,4 +1,4 @@
-// During the test the env variable is set to test
+/* eslint-disable */
 process.env.NODE_ENV = 'test';
 
 const jwt = require('jsonwebtoken');

@@ -32,7 +32,7 @@ const getQuery = (q) => {
     lt: '$lt',
     lte: '$lte',
     in: '$in',
-    nin: '$nin'
+    nin: '$nin',
   };
   const isObjectId = ['_id', 'contentTypeId', '_spaceId'];
 
@@ -51,7 +51,7 @@ const getQuery = (q) => {
       }
     } else {
       _q[keyQuery] = {
-        $eq: q[key]
+        $eq: q[key],
       };
     }
     if (isObjectId.indexOf(keyQuery) >= 0) {
@@ -135,7 +135,6 @@ const updateEntry = (req, res, next) => {
   const contentTypeId = req.headers['x-cic-content-type'];
   const fields = req.body.fields;
   const status = req.body.status;
-  console.log('updateEntry', fields);
 
   Space.findOne({ _id: spaceId }, (err, space) => {
     if (err) {
@@ -166,11 +165,11 @@ const updateEntry = (req, res, next) => {
 
       // Not update spaces.entry
       // Update entry
-      Entry.findOne({ _id: entryId }, (err, entry) => {
+      Entry.findOne({ _id: entryId }, (errFind, entry) => {
         entry.fields = fields;
         entry.status = status;
         entry.save((err1) => {
-          if (err1) return helper.handleError(err1, next);
+          if (err1) helper.handleError(err1, next);
           res.json({
             status: 'SUCCESS',
             detail: 'Updating entry successfully',
@@ -188,15 +187,14 @@ const updateEntry = (req, res, next) => {
         _spaceId: spaceId,
       });
 
-      newEntry.save((err) => {
-        if (err) return helper.handleError(err, next);
+      newEntry.save((errSave) => {
+        if (errSave) helper.handleError(errSave, next);
 
         // Update space
         space.entries.push(newEntry._id);
         space.save((err2) => {
-          if (err2) {
-            return next(err2);
-          }
+          if (err2) next(err2);
+
           res.json({
             status: 'SUCCESS',
             detail: 'Create new entry successfully',
@@ -221,15 +219,15 @@ exports.createEntry = (req, res, next) => {
 exports.deleteEntry = (req, res, next) => {
   const spaceId = req.params.space_id;
   const entryId = req.params.entry_id;
-  Entry.remove({ _id: entryId }, (err) => {
-    if (err) return helper.handleError(err, next);
+  Entry.remove({ _id: entryId }, (errRemove) => {
+    if (errRemove) helper.handleError(errRemove, next);
 
     // Remove entry ref from space
-    Space.findOne({ _id: spaceId }, (err, space) => {
-      if (err) return helper.handleError(err, next);
+    Space.findOne({ _id: spaceId }, (errFind, space) => {
+      if (errFind) helper.handleError(errFind, next);
       space.entries = _.filter(space.entries, _id => !_id.equals(entryId));
       space.save((err2) => {
-        if (err2) return helper.handleError(err2, next);
+        if (err2) helper.handleError(err2, next);
         res.json({
           status: 'SUCCESS',
           detail: 'delete entry successfully',
@@ -242,14 +240,14 @@ exports.deleteEntry = (req, res, next) => {
 exports.truncateEntry = (req, res, next) => {
   const spaceId = req.params.space_id;
   Space.findOne({ _id: spaceId }, (err, space) => {
-    if (err) return next(err);
+    if (err) next(err);
 
     space.entries = [];
-    space.save((err) => {
-      if (err) return helper.handleError(err, next);
+    space.save((errSave) => {
+      if (errSave) helper.handleError(errSave, next);
 
-      Entry.remove({ _spaceId: spaceId }, (err2) => {
-        if (err2) return helper.handleError(err2, next);
+      Entry.remove({ _spaceId: spaceId }, (errRemove) => {
+        if (errRemove) helper.handleError(errRemove, next);
         res.json({
           status: 'SUCCESS',
           detail: 'clear all entries in space successfully',

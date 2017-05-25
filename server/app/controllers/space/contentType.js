@@ -6,7 +6,7 @@ const Space = require('../../models/Space');
 exports.getAllContentTypes = (req, res, next) => {
   const spaceId = req.params.space_id;
   Space.findOne({ _id: spaceId }, (err, theSpace) => {
-    if (err) { return next(err); }
+    if (err) next(err);
     res.json({
       types: theSpace.contentTypes,
     });
@@ -19,7 +19,7 @@ exports.getAllContentTypes = (req, res, next) => {
 exports.getAllContentTypes = (req, res, next) => {
   const spaceId = req.params.space_id;
   Space.findOne({ _id: spaceId }, (err, theSpace) => {
-    if (err) { return next(err); }
+    if (err) next(err);
     res.json({
       types: theSpace.contentTypes,
     });
@@ -30,7 +30,7 @@ exports.getSingleContentType = (req, res, next) => {
   const spaceId = req.params.space_id;
   const contentTypeId = req.params.content_type_id;
   Space.findOne({ _id: spaceId }, (err, space) => {
-    if (err) { return next(err); }
+    if (err) next(err);
 
     const contentType = _.find(space.contentTypes, ct => ct._id.equals(contentTypeId));
     if (contentType) {
@@ -49,9 +49,9 @@ const updateContentType = (req, res, next) => {
   const displayField = req.body.displayField;
   const identifier = req.body.identifier;
   const fields = req.body.fields;
-
+  
   Space.findOne({ _id: spaceId }, (err, space) => {
-    if (err) { return next(err); }
+    if (err) next(err);
 
     const isExisting = _.find(space.contentTypes, ct => ct._id.equals(contentTypeId));
 
@@ -99,11 +99,16 @@ const updateContentType = (req, res, next) => {
     }
 
 
-    space.save((err) => {
-      if (err) { console.log(err); return next(err); }
+    space.save((errSave) => {
+      if (errSave) next(errSave);
       res.json({
         status: 'SUCCESS',
         detail: 'update content type successfully',
+        sys: {
+          type: 'ContentType',
+          id: contentTypeId,
+          updatedAt: Date.now(),
+        },
         space,
       });
     });
@@ -127,7 +132,7 @@ exports.deleteContentType = (req, res, next) => {
   const contentTypeId = req.params.content_type_id;
 
   Space.findOne({ _id: spaceId }, (err, space) => {
-    if (err) { return next(err); }
+    if (err) next(err);
 
     if (!space) {
       res.json({
@@ -138,8 +143,8 @@ exports.deleteContentType = (req, res, next) => {
       const contentTypes = space.contentTypes;
       space.contentTypes = _.filter(contentTypes, ct => !ct._id.equals(contentTypeId));
 
-      space.save((err) => {
-        if (err) { return next(err); }
+      space.save((errSave) => {
+        if (errSave) next(errSave);
         res.json({
           status: 'SUCCESSFUL',
           message: 'Delete contentType successfully',

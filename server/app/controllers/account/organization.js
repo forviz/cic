@@ -19,7 +19,7 @@ exports.getAll = async (req, res) => {
 exports.getSingle = async (req, res, next) => {
   const organizationId = req.params.organization_id;
   Organization.findOne({ _id: organizationId }).exec((err, organization) => {
-    if (err) { return next(err); }
+    if (err) next(err);
     res.json({
       title: 'find organization',
       organization,
@@ -125,7 +125,7 @@ exports.createMemberOrganization = async (req, res, next) => {
     } else {
       // console.log("ELSE");
       await Organization.update({
-        _id: organizationId
+        _id: organizationId,
       }, {
         $push: {
           'users.Members': userId,

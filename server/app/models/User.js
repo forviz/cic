@@ -44,7 +44,7 @@ const userSchema = new mongoose.Schema({
  */
 userSchema.pre('save', function save(next) {
   const user = this;
-  if (!user.isModified('password')) { return next(); }
+  if (!user.isModified('password')) next();
   bcrypt.genSalt(10, (err, salt) => {
     if (err) { next(err); }
     bcrypt.hash(user.password, salt, null, (err2, hash) => {
@@ -56,7 +56,7 @@ userSchema.pre('save', function save(next) {
 });
 
 // export const getProvider = identity => _.head(_.split(identity, '|'));
-userSchema.statics.findByIdentity = function (identity, cb) {
+userSchema.statics.findByIdentity = function findByIdentity(identity, cb) {
   const [identityProvider, identityNumber] = _.split(identity, '|');
   return this.findOne({
     identities: {

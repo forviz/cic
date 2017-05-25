@@ -13,12 +13,12 @@ const assetSchema = new Schema({
       contentType: String,
       url: String,
       details: Object,
-    }
+    },
   },
   status: {
     type: String,
     default: 'draft',
-    enum: ['draft', 'published']
+    enum: ['draft', 'published'],
   },
   createdAt: { type: 'Date', default: Date.now, required: true },
   updatedAt: { type: 'Date', default: Date.now, required: true },

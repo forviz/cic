@@ -105,7 +105,7 @@ exports.createKey = (req, res, next) => {
   const expireDate = req.body.expire_date;
 
   Space.findOne({ _id: spaceId }, (err, space) => {
-    if (err) { return next(err); }
+    if (err) next(err);
 
     const key = {
       _id: objectId,
@@ -117,8 +117,8 @@ exports.createKey = (req, res, next) => {
 
     space.apiKeys.push(key);
 
-    space.save((err) => {
-      if (err) next(err);
+    space.save((err2) => {
+      if (err2) next(err2);
       res.json({
         title: 'Added key',
         item: key,
@@ -135,7 +135,7 @@ exports.deleteKey = (req, res, next) => {
   const keyId = req.params.key_id;
 
   Space.findOne({ _id: spaceId }, (err, space) => {
-    if (err) { next(err); }
+    if (err) next(err);
 
     if (!space) {
       res.json({
@@ -144,8 +144,8 @@ exports.deleteKey = (req, res, next) => {
       });
     } else {
       space.apiKeys = _.filter(space.apiKeys, apiKey => !apiKey._id.equals(keyId));
-      space.save((err) => {
-        if (err) { return next(err); }
+      space.save((err2) => {
+        if (err2) next(err2);
         res.json({
           status: 'SUCCESSFUL',
           message: 'Delete apiKey successfully',

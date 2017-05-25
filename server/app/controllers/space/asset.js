@@ -12,7 +12,7 @@ const _helper = require('./helper');
 exports.getAllAssets = (req, res, next) => {
   const spaceId = req.params.space_id;
   Space.findOne({ _id: spaceId }).populate('assets').exec((err, space) => {
-    if (err) { return next(err); }
+    if (err) next(err);
     res.json({
       items: space.assets,
     });
@@ -22,7 +22,7 @@ exports.getAllAssets = (req, res, next) => {
 exports.getSingleAsset = (req, res, next) => {
   const assetId = req.params.asset_id;
   Asset.findOne({ _id: assetId }, (err, asset) => {
-    if (err) { return next(err); }
+    if (err) next(err);
     res.json({
       item: asset,
     });
@@ -37,24 +37,19 @@ const updateAsset = (req, res, next) => {
   console.log('updateAsset', spaceId, assetId, fields);
 
   Space.findOne({ _id: spaceId }, (err, space) => {
-    if (err) { return next(err); }
+    if (err) next(err);
 
 
     const isExistingInSpace = _.find(space.assets, (asset) => {
-      console.log('asset', asset, assetId, asset.equals(assetId));
       return asset.equals(assetId);
     });
-    console.log('isExistingInSpace', isExistingInSpace);
     if (isExistingInSpace) {
       // Update asset
-      Asset.findOne({ _id: assetId }, (err, asset) => {
+      Asset.findOne({ _id: assetId }, (errFind, asset) => {
         asset.fields = fields;
-        console.log('updateExistingAsset', asset);
         asset.save((err1) => {
-          if (err1) {
-            console.log(err1);
-            return _helper.handleError(err1, next);
-          }
+          if (err1) _helper.handleError(err1, next);
+
           res.json({
             status: 'SUCCESS',
             detail: 'Updating asset successfully',
@@ -73,12 +68,12 @@ const updateAsset = (req, res, next) => {
       console.log('newAsset', newAsset);
 
       newAsset.save((errorSaveAsset) => {
-        if (errorSaveAsset) return _helper.handleError(errorSaveAsset, next);
+        if (errorSaveAsset) _helper.handleError(errorSaveAsset, next);
 
         // Update space
         space.assets.push(newAsset._id);
         space.save((err2) => {
-          if (err2) { return next(err2); }
+          if (err2) next(err2);
           res.json({
             status: 'SUCCESS',
             detail: 'Create new asset successfully',
@@ -104,15 +99,15 @@ exports.deleteAsset = (req, res, next) => {
   const spaceId = req.params.space_id;
   const assetId = req.params.asset_id;
   Asset.remove({ _id: assetId }, (err) => {
-    if (err) return _helper.handleError(err, next);
+    if (err) _helper.handleError(err, next);
 
     // Remove asset ref from space
-    Space.findOne({ _id: spaceId }, (err, space) => {
-      if (err) return _helper.handleError(err, next);
+    Space.findOne({ _id: spaceId }, (errFind, space) => {
+      if (errFind) _helper.handleError(errFind, next);
       space.assets = _.filter(space.assets, _id => !_id.equals(assetId));
 
       space.save((err2) => {
-        if (err2) return _helper.handleError(err2, next);
+        if (err2) _helper.handleError(err2, next);
         res.json({
           status: 'SUCCESS',
           detail: 'delete asset successfully',
@@ -125,13 +120,13 @@ exports.deleteAsset = (req, res, next) => {
 exports.truncateAsset = (req, res, next) => {
   const spaceId = req.params.space_id;
   Space.findOne({ _id: spaceId }, (err, space) => {
-    if (err) { return next(err); }
+    if (err) next(err);
     space.assets = [];
-    space.save((err) => {
-      if (err) return _helper.handleError(err, next);
+    space.save((errSave) => {
+      if (errSave) _helper.handleError(errSave, next);
 
       Asset.remove({ _spaceId: spaceId }, (err2) => {
-        if (err2) return _helper.handleError(err2, next);
+        if (err2) _helper.handleError(err2, next);
         res.json({
           status: 'SUCCESS',
           detail: 'clear all assets in space successfully',

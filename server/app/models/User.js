@@ -1,19 +1,21 @@
 import _ from 'lodash';
+
 const bcrypt = require('bcrypt-nodejs');
 const crypto = require('crypto');
 const mongoose = require('mongoose');
+
 const Schema = mongoose.Schema;
 
 const userSchema = new mongoose.Schema({
   email: { type: String },
   spaces: [{ type: Schema.Types.ObjectId, ref: 'Space' }],
-  organizations : [{ type: Schema.Types.ObjectId, ref: 'Organization' }],
+  organizations: [{ type: Schema.Types.ObjectId, ref: 'Organization' }],
   profile: {
     name: String,
     gender: String,
     location: String,
     website: String,
-    picture: String
+    picture: String,
   },
   password: String,
   passwordResetToken: String,
@@ -24,7 +26,7 @@ const userSchema = new mongoose.Schema({
       user_id: String,
       connection: String,
       isSocial: { type: Boolean, default: true },
-    }
+    },
   ],
   facebook: String,
   twitter: String,
@@ -44,33 +46,25 @@ userSchema.pre('save', function save(next) {
   const user = this;
   if (!user.isModified('password')) { return next(); }
   bcrypt.genSalt(10, (err, salt) => {
-    if (err) { return next(err); }
-    bcrypt.hash(user.password, salt, null, (err, hash) => {
-      if (err) { return next(err); }
+    if (err) { next(err); }
+    bcrypt.hash(user.password, salt, null, (err2, hash) => {
+      if (err2) { next(err2); }
       user.password = hash;
       next();
     });
   });
 });
 
-export const getProvider = (identity) => {
-  return _.head(_.split(identity, '|'));
-};
-
-
+// export const getProvider = identity => _.head(_.split(identity, '|'));
 userSchema.statics.findByIdentity = function (identity, cb) {
-  // const identityProvider = getProvider(identity);
   const [identityProvider, identityNumber] = _.split(identity, '|');
-
-  console.log("identityProvider:: ", identityProvider);
-
   return this.findOne({
     identities: {
       $elemMatch: {
         provider: identityProvider,
         user_id: identityNumber,
-      }
-    }
+      },
+    },
   }, cb);
 };
 
@@ -86,10 +80,10 @@ userSchema.methods.comparePassword = function comparePassword(candidatePassword,
 /**
  * Helper method for getting user's gravatar.
  */
-userSchema.methods.gravatar = function gravatar(size) {
-  if (!size) {
-    size = 200;
-  }
+userSchema.methods.gravatar = function gravatar(size = 200) {
+  // if (!size) {
+  //   size = 200;
+  // }
   if (!this.email) {
     return `https://gravatar.com/avatar/?s=${size}&d=retro`;
   }

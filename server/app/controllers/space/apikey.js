@@ -1,46 +1,69 @@
 import _ from 'lodash';
+
 const cuid = require('cuid');
 const mongoose = require('mongoose');
 const Space = require('../../models/Space');
 
-exports.getAllKey = (req, res, next) => {
+exports.getAllKey = async (req, res, next) => {
   const spaceId = req.params.space_id;
-  Space.findOne({ _id: spaceId }, (err, space) => {
-    if (err) { return next(err); }
-
-    space.save((err) => {
-      if (err) next(err);
-      res.json({
-        title: 'Keys',
-        items: space.apiKeys,
-      });
+  try {
+    const space = await Space.findOne({ _id: spaceId });
+    res.json({
+      title: 'Keys',
+      items: space.apiKeys,
     });
-  });
+  } catch (e) {
+    next(e);
+  }
 };
 
-exports.clearAllKey = (req, res, next) => {
+exports.clearAllKey = async (req, res, next) => {
   const spaceId = req.params.space_id;
-  Space.findOne({ _id: spaceId }, (err, space) => {
-    if (err) { return next(err); }
-
+  try {
+    const space = Space.findOne({ _id: spaceId });
     space.apiKeys = [];
-
-    space.save((err) => {
-      if (err) next(err);
-      res.json({
-        title: 'Cleared key',
-        space,
-      });
+    await space.save();
+    res.json({
+      title: 'Cleared key',
+      space,
     });
-  });
+  } catch (e) {
+    next(e);
+  }
 };
 
-exports.updateKey = (req, res, next) => {
-
+exports.updateKey = async (req, res, next) => {
   const spaceId = req.params.space_id;
   const keyId = req.params.key_id;
   const { name } = req.body;
 
+  try {
+    const space = await Space.findOne({ _id: spaceId });
+    const isExisting = _.find(space.apiKeys, k => k._id.equals(keyId));
+
+    if (isExisting) {
+      // TODO:
+      // Update existing noe
+      space.apiKeys = _.map(space.apiKeys, (apiKey) => {
+        if (apiKey._id.equals(keyId)) {
+          return {
+            _id: apiKey._id,
+            name,
+          };
+        }
+        return apiKey;
+      });
+
+      await space.save();
+      res.json({
+        title: 'Updated key',
+        space,
+      });
+    }
+  } catch (e) {
+    next(e);
+  }
+  /*
   Space.findOne({ _id: spaceId }, (err, space) => {
     if (err) { return next(err); }
 
@@ -69,10 +92,10 @@ exports.updateKey = (req, res, next) => {
       })
     }
   });
+  */
 };
 
 exports.createKey = (req, res, next) => {
-
   const spaceId = req.params.space_id;
 
   const { name } = req.body;
@@ -112,7 +135,7 @@ exports.deleteKey = (req, res, next) => {
   const keyId = req.params.key_id;
 
   Space.findOne({ _id: spaceId }, (err, space) => {
-    if (err) { return next(err); }
+    if (err) { next(err); }
 
     if (!space) {
       res.json({
@@ -121,7 +144,6 @@ exports.deleteKey = (req, res, next) => {
       });
     } else {
       space.apiKeys = _.filter(space.apiKeys, apiKey => !apiKey._id.equals(keyId));
-
       space.save((err) => {
         if (err) { return next(err); }
         res.json({

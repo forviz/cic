@@ -105,9 +105,25 @@ app.use((req, res, next) => {
 // const tokenAuthenticate = jwt({
 //   secret: 'shhhhh'
 // });
+const contentManagementAuthentication = process.env.NODE_ENV !== 'test' ? jwt({
+  secret: jwks.expressJwtSecret({
+    cache: true,
+    rateLimit: true,
+    jwksRequestsPerMinute: 5,
+    jwksUri: 'https://forviz.au.auth0.com/.well-known/jwks.json',
+    handleSigningKeyError: (err, cb) => {
+      if (err instanceof jwks.SigningKeyNotFoundError) {
+        return cb(new Error('This is bad'));
+      }
+      return cb(err);
+    },
+  }),
+  audience: 'content.forviz.com',
+  issuer: 'https://forviz.au.auth0.com/',
+  algorithms: ['RS256'],
+}) : jwt({ secret: 'testing' });
 
 const contentDeliveryAuthentication = (req, res, next) => {
-
   const token = _.replace(req.get('Authorization'), 'Bearer ', '');
   if (token !== '') return contentManagementAuthentication(req, res, next);
 
@@ -141,24 +157,6 @@ const contentDeliveryAuthentication = (req, res, next) => {
     }
   });
 };
-
-const contentManagementAuthentication = process.env.NODE_ENV !== 'test' ? jwt({
-  secret: jwks.expressJwtSecret({
-    cache: true,
-    rateLimit: true,
-    jwksRequestsPerMinute: 5,
-    jwksUri: 'https://forviz.au.auth0.com/.well-known/jwks.json',
-    handleSigningKeyError: (err, cb) => {
-      if (err instanceof jwks.SigningKeyNotFoundError) {
-        return cb(new Error('This is bad'));
-      }
-      return cb(err);
-    },
-  }),
-  audience: 'content.forviz.com',
-  issuer: 'https://forviz.au.auth0.com/',
-  algorithms: ['RS256'],
-}) : jwt({ secret: 'testing' });
 
 const apiPrefix = '/v1';
 

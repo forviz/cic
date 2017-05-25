@@ -33,25 +33,23 @@ const getRealParamKey = (key) => {
   }
 };
 
-const convertStringToObject = (str) => {
-  return _.reduce(_.split(str, ','), (all, item) => {
+const convertStringToObject = str =>
+  _.reduce(_.split(str, ','), (all, item) => {
     const [key, value] = _.split(item, '_');
     const realKey = getRealParamKey(key);
     return {
       ...all,
       [realKey]: value,
-    }
+    };
   }, {});
-};
 
-const getImage = (req, res, next) => {
+const getImage = (req, res) => {
   const publicId = req.params.public_id;
   const paramString = req.params.param;
   const paramsObject = convertStringToObject(paramString);
   const imgUrl = cloudinary.url(publicId, paramsObject);
   request(imgUrl).pipe(res);
 };
-
 
 module.exports = {
   getImage,

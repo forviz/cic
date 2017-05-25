@@ -28,7 +28,6 @@ exports.getSingle = async (req, res, next) => {
 };
 
 exports.createOrganization = async (req, res, next) => {
-
   try {
     const userOpenId = getIdentityFromToken(req);
     const user = await getUserFromIdentity(userOpenId);
@@ -61,7 +60,7 @@ exports.getAllMemberOrganization = async (req, res, next) => {
 
   try {
     if (!mongooseObject.isValid(organizationId)) {
-      throw { message: 'Not objectId' };
+      throw new Error('Not objectId');
     }
 
     const result = await Organization.find({ _id: organizationId }).populate('users.Members');
@@ -73,7 +72,7 @@ exports.getAllMemberOrganization = async (req, res, next) => {
   } catch (e) {
     next(e);
   }
-}
+};
 
 exports.delMemberOrganization = async (req, res, next) => {
   try {

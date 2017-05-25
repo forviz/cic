@@ -3,24 +3,24 @@ const _ = require('lodash');
 
 const Entry = require('../../models/Entry');
 const Space = require('../../models/Space');
-const _helper = require('./helper');
+const helper = require('./helper');
 
 const mongooseObject = mongoose.Types.ObjectId;
 
 /**
  * Entries
  */
-
+/* eslint-disable guard-for-in, no-restricted-syntax */
 const checkObjectId = (data) => {
   if (typeof (data) !== 'object') {
-    if (!mongooseObject.isValid(data)) throw { error: 'Not objectID!!' };
+    if (!mongooseObject.isValid(data)) throw new Error('Not objectID!!');
   } else {
-    for (let keyData in data) {
-      if (!mongooseObject.isValid(data[keyData])) throw { error: 'Not objectID!!' };
+    for (const keyData in data) {
+      if (!mongooseObject.isValid(data[keyData])) throw new Error('Not objectID!!');
     }
   }
   return true;
-}
+};
 
 const getQuery = (q) => {
   const queryString = {
@@ -37,13 +37,13 @@ const getQuery = (q) => {
   const isObjectId = ['_id', 'contentTypeId', '_spaceId'];
 
   const _q = {};
-  for (let key in q) {
+  for (const key in q) {
     const keyQuery = queryString[key] ? queryString[key] : key;
     if (typeof (q[key]) === 'object') {
-      for (let __key in q[key]) {
+      for (const __key in q[key]) {
         if (queryString[__key]) {
           if (typeof (_q[keyQuery]) !== 'object') {
-              _q[keyQuery] = {};
+            _q[keyQuery] = {};
           }
           const tempVal = (__key === 'in' || __key === 'nin') ? q[key][__key].split(',') : q[key][__key];
           _q[keyQuery][queryString[__key]] = tempVal;
@@ -55,14 +55,14 @@ const getQuery = (q) => {
       };
     }
     if (isObjectId.indexOf(keyQuery) >= 0) {
-      for (let tempIndex in _q[keyQuery]) {
+      for (const tempIndex in _q[keyQuery]) {
         checkObjectId(_q[keyQuery][tempIndex]);
       }
     }
   }
 
   return _q;
-}
+};
 
 const getEntry = async (query, spaceId, entryId = null) => {
   const reqQuery = { ...query };
@@ -98,10 +98,10 @@ const getEntry = async (query, spaceId, entryId = null) => {
 
   const result = await Entry.find(_query).select(select).limit(limit).skip(skip);
   return result;
-}
+};
+/* eslint-enable guard-for-in, no-restricted-syntax */
 
-
-exports.getAllEntries = async (req, res, next) => {
+exports.getAllEntries = async (req, res) => {
   try {
     const spaceId = req.params.space_id;
     const reqQuery = req.query;
@@ -114,7 +114,7 @@ exports.getAllEntries = async (req, res, next) => {
   }
 };
 
-exports.getSingleEntry = async (req, res, next) => {
+exports.getSingleEntry = async (req, res) => {
   try {
     const spaceId = req.params.space_id;
     const entryId = req.params.entry_id;
@@ -126,11 +126,10 @@ exports.getSingleEntry = async (req, res, next) => {
   } catch (e) {
     res.status(500).json(e);
   }
-}
+};
 
 // UPDATE CONTENT TYPE
 const updateEntry = (req, res, next) => {
-
   const spaceId = req.params.space_id;
   const entryId = req.params.entry_id;
   const contentTypeId = req.headers['x-cic-content-type'];
@@ -156,7 +155,7 @@ const updateEntry = (req, res, next) => {
 
     const isExistingInSpace = _.find(space.entries, entry => entry.equals(entryId));
     if (isExistingInSpace) {
-      const validation = _helper.validateFields(fields, contentTypeInfo);
+      const validation = helper.validateFields(fields, contentTypeInfo);
       if (!validation.valid) {
         res.json({
           status: 'UNSUCCESSFUL',
@@ -171,7 +170,7 @@ const updateEntry = (req, res, next) => {
         entry.fields = fields;
         entry.status = status;
         entry.save((err1) => {
-          if (err1) return _helper.handleError(err1, next);
+          if (err1) return helper.handleError(err1, next);
           res.json({
             status: 'SUCCESS',
             detail: 'Updating entry successfully',
@@ -190,7 +189,7 @@ const updateEntry = (req, res, next) => {
       });
 
       newEntry.save((err) => {
-        if (err) return _helper.handleError(err, next);
+        if (err) return helper.handleError(err, next);
 
         // Update space
         space.entries.push(newEntry._id);
@@ -223,14 +222,14 @@ exports.deleteEntry = (req, res, next) => {
   const spaceId = req.params.space_id;
   const entryId = req.params.entry_id;
   Entry.remove({ _id: entryId }, (err) => {
-    if (err) return _helper.handleError(err, next);
+    if (err) return helper.handleError(err, next);
 
     // Remove entry ref from space
     Space.findOne({ _id: spaceId }, (err, space) => {
-      if (err) return _helper.handleError(err, next);
+      if (err) return helper.handleError(err, next);
       space.entries = _.filter(space.entries, _id => !_id.equals(entryId));
       space.save((err2) => {
-        if (err2) return _helper.handleError(err2, next);
+        if (err2) return helper.handleError(err2, next);
         res.json({
           status: 'SUCCESS',
           detail: 'delete entry successfully',
@@ -247,10 +246,10 @@ exports.truncateEntry = (req, res, next) => {
 
     space.entries = [];
     space.save((err) => {
-      if (err) return _helper.handleError(err, next);
+      if (err) return helper.handleError(err, next);
 
       Entry.remove({ _spaceId: spaceId }, (err2) => {
-        if (err2) return _helper.handleError(err2, next);
+        if (err2) return helper.handleError(err2, next);
         res.json({
           status: 'SUCCESS',
           detail: 'clear all entries in space successfully',

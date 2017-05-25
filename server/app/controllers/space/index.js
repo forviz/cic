@@ -8,6 +8,7 @@ const Organization = require('../../models/Organization');
 /**
  * Get
  */
+/* eslint-disable import/prefer-default-export */
 export const getUserFromIdentity = async (identity) => {
   try {
     const user = await User.findByIdentity(identity);
@@ -32,6 +33,7 @@ export const getUserFromIdentity = async (identity) => {
     return e;
   }
 };
+/* eslint-enable import/prefer-default-export */
 
 const getOrganizationsFromUser = async (user) => {
   try {
@@ -82,7 +84,7 @@ exports.getSingle = (req, res, next) => {
       space,
     });
   });
-}
+};
 
 exports.updateSpace = async (req, res) => {
   const spaceId = req.params.space_id;

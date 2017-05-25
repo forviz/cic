@@ -13,10 +13,6 @@ exports.getAllContentTypes = (req, res, next) => {
   });
 };
 
-exports.getSingleContentType = (req, res, next) => {
-
-}
-
 /**
  * Content Types
  */
@@ -82,7 +78,6 @@ const updateContentType = (req, res, next) => {
         }
         return contentType;
       });
-
     } else {
       // Add New
       space.contentTypes.push({
@@ -119,7 +114,6 @@ exports.updateContentType = updateContentType;
 
 // CREATE CONTENT TYPE
 exports.createContentType = (req, res, next) => {
-
   // Create new objectId
   const contentTypeId = mongoose.Types.ObjectId();
   req.params.content_type_id = contentTypeId;

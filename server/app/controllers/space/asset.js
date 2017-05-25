@@ -27,7 +27,7 @@ exports.getSingleAsset = (req, res, next) => {
       item: asset,
     });
   });
-}
+};
 
 // UPDATE CONTENT TYPE
 const updateAsset = (req, res, next) => {
@@ -46,7 +46,6 @@ const updateAsset = (req, res, next) => {
     });
     console.log('isExistingInSpace', isExistingInSpace);
     if (isExistingInSpace) {
-
       // Update asset
       Asset.findOne({ _id: assetId }, (err, asset) => {
         asset.fields = fields;

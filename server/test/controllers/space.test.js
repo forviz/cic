@@ -2,21 +2,20 @@
 process.env.NODE_ENV = 'test';
 
 const jwt = require('jsonwebtoken');
-const token = jwt.sign({ foo: 'bar' }, 'testing');
-
-const mongoose = require("mongoose");
 const Space = require('../../app/models/Space');
 
 // Require the dev-dependencies
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 const server = require('../../app');
-const should = chai.should();
+
+const token = jwt.sign({ foo: 'bar' }, 'testing');
 
 chai.use(chaiHttp);
 // Our parent block
 describe('Spaces', () => {
-  beforeEach((done) => { //Before each test we empty the database
+  beforeEach((done) => {
+    // Before each test we empty the database
     Space.remove({}, (err) => {
       done();
     });
@@ -32,10 +31,6 @@ describe('Spaces', () => {
         .set('Authorization', `Bearer ${token}`)
         .send({ name: 'Test Space' })
         .end((err, res) => {
-          console.log('error');
-          console.log(err);
-          console.log('res');
-          console.log(res);
           res.should.have.status(200);
           res.body.space.should.be.an('object');
           res.body.space._id.should.be.an('string');
@@ -57,7 +52,7 @@ describe('Spaces', () => {
   */
   describe('/PUT/:id space', () => {
     it('it should update a space id', (done) => {
-      let space = new Space({ name: 'The Lord of the Rings', defaultLocale: 'en' });
+      const space = new Space({ name: 'The Lord of the Rings', defaultLocale: 'en' });
       space.save((err, savedSpace) => {
         chai.request(server)
         .put('/v1/spaces/' + savedSpace.id)
@@ -87,5 +82,4 @@ describe('Spaces', () => {
         });
     });
   });
-
 });

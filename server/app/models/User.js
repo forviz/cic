@@ -55,11 +55,7 @@ userSchema.pre('save', function save(next) {
   });
 });
 
-export const getProvider = (identity) => {
-  return _.head(_.split(identity, '|'));
-};
-
-
+// export const getProvider = identity => _.head(_.split(identity, '|'));
 userSchema.statics.findByIdentity = function (identity, cb) {
   const [identityProvider, identityNumber] = _.split(identity, '|');
   return this.findOne({

@@ -1,4 +1,5 @@
 import _ from 'lodash';
+
 const cuid = require('cuid');
 const mongoose = require('mongoose');
 const Space = require('../../models/Space');
@@ -32,7 +33,6 @@ exports.clearAllKey = async (req, res, next) => {
 };
 
 exports.updateKey = async (req, res, next) => {
-
   const spaceId = req.params.space_id;
   const keyId = req.params.key_id;
   const { name } = req.body;
@@ -96,7 +96,6 @@ exports.updateKey = async (req, res, next) => {
 };
 
 exports.createKey = (req, res, next) => {
-
   const spaceId = req.params.space_id;
 
   const { name } = req.body;

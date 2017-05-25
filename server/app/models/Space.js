@@ -5,14 +5,14 @@ const spaceSchema = new Schema({
   name: String,
   defaultLocale: { type: String, default: 'en', required: true },
   // users: [{ type: Schema.Types.ObjectId, ref: 'User' }],
-  organization : { type: Schema.Types.ObjectId, ref: 'Organization' },
+  organization: { type: Schema.Types.ObjectId, ref: 'Organization' },
   apiKeys: [{
     _id: Schema.Types.ObjectId,
     name: String,
     description: String,
     deliveryKey: String,
     previewKey: String,
-    expireDate: { type: 'Date', default: +new Date() + 5*365*24*60*60*1000 },
+    expireDate: { type: 'Date', default: +new Date() + (5 * 365 * 24 * 60 * 60 * 1000) },
     active: { type: Boolean, default: true },
   }],
   contentTypes: [{
@@ -69,5 +69,5 @@ const spaceSchema = new Schema({
 
 
 const Space = mongoose.model('Space', spaceSchema);
- 
+
 module.exports = Space;

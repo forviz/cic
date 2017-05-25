@@ -1,53 +1,31 @@
-import {getUserFromIdentity} from '../space/index';
-import { getAccessToken, decodeToken, getIdentityFromToken } from '../../utils/jwtUtils';
+import { getUserFromIdentity } from '../space/index';
+import { getIdentityFromToken } from '../../utils/jwtUtils';
+
 const mongoose = require('mongoose');
 
 const _ = require('lodash');
 const Organization = require('../../models/Organization');
+
 const mongooseObject = mongoose.Types.ObjectId;
 
-
-exports.getAll2 = function (req, res, next) {
-
-  Organization.find({ }, function (err, organizations) {
-    res.json({
-      items: organizations
-    });
-  })
-}
-
-
-exports.getAll = async (req, res, next) => {
-
+exports.getAll = async (req, res) => {
   const organizations = await Organization.find({ });
 
   res.json({
-    items: organizations
+    items: organizations,
   });
-}
+};
 
 exports.getSingle = async (req, res, next) => {
-   const organizationId = req.params.organization_id;
-   Organization.findOne({ _id: organizationId }).exec((err, organization) => {
-     if (err) { return next(err); }
-     res.json({
-       title: 'find organization',
-       organization,
-     });
-   });
-}
-
-  /*
-  try {
-    const result = await Organization.find({ });
+  const organizationId = req.params.organization_id;
+  Organization.findOne({ _id: organizationId }).exec((err, organization) => {
+    if (err) { return next(err); }
     res.json({
-      items: result,
+      title: 'find organization',
+      organization,
     });
-  } catch (e) {
-    next(e);
-  }*/
-
-
+  });
+};
 
 exports.createOrganization = async (req, res, next) => {
 
@@ -76,28 +54,21 @@ exports.createOrganization = async (req, res, next) => {
   } catch (e) {
     next(e);
   }
-}
+};
 
 exports.getAllMemberOrganization = async (req, res, next) => {
-
   const organizationId = req.params.organization_id;
 
-
-
   try {
-    if(!mongooseObject.isValid(organizationId)){
-      console.log("iii");
-      throw { 'message' : 'Not objectId'};
+    if (!mongooseObject.isValid(organizationId)) {
+      throw { message: 'Not objectId' };
     }
-    
-    // const result = await Organization.find({ _id: organizationId });
+
     const result = await Organization.find({ _id: organizationId }).populate('users.Members');
 
-    console.log("result:: ", result);
     res.json({
       organization: organizationId,
-      members: result[0].users.Members
-      // members: result[0].users.Members
+      members: result[0].users.Members,
     });
   } catch (e) {
     next(e);
@@ -105,42 +76,31 @@ exports.getAllMemberOrganization = async (req, res, next) => {
 }
 
 exports.delMemberOrganization = async (req, res, next) => {
-
   try {
-
     const organizationId = req.params.organization_id;
     const userId = req.params.user_id;
 
-    console.log("userId:: ", userId);
-    console.log("organizationId:: ", organizationId);
-
-    await Organization.update(
-      { _id: organizationId },
-      { $pull:
-        {
-          'users.Members': userId
-        }
-      }
+    await Organization.update({
+      _id: organizationId },
+      {
+        $pull: {
+          'users.Members': userId,
+        },
+      },
     );
 
     res.json({
-      status: 'SUCCESS'
+      status: 'SUCCESS',
     });
-
   } catch (e) {
     next(e);
   }
-
-
-}
+};
 
 exports.createMemberOrganization = async (req, res, next) => {
   try {
     const userId = req.body.user_id;
     const organizationId = req.params.organization_id;
-
-    console.log("userId:: ", userId);
-    console.log("organizationId:: ", organizationId);
 
     // const organization = await Organization.find({ _id: organizationId });
     // console.log("find organization:: ", organization);
@@ -156,38 +116,28 @@ exports.createMemberOrganization = async (req, res, next) => {
     //
     // const result = await organization.save();
 
-    const checkMember = await Organization.find({ "users.Members" : userId});
+    const checkMember = await Organization.find({ 'users.Members': userId });
 
-    if(!_.isEmpty(checkMember)){
+    if (!_.isEmpty(checkMember)) {
       // console.log("IF");
       res.json({
-        status: 'มีแล้ว ไม่แอดแล้ว'
+        status: 'มีแล้ว ไม่แอดแล้ว',
       });
-    }else{
+    } else {
       // console.log("ELSE");
-      await Organization.update(
-        { "_id" : organizationId },
-        { $push:
-          {
-            "users.Members": userId
-          }
-        });
+      await Organization.update({
+        _id: organizationId
+      }, {
+        $push: {
+          'users.Members': userId,
+        },
+      });
 
-        res.json({
-          status: 'SUCCESS'
-        });
+      res.json({
+        status: 'SUCCESS',
+      });
     }
-    console.log("checkMember::", checkMember);
-
-
-
-    //   console.log('Hello');
-    // await organization.save();
-
-
-
-
   } catch (e) {
     next(e);
   }
-}
+};

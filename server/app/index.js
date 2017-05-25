@@ -73,8 +73,6 @@ const allowCrossDomain = (req, res, next) => {
   next();
 };
 
-
-
 app.use(allowCrossDomain);
 
 app.use(session({
@@ -83,8 +81,8 @@ app.use(session({
   secret: process.env.SESSION_SECRET,
   store: new MongoStore({
     url: process.env.MONGODB_URI || process.env.MONGOLAB_URI,
-    autoReconnect: true
-  })
+    autoReconnect: true,
+  }),
 }));
 
 app.use(flash());
@@ -111,38 +109,36 @@ app.use((req, res, next) => {
 const contentDeliveryAuthentication = (req, res, next) => {
 
   const token = _.replace(req.get('Authorization'), 'Bearer ', '');
-  if (token !== '')
-      return contentManagementAuthentication(req, res, next);
+  if (token !== '') return contentManagementAuthentication(req, res, next);
 
   const spaceId = req.params.space_id;
-  const access_token = req.query.access_token;
+  const accessToken = req.query.access_token;
 
-  Space.findOne({_id: spaceId, }, (err, space) => {
+  Space.findOne({ _id: spaceId }, (err, space) => {
     if (err) {
-      return res.status(401).send({
+      res.status(401).send({
         code: 401,
-        message: 'This space id is invalid'
+        message: 'This space id is invalid',
       });
     }
 
-    const apiKeysActive = space.apiKeys.filter(item => item.active === true)
+    const apiKeysActive = space.apiKeys.filter(item => item.active === true);
     if (apiKeysActive.length > 0) {
-      const theKey = apiKeysActive.find(item => item.deliveryKey === access_token);
+      const theKey = apiKeysActive.find(item => item.deliveryKey === accessToken);
       if (moment().isBefore(theKey.expireDate)) {
-        next()
+        next();
       } else {
         res.status(401).send({
           code: 401,
-          message: 'This token has expired'
+          message: 'This token has expired',
         });
       }
     } else {
       res.status(401).send({
         code: 401,
-        message: 'This space does not have api key'
+        message: 'This space does not have api key',
       });
     }
-
   });
 };
 
@@ -151,20 +147,18 @@ const contentManagementAuthentication = process.env.NODE_ENV !== 'test' ? jwt({
     cache: true,
     rateLimit: true,
     jwksRequestsPerMinute: 5,
-    jwksUri: "https://forviz.au.auth0.com/.well-known/jwks.json",
+    jwksUri: 'https://forviz.au.auth0.com/.well-known/jwks.json',
     handleSigningKeyError: (err, cb) => {
       if (err instanceof jwks.SigningKeyNotFoundError) {
         return cb(new Error('This is bad'));
       }
       return cb(err);
-    }
+    },
   }),
   audience: 'content.forviz.com',
-  issuer: "https://forviz.au.auth0.com/",
-  algorithms: ['RS256']
+  issuer: 'https://forviz.au.auth0.com/',
+  algorithms: ['RS256'],
 }) : jwt({ secret: 'testing' });
-
-
 
 const apiPrefix = '/v1';
 
@@ -240,11 +234,6 @@ app.get('/*', (req, res) => {
 /**
  * Start Express server.
  */
-
-
-app.get(`/spaces/:space_id`, contentDeliveryAuthentication, entryController.getAllEntries);
-app.get(`/spaces/:space_id`, contentDeliveryAuthentication, entryController.getAllEntries);
-
 
 app.listen(app.get('port'), () => {
   console.log('%s CICAPP service is running at http://localhost:%d in %s mode', chalk.green('✓'), app.get('port'), app.get('env'));

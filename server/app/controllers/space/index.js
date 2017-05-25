@@ -1,6 +1,6 @@
-const mongoose = require('mongoose');
-const _ = require('lodash');
-import { getAccessToken, decodeToken, getIdentityFromToken } from '../../utils/jwtUtils';
+import _ from 'lodash';
+import { getIdentityFromToken } from '../../utils/jwtUtils';
+
 const Space = require('../../models/Space');
 const User = require('../../models/User');
 const Organization = require('../../models/Organization');
@@ -22,19 +22,19 @@ export const getUserFromIdentity = async (identity) => {
         provider,
         user_id: providerId,
         connection: provider,
-        isSocial: true
-      }
+        isSocial: true,
+      },
     ];
-    const result = await newUser.save();
+    await newUser.save();
     return newUser;
   } catch (e) {
     console.log(e);
+    return e;
   }
-}
+};
 
 const getOrganizationsFromUser = async (user) => {
   try {
-
     const organizations = await Organization.findByIdentity(user._id);
     if (!_.isEmpty(organizations)) return organizations;
 
@@ -47,38 +47,36 @@ const getOrganizationsFromUser = async (user) => {
     await user.save();
     await newOrganization.save();
     return [newOrganization];
-
   } catch (e) {
     console.log(e);
   }
-}
+};
 
 exports.getAll = async (req, res, next) => {
-
   const userOpenId = getIdentityFromToken(req);
   const user = await getUserFromIdentity(userOpenId);
 
   try {
-    // const result = await Space.find({ users: user._id });
-
-    const userOrgazation = await Organization.find({$or: [{'users.Members':user._id},{'users.Owners':user._id}] });
+    const userOrgazation = await Organization.find({
+      $or: [{ 'users.Members': user._id }, { 'users.Owners': user._id }],
+    });
 
     const result = await Space.find({
-          organization: { $in: _.map(userOrgazation, '_id') }
-       });
+      organization: { $in: _.map(userOrgazation, '_id') }
+    });
 
     res.json({
-      items: result
+      items: result,
     });
   } catch (e) {
     next(e);
   }
-}
+};
 
 exports.getSingle = (req, res, next) => {
   const spaceId = req.params.space_id;
   Space.findOne({ _id: spaceId }).exec((err, space) => {
-    if (err) { return next(err); }
+    if (err) { next(err); }
     res.json({
       title: 'find space',
       space,
@@ -86,7 +84,7 @@ exports.getSingle = (req, res, next) => {
   });
 }
 
-exports.updateSpace = async (req, res, next) => {
+exports.updateSpace = async (req, res) => {
   const spaceId = req.params.space_id;
   const spaceName = req.body.name;
   const defaultLocale = req.body.defaultLocale;
@@ -101,12 +99,12 @@ exports.updateSpace = async (req, res, next) => {
     res.json({
       status: 'SUCCESS',
       detail: 'Update space successfully',
-      space: space,
+      space,
     });
   }
-}
+};
 
-exports.createSpace = async (req, res, next) => {
+exports.createSpace = async (req, res) => {
   const spaceName = req.body.name;
   const defaultLocale = req.body.defaultLocale;
 
@@ -120,7 +118,7 @@ exports.createSpace = async (req, res, next) => {
     name: spaceName,
     defaultLocale,
     users: [user._id],
-    organization: organizationToUse._id
+    organization: organizationToUse._id,
   });
 
   organizationToUse.spaces.push(space._id);
@@ -131,8 +129,8 @@ exports.createSpace = async (req, res, next) => {
   res.json({
     status: 'SUCCESS',
     detail: 'Create space successfully',
-    space: space,
-    user: user,
+    space,
+    user,
     organization: organizationToUse,
   });
 };

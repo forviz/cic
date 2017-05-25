@@ -30,8 +30,12 @@ describe('Spaces', () => {
       chai.request(server)
         .post('/v1/spaces')
         .set('Authorization', `Bearer ${token}`)
-        .send({ name: 'Test Space'})
+        .send({ name: 'Test Space' })
         .end((err, res) => {
+          console.log('error');
+          console.log(err);
+          console.log('res');
+          console.log(res);
           res.should.have.status(200);
           res.body.space.should.be.an('object');
           res.body.space._id.should.be.an('string');

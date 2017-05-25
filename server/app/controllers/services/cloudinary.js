@@ -4,7 +4,6 @@ const request = require('request');
 const cloudinary = require('cloudinary');
 const fs = require('fs');
 
-
 /* Cloudinary */
 const CLOUDINARY_CLOUDNAME = process.env.CLOUDINARY_CLOUDNAME;
 const CLOUDINARY_APIKEY = process.env.CLOUDINARY_APIKEY;
@@ -16,11 +15,9 @@ cloudinary.config({
   api_secret: CLOUDINARY_APISECRET,
 });
 
-const upload = (req, res, next) => {
-  console.log(req.file);
+const upload = (req, res) => {
   const file = req.file.path;
   cloudinary.uploader.upload(file, (result) => {
-    console.log(result);
     res.json(result);
     fs.unlink(file);
   });
@@ -34,7 +31,7 @@ const getRealParamKey = (key) => {
     case 'g': return 'gravity';
     default: return key;
   }
-}
+};
 
 const convertStringToObject = (str) => {
   return _.reduce(_.split(str, ','), (all, item) => {
@@ -45,7 +42,7 @@ const convertStringToObject = (str) => {
       [realKey]: value,
     }
   }, {});
-}
+};
 
 const getImage = (req, res, next) => {
   const publicId = req.params.public_id;
@@ -59,4 +56,4 @@ const getImage = (req, res, next) => {
 module.exports = {
   getImage,
   upload,
-}
+};

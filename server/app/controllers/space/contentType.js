@@ -49,7 +49,7 @@ const updateContentType = (req, res, next) => {
   const displayField = req.body.displayField;
   const identifier = req.body.identifier;
   const fields = req.body.fields;
-  
+
   Space.findOne({ _id: spaceId }, (err, space) => {
     if (err) next(err);
 

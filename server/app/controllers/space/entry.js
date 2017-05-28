@@ -129,13 +129,56 @@ exports.getSingleEntry = async (req, res) => {
 };
 
 // UPDATE CONTENT TYPE
-const updateEntry = (req, res, next) => {
+const updateEntry = async (req, res, next) => {
   const spaceId = req.params.space_id;
   const entryId = req.params.entry_id;
   const contentTypeId = req.headers['x-cic-content-type'];
   const fields = req.body.fields;
   const status = req.body.status;
 
+  try {
+    const space = await Space.findOne({ _id: spaceId });
+    const contentTypeInfo = _.find(space.contentTypes, ct => ct._id.equals(contentTypeId));
+    if (!contentTypeInfo) {
+      res.json({
+        status: 'UNSUCCESSFUL',
+        detail: `Invalid contentType ${contentTypeId}`,
+      });
+      return;
+    }
+
+    const validation = helper.validateFields(fields, contentTypeInfo);
+    if (!validation.valid) {
+      res.json({
+        status: 'UNSUCCESSFUL',
+        message: validation.message,
+      });
+      return;
+    }
+
+    const entry = await Entry.findOneAndUpdate({ _id: entryId }, {
+      contentTypeId,
+      fields,
+      status: status || 'draft',
+      _spaceId: spaceId,
+    }, {
+      new: true,
+      upsert: true,
+    });
+
+    // Add to space.entires if not exists
+    space.entries = _.uniq([...space.entries, entry._id]);
+    await space.save();
+
+    res.json({
+      status: 'SUCCESS',
+      detail: 'Create new entry successfully',
+      entry,
+    });
+  } catch (e) {
+    next(e);
+  }
+  /*
   Space.findOne({ _id: spaceId }, (err, space) => {
     if (err) {
       next(err);
@@ -204,6 +247,7 @@ const updateEntry = (req, res, next) => {
       });
     }
   });
+  */
 };
 
 exports.updateEntry = updateEntry;

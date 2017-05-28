@@ -22,8 +22,9 @@ describe('Entry', () => {
       done();
     });
   });
+
   /*
-   * Test the /GET route
+   * Test the /POST entry
    */
   describe('/POST entry', () => {
     it('it should return created entry', (done) => {
@@ -44,14 +45,14 @@ describe('Entry', () => {
           .send({
             name: 'Article',
             fields: [{
-              id: 'title',
+              identifier: 'title',
               name: 'Title',
               required: 1,
               localized: 1,
               type: 'Text'
             },
             {
-              id: 'body',
+              identifier: 'body',
               name: 'Body',
               required: 1,
               localized: 1,
@@ -70,19 +71,39 @@ describe('Entry', () => {
               .set('Authorization', `Bearer ${token}`)
               .set('x-cic-content-type', contentTypeId)
               .send({
-                displayField: 'title',
-              	fields,
+                fields,
               })
               .end((err, res) => {
                 res.should.have.status(200);
                 res.body.entry.should.be.an('object');
                 res.body.entry.should.have.property('fields').eql(fields);
-                done();
+
+                const entryId = res.body.entry._id;
+                const updateFields = {
+                  title: 'Hello Update Entry',
+                  body: 'Update Body',
+                };
+
+                // Update Entry
+                chai.request(server)
+                  .put('/v1/spaces/' + spaceId + '/entries/' + entryId)
+                  .set('Authorization', `Bearer ${token}`)
+                  .set('x-cic-content-type', contentTypeId)
+                  .send({
+                    fields: updateFields
+                  })
+                  .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.entry.should.be.an('object');
+                    res.body.entry.should.have.property('fields').eql(updateFields);
+                    done();
+                  });
               });
 
           });
         });
     });
   });
+
 
 });

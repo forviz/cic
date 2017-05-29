@@ -1,8 +1,7 @@
 const _ = require('lodash');
 
-exports.handleError = (err, next) => {
-  return next(err);
-};
+exports.handleError = (err, next) => next(err);
+
 /**
  * Field Validation Helpers
  */

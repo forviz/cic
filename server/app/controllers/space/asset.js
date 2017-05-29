@@ -29,57 +29,34 @@ exports.getSingleAsset = (req, res, next) => {
   });
 };
 
-// UPDATE CONTENT TYPE
-const updateAsset = (req, res, next) => {
+// UPDATE ASSET
+const updateAsset = async (req, res, next) => {
   const spaceId = req.params.space_id;
   const assetId = req.params.asset_id;
   const fields = req.body.fields;
-  console.log('updateAsset', spaceId, assetId, fields);
 
-  Space.findOne({ _id: spaceId }, (err, space) => {
-    if (err) next(err);
+  try {
+    const space = await Space.findOne({ _id: spaceId });
+    const asset = await Asset.findOneAndUpdate({ _id: assetId }, {
+      fields,
+      _spaceId: spaceId,
+    }, {
+      new: true,
+      upsert: true,
+    });
 
-    const isExistingInSpace = _.find(space.assets, asset => asset.equals(assetId));
-    if (isExistingInSpace) {
-      // Update asset
-      Asset.findOne({ _id: assetId }, (errFind, asset) => {
-        asset.fields = fields;
-        asset.save((err1) => {
-          if (err1) _helper.handleError(err1, next);
+    // Add to space.entires if not exists
+    space.assets = _.uniq([...space.assets, asset._id]);
+    await space.save();
 
-          res.json({
-            status: 'SUCCESS',
-            detail: 'Updating asset successfully',
-            asset,
-          });
-        });
-      });
-    } else {
-      // 1. Create and Insert new asset
-      // 2. Update spaces.asset
-      const newAsset = new Asset({
-        fields,
-        status: 'draft',
-        _spaceId: spaceId,
-      });
-      console.log('newAsset', newAsset);
-
-      newAsset.save((errorSaveAsset) => {
-        if (errorSaveAsset) _helper.handleError(errorSaveAsset, next);
-
-        // Update space
-        space.assets.push(newAsset._id);
-        space.save((err2) => {
-          if (err2) next(err2);
-          res.json({
-            status: 'SUCCESS',
-            detail: 'Create new asset successfully',
-            asset: newAsset,
-          });
-        });
-      });
-    }
-  });
+    res.json({
+      status: 'SUCCESS',
+      detail: 'Create new asset successfully',
+      asset,
+    });
+  } catch (e) {
+    next(e);
+  }
 };
 
 exports.updateAsset = updateAsset;
@@ -92,26 +69,23 @@ exports.createAsset = (req, res, next) => {
   return updateAsset(req, res, next);
 };
 
-exports.deleteAsset = (req, res, next) => {
+exports.deleteAsset = async (req, res, next) => {
   const spaceId = req.params.space_id;
   const assetId = req.params.asset_id;
-  Asset.remove({ _id: assetId }, (err) => {
-    if (err) _helper.handleError(err, next);
 
-    // Remove asset ref from space
-    Space.findOne({ _id: spaceId }, (errFind, space) => {
-      if (errFind) _helper.handleError(errFind, next);
-      space.assets = _.filter(space.assets, _id => !_id.equals(assetId));
+  try {
+    await Asset.remove({ _id: assetId });
+    const space = await Space.findOne({ _id: spaceId });
+    space.assets = _.filter(space.assets, _id => !_id.equals(assetId));
+    await space.save();
 
-      space.save((err2) => {
-        if (err2) _helper.handleError(err2, next);
-        res.json({
-          status: 'SUCCESS',
-          detail: 'delete asset successfully',
-        });
-      });
+    res.json({
+      status: 'SUCCESS',
+      detail: 'delete asset successfully',
     });
-  });
+  } catch (e) {
+    next(e);
+  }
 };
 
 exports.truncateAsset = (req, res, next) => {

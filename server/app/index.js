@@ -125,7 +125,10 @@ const contentManagementAuthentication = process.env.NODE_ENV !== 'test' ? jwt({
 
 const contentDeliveryAuthentication = (req, res, next) => {
   const token = _.replace(req.get('Authorization'), 'Bearer ', '');
-  if (token !== '') return contentManagementAuthentication(req, res, next);
+  if (token !== '') {
+    contentManagementAuthentication(req, res, next);
+    return;
+  }
 
   const spaceId = req.params.space_id;
   const accessToken = req.query.access_token;

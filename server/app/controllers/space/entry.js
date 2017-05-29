@@ -178,76 +178,6 @@ const updateEntry = async (req, res, next) => {
   } catch (e) {
     next(e);
   }
-  /*
-  Space.findOne({ _id: spaceId }, (err, space) => {
-    if (err) {
-      next(err);
-    }
-
-    // Check contentType
-    const contentTypeInfo = _.find(space.contentTypes, ct => ct._id.equals(contentTypeId));
-
-    if (!contentTypeInfo) {
-      res.json({
-        status: 'UNSUCCESSFUL',
-        detail: `Invalid contentType ${contentTypeId}`,
-      });
-      return;
-    }
-
-    const isExistingInSpace = _.find(space.entries, entry => entry.equals(entryId));
-    if (isExistingInSpace) {
-      const validation = helper.validateFields(fields, contentTypeInfo);
-      if (!validation.valid) {
-        res.json({
-          status: 'UNSUCCESSFUL',
-          message: validation.message,
-        });
-        return;
-      }
-
-      // Not update spaces.entry
-      // Update entry
-      Entry.findOne({ _id: entryId }, (errFind, entry) => {
-        entry.fields = fields;
-        entry.status = status;
-        entry.save((err1) => {
-          if (err1) helper.handleError(err1, next);
-          res.json({
-            status: 'SUCCESS',
-            detail: 'Updating entry successfully',
-            entry,
-          });
-        });
-      });
-    } else {
-      // 1. Create and Insert new entry
-      // 2. Update spaces.entry
-      const newEntry = new Entry({
-        contentTypeId,
-        fields,
-        status: 'draft',
-        _spaceId: spaceId,
-      });
-
-      newEntry.save((errSave) => {
-        if (errSave) helper.handleError(errSave, next);
-
-        // Update space
-        space.entries.push(newEntry._id);
-        space.save((err2) => {
-          if (err2) next(err2);
-
-          res.json({
-            status: 'SUCCESS',
-            detail: 'Create new entry successfully',
-            entry: newEntry,
-          });
-        });
-      });
-    }
-  });
-  */
 };
 
 exports.updateEntry = updateEntry;
@@ -260,44 +190,40 @@ exports.createEntry = (req, res, next) => {
   return updateEntry(req, res, next);
 };
 
-exports.deleteEntry = (req, res, next) => {
+exports.deleteEntry = async (req, res, next) => {
   const spaceId = req.params.space_id;
   const entryId = req.params.entry_id;
-  Entry.remove({ _id: entryId }, (errRemove) => {
-    if (errRemove) helper.handleError(errRemove, next);
 
-    // Remove entry ref from space
-    Space.findOne({ _id: spaceId }, (errFind, space) => {
-      if (errFind) helper.handleError(errFind, next);
-      space.entries = _.filter(space.entries, _id => !_id.equals(entryId));
-      space.save((err2) => {
-        if (err2) helper.handleError(err2, next);
-        res.json({
-          status: 'SUCCESS',
-          detail: 'delete entry successfully',
-        });
-      });
+  try {
+    await Entry.remove({ _id: entryId });
+    const space = await Space.findOne({ _id: spaceId });
+    space.entries = _.filter(space.entries, _id => !_id.equals(entryId));
+    await space.save();
+
+    res.json({
+      status: 'SUCCESS',
+      detail: 'delete entry successfully',
     });
-  });
+  } catch (e) {
+    next(e);
+  }
 };
 
-exports.truncateEntry = (req, res, next) => {
+exports.truncateEntry = async (req, res, next) => {
   const spaceId = req.params.space_id;
-  Space.findOne({ _id: spaceId }, (err, space) => {
-    if (err) next(err);
 
+  try {
+    await Entry.remove({ _spaceId: spaceId });
+    const space = await Space.findOne({ _id: spaceId });
     space.entries = [];
-    space.save((errSave) => {
-      if (errSave) helper.handleError(errSave, next);
+    await space.save();
 
-      Entry.remove({ _spaceId: spaceId }, (errRemove) => {
-        if (errRemove) helper.handleError(errRemove, next);
-        res.json({
-          status: 'SUCCESS',
-          detail: 'clear all entries in space successfully',
-          space,
-        });
-      });
+    res.json({
+      status: 'SUCCESS',
+      detail: 'clear all entries in space successfully',
+      space,
     });
-  });
+  } catch (e) {
+    next(e);
+  }
 };

@@ -3,16 +3,6 @@ const _ = require('lodash');
 
 const Space = require('../../models/Space');
 
-exports.getAllContentTypes = (req, res, next) => {
-  const spaceId = req.params.space_id;
-  Space.findOne({ _id: spaceId }, (err, theSpace) => {
-    if (err) next(err);
-    res.json({
-      types: theSpace.contentTypes,
-    });
-  });
-};
-
 /**
  * Content Types
  */

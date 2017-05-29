@@ -43,7 +43,7 @@ class EntryEditorForm extends Component {
     });
   }
 
-  renderSaveBotton(entryStatus) {
+  renderSaveButton(entryStatus) {
     switch (entryStatus ) {
       case 'draft': {
         const menu = (
@@ -121,7 +121,7 @@ class EntryEditorForm extends Component {
         }
         <Form.Item>
           <p>status: {entry.status}</p>
-          {this.renderSaveBotton(entry.status)}
+          {this.renderSaveButton(entry.status)}
         </Form.Item>
       </Form>
     );

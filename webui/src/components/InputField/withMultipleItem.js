@@ -2,6 +2,15 @@ import React, { Component } from 'react';
 import _ from 'lodash';
 import { Button, Icon, Row, Col, Form } from 'antd';
 
+const iconStyle = {
+  position: 'relative',
+  top: 4,
+  fontSize: 24,
+  color: '#999',
+  transition: 'all .3s',
+  marginLeft: 8,
+};
+
 export default (InputComponent) => {
   return class extends Component {
 
@@ -28,35 +37,30 @@ export default (InputComponent) => {
       this.props.onChange(values);
     }
 
+    renderInputRow = (val, i) => {
+      return (
+        <Row key={`row-${i}`}>
+          <Col span={18}>
+            <InputComponent value={val} onChange={e => this.edit(e.target.value, i)} />
+          </Col>
+          <Col span={6}>
+            <Icon
+              className="dynamic-delete-button"
+              style={iconStyle}
+              type="minus-circle-o"
+              disabled={value.length === 1}
+              onClick={() => this.remove(i)}
+            />
+          </Col>
+        </Row>
+      );
+    }
+
     render() {
       const { value } = this.props;
       return (
         <div>
-          {
-            _.map(value, (val, i) =>
-              <Row key={`row-${i}`}>
-                <Col span={18}>
-                  <InputComponent value={val} onChange={e => this.edit(e.target.value, i)} />
-                </Col>
-                <Col span={6}>
-                  <Icon
-                    className="dynamic-delete-button"
-                    style={{
-                      position: 'relative',
-                      top: 4,
-                      fontSize: 24,
-                      color: '#999',
-                      transition: 'all .3s',
-                      marginLeft: 8,
-                    }}
-                    type="minus-circle-o"
-                    disabled={value.length === 1}
-                    onClick={() => this.remove(i)}
-                  />
-                </Col>
-              </Row>
-            )
-          }
+          {_.map(value, (val, i) => this.renderInputRow(val, i))}
           <Row>
             <Col span={18}>
               <Button type="dashed" onClick={this.add} style={{ width: '100%' }}>

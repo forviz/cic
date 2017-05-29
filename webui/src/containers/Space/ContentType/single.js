@@ -55,7 +55,10 @@ class ContentTypeSingle extends Component {
     .then(response => {
       console.log('fieldOperation response', response);
       form.resetFields();
-      this.setState({ modalVisible: false });
+      this.setState({
+        modalVisible: false,
+        fieldValues: undefined
+      });
     });
   }
 
@@ -73,6 +76,7 @@ class ContentTypeSingle extends Component {
   handleCancel = () => {
     this.setState({
       modalVisible: false,
+      fieldValues: undefined,
     });
   }
 

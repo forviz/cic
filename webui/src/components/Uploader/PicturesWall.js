@@ -25,7 +25,6 @@ class PicturesWall extends Component {
 
   constructor(props) {
     super(props);
-    console.log('PictureWall.constructor', props);
     const fileList = _.compact(props.fileList || [props.file]);
 
     this.state = {
@@ -75,7 +74,7 @@ class PicturesWall extends Component {
   render() {
     const { multiple, action } = this.props;
     const { previewVisible, previewImage, fileList } = this.state;
-
+    console.log('fileList', fileList);
     const uploadButton = (
       <div key="upload-button">
         <Icon type="plus" />
@@ -85,7 +84,6 @@ class PicturesWall extends Component {
     return (
       <div className="clearfix">
         <Upload
-          key="file"
           multiple={multiple}
           action={action}
           listType="picture-card"

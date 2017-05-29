@@ -51,7 +51,7 @@ const updateContentType = (req, res, next) => {
   const fields = req.body.fields;
 
   Space.findOne({ _id: spaceId }, (err, space) => {
-    if (err) next(err);
+    if (err) return next(err);
 
     const isExisting = _.find(space.contentTypes, ct => ct._id.equals(contentTypeId));
 
@@ -68,6 +68,7 @@ const updateContentType = (req, res, next) => {
               id: field.id,
               name: field.name,
               identifier: field.identifier,
+              items: field.items,
               type: field.type,
               required: field.required,
               localized: field.localized,
@@ -89,6 +90,7 @@ const updateContentType = (req, res, next) => {
           id: field.id,
           name: field.name,
           identifier: field.identifier,
+          items: field.items,
           type: field.type,
           required: field.required,
           localized: field.localized,
@@ -100,7 +102,7 @@ const updateContentType = (req, res, next) => {
 
 
     space.save((errSave) => {
-      if (errSave) next(errSave);
+      if (errSave) return next(errSave);
       res.json({
         status: 'SUCCESS',
         detail: 'update content type successfully',

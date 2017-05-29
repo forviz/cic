@@ -13,6 +13,7 @@ class InputField extends Component {
 
   render() {
     const { spaceId, field, value, onChange } = this.props;
+    console.log('InputField', this.props);
     const type = _.get(this.props, 'field.type');
     switch (type) {
       case 'LongText': return (<LongText value={value} onChange={onChange} />);
@@ -25,11 +26,17 @@ class InputField extends Component {
       }
       case 'Media': {
         console.log('Media', value);
-        return (<PicturesWall multiple={false} fileList={[value]} onChange={info => onChange(mapImageInfoToFile(info))} />);
+        return (
+          <PicturesWall
+            multiple={false}
+            fileList={[value]}
+            onChange={info => onChange(mapImageInfoToFile(info))}
+          />
+        );
       }
       case 'Link':
         return (<LinkEntry spaceId={spaceId} field={field} value={value} onChange={onChange} />);
-      default: return <Input value={value} onChange={onChange} />
+      default: return (<Input value={value} onChange={onChange} />);
     }
   }
 }

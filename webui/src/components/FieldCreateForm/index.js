@@ -48,12 +48,17 @@ const mapFieldsToProps = (fieldsValue) => {
 const mapPropsToFields = (props) => {
 
   const model = props.field;
+  console.log('mapPropsToFields', props);
+
+  let _type = 'Text';
+  if (model) _type = _.get(model, 'type') !== 'Array' ? _.get(model, 'type') : _.get(model, 'items.type');
+
   const fields = {
     _id: {
       value: _.get(model, '_id' ,''),
     },
     type: {
-      value: [_.get(model, 'type') !== 'Array' ? _.get(model, 'type') : _.get(model, 'items.type')],
+      value: [_type],
     },
     isDisplayField: {
       value: _.get(model, 'isDisplayField'),

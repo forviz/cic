@@ -1,13 +1,17 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import moment from 'moment';
 import _ from 'lodash';
 import { Input, InputNumber, DatePicker, Switch } from 'antd';
+
+import InputText from './InputText';
 import LongText from './LongText';
-import Uploader from '../Uploader';
 import PicturesWall from '../Uploader/PicturesWall';
 import LinkEntry from './LinkEntry';
-import mapImageInfoToFile from '../../helpers/mapImageInfoToFile';
 
+import withMultipleItem from './withMultipleItem';
+
+const MultiInputText = withMultipleItem(InputText);
 
 class InputField extends Component {
 
@@ -15,21 +19,29 @@ class InputField extends Component {
     const { spaceId, field, value, onChange } = this.props;
     const type = _.get(this.props, 'field.type');
     switch (type) {
-      case 'LongText': return (<LongText value={value} onChange={onChange} />);
-      case 'Number': return (<InputNumber value={value} onChange={onChange} />);
-      case 'Datetime': return (<DatePicker value={moment(value)} onChange={onChange} />);
-      case 'Boolean': return (<Switch checked={value} onChange={onChange} />);
-      case 'MediaSingle': {
-        console.log('Media', value);
-        return (<Uploader fileList={value} onChange={info => onChange(mapImageInfoToFile(info))} />)
-      }
+      case 'LongText':
+        return (<LongText value={value} onChange={onChange} />);
+      case 'Number':
+        return (<InputNumber value={value} onChange={onChange} />);
+      case 'Datetime':
+        return (<DatePicker value={moment(value)} onChange={onChange} />);
+      case 'Boolean':
+        return (<Switch checked={value} onChange={onChange} />);
       case 'Media': {
-        console.log('Media', value);
-        return (<PicturesWall multiple={false} fileList={[value]} onChange={info => onChange(mapImageInfoToFile(info))} />);
+        return (<PicturesWall multiple={field.multiple} fileList={value} onChange={onChange} />);
       }
       case 'Link':
         return (<LinkEntry spaceId={spaceId} field={field} value={value} onChange={onChange} />);
-      default: return <Input value={value} onChange={onChange} />
+      default:
+        if (field.multiple) {
+          return (<MultiInputText value={value} onChange={onChange} />);
+        }
+        return (
+          <InputText
+            value={value}
+            onChange={onChange}
+          />
+        );
     }
   }
 }

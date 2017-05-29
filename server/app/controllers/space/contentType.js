@@ -3,23 +3,13 @@ const _ = require('lodash');
 
 const Space = require('../../models/Space');
 
-exports.getAllContentTypes = (req, res, next) => {
-  const spaceId = req.params.space_id;
-  Space.findOne({ _id: spaceId }, (err, theSpace) => {
-    if (err) { return next(err); }
-    res.json({
-      types: theSpace.contentTypes,
-    });
-  });
-};
-
 /**
  * Content Types
  */
 exports.getAllContentTypes = (req, res, next) => {
   const spaceId = req.params.space_id;
   Space.findOne({ _id: spaceId }, (err, theSpace) => {
-    if (err) { return next(err); }
+    if (err) next(err);
     res.json({
       types: theSpace.contentTypes,
     });
@@ -30,7 +20,7 @@ exports.getSingleContentType = (req, res, next) => {
   const spaceId = req.params.space_id;
   const contentTypeId = req.params.content_type_id;
   Space.findOne({ _id: spaceId }, (err, space) => {
-    if (err) { return next(err); }
+    if (err) next(err);
 
     const contentType = _.find(space.contentTypes, ct => ct._id.equals(contentTypeId));
     if (contentType) {
@@ -42,7 +32,7 @@ exports.getSingleContentType = (req, res, next) => {
 };
 
 // UPDATE CONTENT TYPE
-const updateContentType = (req, res, next) => {
+const updateContentType = async (req, res, next) => {
   const spaceId = req.params.space_id;
   const contentTypeId = req.params.content_type_id;
   const name = req.body.name;
@@ -50,64 +40,46 @@ const updateContentType = (req, res, next) => {
   const identifier = req.body.identifier;
   const fields = req.body.fields;
 
-  Space.findOne({ _id: spaceId }, (err, space) => {
-    if (err) { return next(err); }
+  try {
+    const space = await Space.findOne({ _id: spaceId });
 
-    const isExisting = _.find(space.contentTypes, ct => ct._id.equals(contentTypeId));
+    const contentTypeToUpdate = {
+      _id: contentTypeId,
+      name,
+      identifier,
+      displayField,
+      fields: _.map(fields, (fld) => {
+        if (fld._id === '') return { ...fld, _id: mongoose.Types.ObjectId() };
+        return fld;
+      }),
+      dateUpdated: Date.now(),
+    };
 
-    if (isExisting) {
-      // Update existing noe
-      space.contentTypes = _.map(space.contentTypes, (contentType) => {
-        if (contentType._id.equals(contentTypeId)) {
-          return {
-            _id: contentType._id,
-            name,
-            identifier,
-            displayField,
-            fields: _.map(fields, field => ({
-              id: field.id,
-              name: field.name,
-              identifier: field.identifier,
-              type: field.type,
-              required: field.required,
-              localized: field.localized,
-              validations: field.validations,
-            })),
-            dateUpdated: Date.now(),
-          };
-        }
-        return contentType;
-      });
+    const index = _.findIndex(space.contentTypes, ct => ct._id.equals(contentTypeId));
+
+    if (index > -1) {
+      // Existing
+      space.contentTypes[index] = contentTypeToUpdate;
     } else {
-      // Add New
-      space.contentTypes.push({
-        _id: contentTypeId,
-        name,
-        identifier,
-        displayField,
-        fields: _.map(fields, field => ({
-          id: field.id,
-          name: field.name,
-          identifier: field.identifier,
-          type: field.type,
-          required: field.required,
-          localized: field.localized,
-          validations: field.validations,
-        })),
-        dateUpdated: Date.now(),
-      });
+      // New
+      space.contentTypes.push(contentTypeToUpdate);
     }
 
+    await space.save();
 
-    space.save((err) => {
-      if (err) { console.log(err); return next(err); }
-      res.json({
-        status: 'SUCCESS',
-        detail: 'update content type successfully',
-        space,
-      });
+    res.json({
+      status: 'SUCCESS',
+      detail: 'update content type successfully',
+      sys: {
+        type: 'ContentType',
+        id: contentTypeId,
+        updatedAt: Date.now(),
+      },
+      space,
     });
-  });
+  } catch (e) {
+    next(e);
+  }
 };
 
 exports.updateContentType = updateContentType;
@@ -122,29 +94,20 @@ exports.createContentType = (req, res, next) => {
 
 
 // DELETE CONTENT TYPE
-exports.deleteContentType = (req, res, next) => {
+exports.deleteContentType = async (req, res, next) => {
   const spaceId = req.params.space_id;
   const contentTypeId = req.params.content_type_id;
 
-  Space.findOne({ _id: spaceId }, (err, space) => {
-    if (err) { return next(err); }
+  try {
+    const space = await Space.findOne({ _id: spaceId });
+    space.contentTypes = _.filter(space.contentTypes, ct => !ct._id.equals(contentTypeId));
+    await space.save();
 
-    if (!space) {
-      res.json({
-        status: 'UNSUCCESSFUL',
-        message: 'Cannot find space',
-      });
-    } else {
-      const contentTypes = space.contentTypes;
-      space.contentTypes = _.filter(contentTypes, ct => !ct._id.equals(contentTypeId));
-
-      space.save((err) => {
-        if (err) { return next(err); }
-        res.json({
-          status: 'SUCCESSFUL',
-          message: 'Delete contentType successfully',
-        });
-      });
-    }
-  });
+    res.json({
+      status: 'SUCCESSFUL',
+      message: 'Delete contentType successfully',
+    });
+  } catch (e) {
+    next(e);
+  }
 };

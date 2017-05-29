@@ -1,4 +1,4 @@
-// During the test the env variable is set to test
+/* eslint-disable */
 process.env.NODE_ENV = 'test';
 
 const jwt = require('jsonwebtoken');
@@ -34,25 +34,24 @@ describe('Spaces', () => {
         .end((err, res) => {
           res.should.have.status(200);
           res.body.space.should.be.an('object');
-          res.body.space._id.should.be.an('string');
-          res.body.space.name.should.equal('Test Space');
-          res.body.space.defaultLocale.should.equal('en');
+          res.body.space.should.have.property('_id');
+          res.body.space.should.have.property('name').eql('Test Space');
+          res.body.space.should.have.property('defaultLocale').eql('en');
 
-          res.body.user.should.be.a('object');
-          res.body.user._id.should.be.a('string');
+          res.body.user.should.have.property('_id');
 
-          res.body.organization.should.be.an('object');
-          res.body.organization._id.should.be.a('string');
+          res.body.organization.should.have.property('_id');
+
           done();
         });
     });
   });
 
   /*
-  * Test the /GET/:id route
+  * Test the /PUT/:id route
   */
   describe('/PUT/:id space', () => {
-    it('it should update a space id', (done) => {
+    it('it should update a space with id', (done) => {
       const space = new Space({ name: 'The Lord of the Rings', defaultLocale: 'en' });
       space.save((err, savedSpace) => {
         chai.request(server)
@@ -81,6 +80,58 @@ describe('Spaces', () => {
           res.body.items.should.be.a('array');
           done();
         });
+    });
+  });
+
+  /*
+   * Test the /GET single
+   */
+  describe('/GET spaces/:spaceId', () => {
+    it('it should GET a spaces', (done) => {
+      const space = new Space({ name: 'The Lord of the Rings', defaultLocale: 'en' });
+      space.save((err, savedSpace) => {
+        chai.request(server)
+          .get('/v1/spaces/' + savedSpace.id)
+          .set('Authorization', `Bearer ${token}`)
+          .end((err, res) => {
+            res.should.have.status(200);
+            res.body.space.should.have.property('_id').eql(savedSpace.id);
+            res.body.space.should.have.property('name').eql('The Lord of the Rings');
+            done();
+          });
+      });
+    });
+
+    it('it should Error if not found', (done) => {
+      chai.request(server)
+      .get('/v1/spaces/0000000')
+      .set('Authorization', `Bearer ${token}`)
+      .end((err, res) => {
+        res.should.have.status(404);
+        res.body.sys.should.have.property('type').eql('Error');
+        res.body.sys.should.have.property('id').eql('NotFound');
+        done();
+      });
+    });
+  });
+
+  /*
+  * Test the /DELETE/:id route
+  */
+  describe('/DELETE/:id space', () => {
+    it('it should update a space with id', (done) => {
+      const space = new Space({ name: 'The Lord of the Rings', defaultLocale: 'en' });
+      space.save((err, savedSpace) => {
+        chai.request(server)
+        .delete('/v1/spaces/' + savedSpace.id)
+        .set('Authorization', `Bearer ${token}`)
+        .end((err, res) => {
+          res.should.have.status(200);
+          res.body.should.have.property('status').eql('SUCCESSFUL');
+          done();
+
+        });
+      });
     });
   });
 });

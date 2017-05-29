@@ -10,6 +10,23 @@ const parseFileInfo = (file) => ({
   url: file.url,
 });
 
+const mapFilelistToData = (file) => {
+  return {
+    uid: _.get(file, 'uid'),
+    publicId: _.get(file, 'response.public_id'),
+    fileName: _.get(file, 'name'),
+    contentType: _.get(file, 'type'),
+    url: _.get(file, 'response.url'),
+    details: {
+      image: {
+        width: _.get(file, 'response.width'),
+        height: _.get(file, 'response.height'),
+      },
+      size: _.get(file, 'size'),
+    }
+  }
+}
+
 class PicturesWall extends Component {
 
   static propTypes = {
@@ -25,7 +42,7 @@ class PicturesWall extends Component {
 
   constructor(props) {
     super(props);
-    console.log('PictureWall.constructor', props);
+    console.log('PictureWall', props);
     const fileList = _.compact(props.fileList || [props.file]);
 
     this.state = {
@@ -36,7 +53,6 @@ class PicturesWall extends Component {
   }
 
   componentWillReceiveProps = (nextProps) => {
-    console.log('PictureWall.componentWillReceiveProps', nextProps);
     const fileList = _.compact(nextProps.fileList || [nextProps.file]);
     if (fileList) {
 
@@ -57,14 +73,14 @@ class PicturesWall extends Component {
   }
 
   handleChange = (event) => {
-    // console.log('PicturesWall::handleChange', event);
+    console.log('PicturesWall::handleChange', event);
     const status = event.file.status;
     if (status !== 'uploading') {
       console.log(event.file, event.fileList);
     }
     if (status === 'done') {
       message.success(`${event.file.name} file uploaded successfully.`);
-      this.props.onChange(event, 'success');
+      this.props.onChange(_.map(event.fileList, file => mapFilelistToData(file)), 'success');
     } else if (status === 'error') {
       message.error(`${event.file.name} file upload failed.`);
     }
@@ -75,7 +91,6 @@ class PicturesWall extends Component {
   render() {
     const { multiple, action } = this.props;
     const { previewVisible, previewImage, fileList } = this.state;
-
     const uploadButton = (
       <div key="upload-button">
         <Icon type="plus" />
@@ -85,7 +100,6 @@ class PicturesWall extends Component {
     return (
       <div className="clearfix">
         <Upload
-          key="file"
           multiple={multiple}
           action={action}
           listType="picture-card"
@@ -93,7 +107,7 @@ class PicturesWall extends Component {
           onPreview={this.handlePreview}
           onChange={this.handleChange}
         >
-          {fileList.length >= 1 ? null : uploadButton}
+          {multiple || !multiple && fileList.length === 0 ? uploadButton : null}
         </Upload>
         <Modal visible={previewVisible} footer={null} onCancel={this.handleCancel}>
           <img alt="example" style={{ width: '100%' }} src={previewImage} />

@@ -29,7 +29,6 @@ export const getUserFromIdentity = async (identity) => {
     await newUser.save();
     return newUser;
   } catch (e) {
-    console.log(e);
     return e;
   }
 };
@@ -50,7 +49,7 @@ const getOrganizationsFromUser = async (user) => {
     await newOrganization.save();
     return [newOrganization];
   } catch (e) {
-    console.log(e);
+    return e;
   }
 };
 
@@ -64,7 +63,7 @@ exports.getAll = async (req, res, next) => {
     });
 
     const result = await Space.find({
-      organization: { $in: _.map(userOrgazation, '_id') }
+      organization: { $in: _.map(userOrgazation, '_id') },
     });
 
     res.json({
@@ -75,34 +74,51 @@ exports.getAll = async (req, res, next) => {
   }
 };
 
-exports.getSingle = (req, res, next) => {
+exports.getSingle = async (req, res) => {
   const spaceId = req.params.space_id;
-  Space.findOne({ _id: spaceId }).exec((err, space) => {
-    if (err) { next(err); }
-    res.json({
-      title: 'find space',
-      space,
+
+  try {
+    const space = await Space.findOne({ _id: spaceId });
+    if (space !== null) {
+      res.json({
+        title: 'find space',
+        space,
+      });
+    }
+  } catch (e) {
+    res.status(404).json({
+      message: 'The resource could not be found.',
+      sys: {
+        type: 'Error',
+        id: 'NotFound',
+      },
     });
-  });
+  }
 };
 
-exports.updateSpace = async (req, res) => {
+exports.updateSpace = async (req, res, next) => {
   const spaceId = req.params.space_id;
-  const spaceName = req.body.name;
+  const name = req.body.name;
   const defaultLocale = req.body.defaultLocale;
 
-  const space = await Space.findOne({ _id: spaceId });
-
-  if (space) {
-    if (spaceName) space.name = spaceName;
-    if (defaultLocale) space.defaultLocale = defaultLocale;
-    await space.save();
-
+  try {
+    const space = await Space.findOneAndUpdate({
+      // condition
+      _id: spaceId,
+    }, {
+      // Doc
+      name,
+      defaultLocale,
+    }, {
+      new: true,
+    });
     res.json({
       status: 'SUCCESS',
       detail: 'Update space successfully',
       space,
     });
+  } catch (e) {
+    next(e);
   }
 };
 
@@ -140,7 +156,7 @@ exports.createSpace = async (req, res) => {
 exports.deleteSpace = (req, res, next) => {
   const spaceId = req.params.space_id;
   Space.findOne({ _id: spaceId }, (err, space) => {
-    if (err) { return next(err); }
+    if (err) next(err);
 
     if (!space) {
       res.json({

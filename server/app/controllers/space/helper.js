@@ -1,14 +1,11 @@
 const _ = require('lodash');
 
-exports.handleError = (err, next) => {
-  console.error(err);
-  return next(err);
-};
+exports.handleError = (err, next) => next(err);
+
 /**
  * Field Validation Helpers
  */
 const validateField = (value, contentTypeField) => {
-  console.log('validateField', value, contentTypeField);
   // Check require
   if (contentTypeField.required && _.isEmpty(value)) return `${contentTypeField.name} is required`;
 

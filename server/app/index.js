@@ -125,7 +125,10 @@ const contentManagementAuthentication = process.env.NODE_ENV !== 'test' ? jwt({
 
 const contentDeliveryAuthentication = (req, res, next) => {
   const token = _.replace(req.get('Authorization'), 'Bearer ', '');
-  if (token !== '') return contentManagementAuthentication(req, res, next);
+  if (token !== '') {
+    contentManagementAuthentication(req, res, next);
+    return;
+  }
 
   const spaceId = req.params.space_id;
   const accessToken = req.query.access_token;
@@ -138,10 +141,10 @@ const contentDeliveryAuthentication = (req, res, next) => {
       });
     }
 
-    const apiKeysActive = space.apiKeys.filter(item => item.active === true);
+    const apiKeysActive = _.filter(space.apiKeys, item => item.active === true);
     if (apiKeysActive.length > 0) {
       const theKey = apiKeysActive.find(item => item.deliveryKey === accessToken);
-      if (moment().isBefore(theKey.expireDate)) {
+      if (theKey && moment().isBefore(theKey.expireDate)) {
         next();
       } else {
         res.status(401).send({

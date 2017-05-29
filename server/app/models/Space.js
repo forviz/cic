@@ -29,13 +29,7 @@ const spaceSchema = new Schema({
       required: Boolean,
       localized: Boolean,
       type: { type: String, default: 'Text' },
-      items: {
-        type: String,
-        linkType: String,
-        validations: {
-          linkContentType: [String],
-        },
-      },
+      items: Object,
       validations: {
         linkContentType: [String], // Link to another contentType
         // Takes an array of values and validates that the field

@@ -53,9 +53,11 @@ class ContentTypeSingle extends Component {
     const fieldOperation = _.isEmpty(fieldModel._id) ? addField : updateField;
     fieldOperation(space._id, contentType._id, contentType, fieldModel)
     .then(response => {
-      console.log('fieldOperation response', response);
       form.resetFields();
-      this.setState({ modalVisible: false });
+      this.setState({
+        modalVisible: false,
+        fieldValues: undefined
+      });
     });
   }
 
@@ -73,6 +75,7 @@ class ContentTypeSingle extends Component {
   handleCancel = () => {
     this.setState({
       modalVisible: false,
+      fieldValues: undefined,
     });
   }
 

@@ -24,7 +24,7 @@ const organizationSchema = new Schema({
   }],
 }, { timestamps: true });
 
-organizationSchema.statics.findByIdentity = function (userId, cb) {
+organizationSchema.statics.findByIdentity = function findByIdentity(userId, cb) {
   return this.find({ 'users.Owners': userId }, cb);
 };
 

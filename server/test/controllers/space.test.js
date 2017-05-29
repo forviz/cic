@@ -77,7 +77,7 @@ describe('Spaces', () => {
         .set('Authorization', `Bearer ${token}`)
         .end((err, res) => {
           res.should.have.status(200);
-          res.body.items.should.be.a('array');
+          res.body.items.should.be.a('string');
           done();
         });
     });

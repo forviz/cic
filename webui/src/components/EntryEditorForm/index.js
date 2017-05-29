@@ -51,9 +51,7 @@ class EntryEditorForm extends Component {
             <Menu.Item key="archive">Save to Archive</Menu.Item>
           </Menu>
           );
-        return(
-          <Dropdown.Button type="primary" onClick={e => this.handleSubmit('publish')}  overlay={menu}>Publish </Dropdown.Button>
-          )
+        return(<Dropdown.Button type="primary" onClick={e => this.handleSubmit('publish')}  overlay={menu}>Publish </Dropdown.Button>)
       }
           case 'publish': {
         const menu = (

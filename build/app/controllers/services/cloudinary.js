@@ -27,11 +27,9 @@ cloudinary.config({
   api_secret: CLOUDINARY_APISECRET
 });
 
-var upload = function upload(req, res, next) {
-  console.log(req.file);
+var upload = function upload(req, res) {
   var file = req.file.path;
   cloudinary.uploader.upload(file, function (result) {
-    console.log(result);
     res.json(result);
     fs.unlink(file);
   });
@@ -64,7 +62,7 @@ var convertStringToObject = function convertStringToObject(str) {
   }, {});
 };
 
-var getImage = function getImage(req, res, next) {
+var getImage = function getImage(req, res) {
   var publicId = req.params.public_id;
   var paramString = req.params.param;
   var paramsObject = convertStringToObject(paramString);

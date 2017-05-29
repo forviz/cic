@@ -48,7 +48,7 @@ export default (InputComponent) => {
               className="dynamic-delete-button"
               style={iconStyle}
               type="minus-circle-o"
-              disabled={value.length === 1}
+              disabled={i === 0}
               onClick={() => this.remove(i)}
             />
           </Col>

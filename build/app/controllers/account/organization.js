@@ -10,19 +10,11 @@ var mongoose = require('mongoose');
 
 var _ = require('lodash');
 var Organization = require('../../models/Organization');
+
 var mongooseObject = mongoose.Types.ObjectId;
 
-exports.getAll2 = function (req, res, next) {
-
-  Organization.find({}, function (err, organizations) {
-    res.json({
-      items: organizations
-    });
-  });
-};
-
 exports.getAll = function () {
-  var _ref = _asyncToGenerator(regeneratorRuntime.mark(function _callee(req, res, next) {
+  var _ref = _asyncToGenerator(regeneratorRuntime.mark(function _callee(req, res) {
     var organizations;
     return regeneratorRuntime.wrap(function _callee$(_context) {
       while (1) {
@@ -47,7 +39,7 @@ exports.getAll = function () {
     }, _callee, undefined);
   }));
 
-  return function (_x, _x2, _x3) {
+  return function (_x, _x2) {
     return _ref.apply(this, arguments);
   };
 }();
@@ -62,9 +54,7 @@ exports.getSingle = function () {
             organizationId = req.params.organization_id;
 
             Organization.findOne({ _id: organizationId }).exec(function (err, organization) {
-              if (err) {
-                return next(err);
-              }
+              if (err) next(err);
               res.json({
                 title: 'find organization',
                 organization: organization
@@ -79,20 +69,10 @@ exports.getSingle = function () {
     }, _callee2, undefined);
   }));
 
-  return function (_x4, _x5, _x6) {
+  return function (_x3, _x4, _x5) {
     return _ref2.apply(this, arguments);
   };
 }();
-
-/*
-try {
-  const result = await Organization.find({ });
-  res.json({
-    items: result,
-  });
-} catch (e) {
-  next(e);
-}*/
 
 exports.createOrganization = function () {
   var _ref3 = _asyncToGenerator(regeneratorRuntime.mark(function _callee3(req, res, next) {
@@ -152,7 +132,7 @@ exports.createOrganization = function () {
     }, _callee3, undefined, [[0, 16]]);
   }));
 
-  return function (_x7, _x8, _x9) {
+  return function (_x6, _x7, _x8) {
     return _ref3.apply(this, arguments);
   };
 }();
@@ -168,45 +148,42 @@ exports.getAllMemberOrganization = function () {
             _context4.prev = 1;
 
             if (mongooseObject.isValid(organizationId)) {
-              _context4.next = 5;
+              _context4.next = 4;
               break;
             }
 
-            console.log("iii");
-            throw { 'message': 'Not objectId' };
+            throw new Error('Not objectId');
 
-          case 5:
-            _context4.next = 7;
+          case 4:
+            _context4.next = 6;
             return Organization.find({ _id: organizationId }).populate('users.Members');
 
-          case 7:
+          case 6:
             result = _context4.sent;
 
 
-            console.log("result:: ", result);
             res.json({
               organization: organizationId,
               members: result[0].users.Members
-              // members: result[0].users.Members
             });
-            _context4.next = 15;
+            _context4.next = 13;
             break;
 
-          case 12:
-            _context4.prev = 12;
+          case 10:
+            _context4.prev = 10;
             _context4.t0 = _context4['catch'](1);
 
             next(_context4.t0);
 
-          case 15:
+          case 13:
           case 'end':
             return _context4.stop();
         }
       }
-    }, _callee4, undefined, [[1, 12]]);
+    }, _callee4, undefined, [[1, 10]]);
   }));
 
-  return function (_x10, _x11, _x12) {
+  return function (_x9, _x10, _x11) {
     return _ref4.apply(this, arguments);
   };
 }();
@@ -221,41 +198,37 @@ exports.delMemberOrganization = function () {
             _context5.prev = 0;
             organizationId = req.params.organization_id;
             userId = req.params.user_id;
-
-
-            console.log("userId:: ", userId);
-            console.log("organizationId:: ", organizationId);
-
-            _context5.next = 7;
-            return Organization.update({ _id: organizationId }, { $pull: {
+            _context5.next = 5;
+            return Organization.update({
+              _id: organizationId }, {
+              $pull: {
                 'users.Members': userId
               }
             });
 
-          case 7:
+          case 5:
 
             res.json({
               status: 'SUCCESS'
             });
-
-            _context5.next = 13;
+            _context5.next = 11;
             break;
 
-          case 10:
-            _context5.prev = 10;
+          case 8:
+            _context5.prev = 8;
             _context5.t0 = _context5['catch'](0);
 
             next(_context5.t0);
 
-          case 13:
+          case 11:
           case 'end':
             return _context5.stop();
         }
       }
-    }, _callee5, undefined, [[0, 10]]);
+    }, _callee5, undefined, [[0, 8]]);
   }));
 
-  return function (_x13, _x14, _x15) {
+  return function (_x12, _x13, _x14) {
     return _ref5.apply(this, arguments);
   };
 }();
@@ -271,10 +244,6 @@ exports.createMemberOrganization = function () {
             userId = req.body.user_id;
             organizationId = req.params.organization_id;
 
-
-            console.log("userId:: ", userId);
-            console.log("organizationId:: ", organizationId);
-
             // const organization = await Organization.find({ _id: organizationId });
             // console.log("find organization:: ", organization);
             // organization[0].users.Members.push(userId);
@@ -289,14 +258,14 @@ exports.createMemberOrganization = function () {
             //
             // const result = await organization.save();
 
-            _context6.next = 7;
-            return Organization.find({ "users.Members": userId });
+            _context6.next = 5;
+            return Organization.find({ 'users.Members': userId });
 
-          case 7:
+          case 5:
             checkMember = _context6.sent;
 
             if (_.isEmpty(checkMember)) {
-              _context6.next = 12;
+              _context6.next = 10;
               break;
             }
 
@@ -304,47 +273,44 @@ exports.createMemberOrganization = function () {
             res.json({
               status: 'มีแล้ว ไม่แอดแล้ว'
             });
-            _context6.next = 15;
+            _context6.next = 13;
             break;
 
-          case 12:
-            _context6.next = 14;
-            return Organization.update({ "_id": organizationId }, { $push: {
-                "users.Members": userId
+          case 10:
+            _context6.next = 12;
+            return Organization.update({
+              _id: organizationId
+            }, {
+              $push: {
+                'users.Members': userId
               }
             });
 
-          case 14:
+          case 12:
 
             res.json({
               status: 'SUCCESS'
             });
 
-          case 15:
-            console.log("checkMember::", checkMember);
-
-            //   console.log('Hello');
-            // await organization.save();
-
-
-            _context6.next = 21;
+          case 13:
+            _context6.next = 18;
             break;
 
-          case 18:
-            _context6.prev = 18;
+          case 15:
+            _context6.prev = 15;
             _context6.t0 = _context6['catch'](0);
 
             next(_context6.t0);
 
-          case 21:
+          case 18:
           case 'end':
             return _context6.stop();
         }
       }
-    }, _callee6, undefined, [[0, 18]]);
+    }, _callee6, undefined, [[0, 15]]);
   }));
 
-  return function (_x16, _x17, _x18) {
+  return function (_x15, _x16, _x17) {
     return _ref6.apply(this, arguments);
   };
 }();

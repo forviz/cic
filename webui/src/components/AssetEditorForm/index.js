@@ -3,10 +3,7 @@ import _ from 'lodash';
 
 import { Form, Input, Button } from 'antd';
 
-// import Uploader from '../Uploader';
 import PicturesWall from '../Uploader/PicturesWall';
-
-import mapImageInfoToFile from '../../helpers/mapImageInfoToFile';
 
 const hasErrors = (fieldsError) => {
   return Object.keys(fieldsError).some(field => fieldsError[field]);
@@ -52,7 +49,6 @@ class AssetEditorForm extends Component {
         <Form.Item label="File">
           {getFieldDecorator('file', {
             valuePropName: 'file',
-            getValueFromEvent: mapImageInfoToFile
           })(
             <PicturesWall multiple={false} />
           )}

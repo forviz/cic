@@ -7,12 +7,15 @@ exports.getUserFromIdentity = undefined;
 
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
+var _lodash = require('lodash');
+
+var _lodash2 = _interopRequireDefault(_lodash);
+
 var _jwtUtils = require('../../utils/jwtUtils');
 
-function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var mongoose = require('mongoose');
-var _ = require('lodash');
+function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
 
 var Space = require('../../models/Space');
 var User = require('../../models/User');
@@ -21,9 +24,10 @@ var Organization = require('../../models/Organization');
 /**
  * Get
  */
+/* eslint-disable import/prefer-default-export */
 var getUserFromIdentity = exports.getUserFromIdentity = function () {
   var _ref = _asyncToGenerator(regeneratorRuntime.mark(function _callee(identity) {
-    var user, newUser, _$split, _$split2, provider, providerId, result;
+    var user, newUser, _$split, _$split2, provider, providerId;
 
     return regeneratorRuntime.wrap(function _callee$(_context) {
       while (1) {
@@ -49,7 +53,7 @@ var getUserFromIdentity = exports.getUserFromIdentity = function () {
             newUser = new User();
 
             newUser.email = '';
-            _$split = _.split(identity, '|'), _$split2 = _slicedToArray(_$split, 2), provider = _$split2[0], providerId = _$split2[1];
+            _$split = _lodash2.default.split(identity, '|'), _$split2 = _slicedToArray(_$split, 2), provider = _$split2[0], providerId = _$split2[1];
 
             newUser.identities = [{
               provider: provider,
@@ -61,27 +65,26 @@ var getUserFromIdentity = exports.getUserFromIdentity = function () {
             return newUser.save();
 
           case 12:
-            result = _context.sent;
             return _context.abrupt('return', newUser);
 
-          case 16:
-            _context.prev = 16;
+          case 15:
+            _context.prev = 15;
             _context.t0 = _context['catch'](0);
+            return _context.abrupt('return', _context.t0);
 
-            console.log(_context.t0);
-
-          case 19:
+          case 18:
           case 'end':
             return _context.stop();
         }
       }
-    }, _callee, undefined, [[0, 16]]);
+    }, _callee, undefined, [[0, 15]]);
   }));
 
   return function getUserFromIdentity(_x) {
     return _ref.apply(this, arguments);
   };
 }();
+/* eslint-enable import/prefer-default-export */
 
 var getOrganizationsFromUser = function () {
   var _ref2 = _asyncToGenerator(regeneratorRuntime.mark(function _callee2(user) {
@@ -97,16 +100,14 @@ var getOrganizationsFromUser = function () {
           case 3:
             organizations = _context2.sent;
 
-            console.log('check organizations', organizations);
-
-            if (_.isEmpty(organizations)) {
-              _context2.next = 7;
+            if (_lodash2.default.isEmpty(organizations)) {
+              _context2.next = 6;
               break;
             }
 
             return _context2.abrupt('return', organizations);
 
-          case 7:
+          case 6:
 
             // Else create new one
             newOrganization = new Organization();
@@ -115,49 +116,33 @@ var getOrganizationsFromUser = function () {
             newOrganization.users.Owners = [user._id];
 
             user.organizations.push(newOrganization._id);
-            _context2.next = 13;
+            _context2.next = 12;
             return user.save();
 
-          case 13:
-            _context2.next = 15;
+          case 12:
+            _context2.next = 14;
             return newOrganization.save();
 
-          case 15:
+          case 14:
             return _context2.abrupt('return', [newOrganization]);
 
-          case 18:
-            _context2.prev = 18;
+          case 17:
+            _context2.prev = 17;
             _context2.t0 = _context2['catch'](0);
+            return _context2.abrupt('return', _context2.t0);
 
-            console.log(_context2.t0);
-
-          case 21:
+          case 20:
           case 'end':
             return _context2.stop();
         }
       }
-    }, _callee2, undefined, [[0, 18]]);
+    }, _callee2, undefined, [[0, 17]]);
   }));
 
   return function getOrganizationsFromUser(_x2) {
     return _ref2.apply(this, arguments);
   };
 }();
-
-// exports.getAll = (req, res, next) => {
-//
-//   const userOpenId = getUserFromToken(req);
-//   User.findByIdentity(userOpenId, (err, user) => {
-//     console.log('userOpenId', userOpenId, user);
-//   });
-//
-//   Space.find({}, (err, spaces) => {
-//     if (err) { return next(err); }
-//     res.json({
-//       items: spaces,
-//     });
-//   });
-// };
 
 exports.getAll = function () {
   var _ref3 = _asyncToGenerator(regeneratorRuntime.mark(function _callee3(req, res, next) {
@@ -172,43 +157,41 @@ exports.getAll = function () {
 
           case 3:
             user = _context3.sent;
-
-
-            console.log("userId:: ", user._id);
-
-            _context3.prev = 5;
-            _context3.next = 8;
-            return Organization.find({ $or: [{ 'users.Members': user._id }, { 'users.Owners': user._id }] });
-
-          case 8:
-            userOrgazation = _context3.sent;
-            _context3.next = 11;
-            return Space.find({
-              organization: { $in: _.map(userOrgazation, '_id') }
+            _context3.prev = 4;
+            _context3.next = 7;
+            return Organization.find({
+              $or: [{ 'users.Members': user._id }, { 'users.Owners': user._id }]
             });
 
-          case 11:
+          case 7:
+            userOrgazation = _context3.sent;
+            _context3.next = 10;
+            return Space.find({
+              organization: { $in: _lodash2.default.map(userOrgazation, '_id') }
+            });
+
+          case 10:
             result = _context3.sent;
 
 
             res.json({
               items: result
             });
-            _context3.next = 18;
+            _context3.next = 17;
             break;
 
-          case 15:
-            _context3.prev = 15;
-            _context3.t0 = _context3['catch'](5);
+          case 14:
+            _context3.prev = 14;
+            _context3.t0 = _context3['catch'](4);
 
             next(_context3.t0);
 
-          case 18:
+          case 17:
           case 'end':
             return _context3.stop();
         }
       }
-    }, _callee3, undefined, [[5, 15]]);
+    }, _callee3, undefined, [[4, 14]]);
   }));
 
   return function (_x3, _x4, _x5) {
@@ -216,48 +199,128 @@ exports.getAll = function () {
   };
 }();
 
-exports.getSingle = function (req, res, next) {
-  var spaceId = req.params.space_id;
-  Space.findOne({ _id: spaceId }).exec(function (err, space) {
-    if (err) {
-      return next(err);
-    }
-    res.json({
-      title: 'find space',
-      space: space
-    });
-  });
-};
-
-exports.updateSpace = function (req, res, next) {};
-
-exports.createSpace = function () {
-  var _ref4 = _asyncToGenerator(regeneratorRuntime.mark(function _callee4(req, res, next) {
-    var spaceName, defaultLocale, userOpenId, user, organizations, organizationToUse, space;
+exports.getSingle = function () {
+  var _ref4 = _asyncToGenerator(regeneratorRuntime.mark(function _callee4(req, res) {
+    var spaceId, space;
     return regeneratorRuntime.wrap(function _callee4$(_context4) {
       while (1) {
         switch (_context4.prev = _context4.next) {
           case 0:
+            spaceId = req.params.space_id;
+            _context4.prev = 1;
+            _context4.next = 4;
+            return Space.findOne({ _id: spaceId });
+
+          case 4:
+            space = _context4.sent;
+
+            if (space !== null) {
+              res.json({
+                title: 'find space',
+                space: space
+              });
+            }
+            _context4.next = 11;
+            break;
+
+          case 8:
+            _context4.prev = 8;
+            _context4.t0 = _context4['catch'](1);
+
+            res.status(404).json({
+              message: 'The resource could not be found.',
+              sys: {
+                type: 'Error',
+                id: 'NotFound'
+              }
+            });
+
+          case 11:
+          case 'end':
+            return _context4.stop();
+        }
+      }
+    }, _callee4, undefined, [[1, 8]]);
+  }));
+
+  return function (_x6, _x7) {
+    return _ref4.apply(this, arguments);
+  };
+}();
+
+exports.updateSpace = function () {
+  var _ref5 = _asyncToGenerator(regeneratorRuntime.mark(function _callee5(req, res, next) {
+    var spaceId, name, defaultLocale, space;
+    return regeneratorRuntime.wrap(function _callee5$(_context5) {
+      while (1) {
+        switch (_context5.prev = _context5.next) {
+          case 0:
+            spaceId = req.params.space_id;
+            name = req.body.name;
+            defaultLocale = req.body.defaultLocale;
+            _context5.prev = 3;
+            _context5.next = 6;
+            return Space.findOneAndUpdate({
+              // condition
+              _id: spaceId
+            }, {
+              // Doc
+              name: name,
+              defaultLocale: defaultLocale
+            }, {
+              new: true
+            });
+
+          case 6:
+            space = _context5.sent;
+
+            res.json({
+              status: 'SUCCESS',
+              detail: 'Update space successfully',
+              space: space
+            });
+            _context5.next = 13;
+            break;
+
+          case 10:
+            _context5.prev = 10;
+            _context5.t0 = _context5['catch'](3);
+
+            next(_context5.t0);
+
+          case 13:
+          case 'end':
+            return _context5.stop();
+        }
+      }
+    }, _callee5, undefined, [[3, 10]]);
+  }));
+
+  return function (_x8, _x9, _x10) {
+    return _ref5.apply(this, arguments);
+  };
+}();
+
+exports.createSpace = function () {
+  var _ref6 = _asyncToGenerator(regeneratorRuntime.mark(function _callee6(req, res) {
+    var spaceName, defaultLocale, userOpenId, user, organizations, organizationToUse, space;
+    return regeneratorRuntime.wrap(function _callee6$(_context6) {
+      while (1) {
+        switch (_context6.prev = _context6.next) {
+          case 0:
             spaceName = req.body.name;
             defaultLocale = req.body.defaultLocale;
             userOpenId = (0, _jwtUtils.getIdentityFromToken)(req);
-            _context4.next = 5;
+            _context6.next = 5;
             return getUserFromIdentity(userOpenId);
 
           case 5:
-            user = _context4.sent;
-
-            console.log("userOpenId:: ", userOpenId);
-            console.log("user createSpace:: ", user);
-
-            _context4.next = 10;
+            user = _context6.sent;
+            _context6.next = 8;
             return getOrganizationsFromUser(user);
 
-          case 10:
-            organizations = _context4.sent;
-
-            console.log("organization:: ", organizations);
-
+          case 8:
+            organizations = _context6.sent;
             organizationToUse = organizations[0];
             space = new Space({
               name: spaceName,
@@ -269,17 +332,15 @@ exports.createSpace = function () {
 
             organizationToUse.spaces.push(space._id);
 
-            _context4.next = 17;
+            _context6.next = 14;
             return space.save();
 
-          case 17:
-            _context4.next = 19;
+          case 14:
+            _context6.next = 16;
             return organizationToUse.save();
 
-          case 19:
+          case 16:
 
-            // space.save((err) => {
-            //   if (err) { return next(err); }
             res.json({
               status: 'SUCCESS',
               detail: 'Create space successfully',
@@ -287,62 +348,24 @@ exports.createSpace = function () {
               user: user,
               organization: organizationToUse
             });
-            // });
 
-          case 20:
+          case 17:
           case 'end':
-            return _context4.stop();
+            return _context6.stop();
         }
       }
-    }, _callee4, undefined);
+    }, _callee6, undefined);
   }));
 
-  return function (_x6, _x7, _x8) {
-    return _ref4.apply(this, arguments);
+  return function (_x11, _x12) {
+    return _ref6.apply(this, arguments);
   };
 }();
-/*exports.createSpace = async (req, res, next) => {
-  const spaceName = req.body.name;
-  const defaultLocale = req.body.defaultLocale;
-  // const organization_id = req.body.organization_id;
-
-  const userOpenId = getIdentityFromToken(req);
-  const user = await getUserFromIdentity(userOpenId);
-
-  const organization2 = await getOrganizationFromIdentity(userOpenId);
-
-  console.log("user:: ", user);
-  console.log("organization:: ", organization2);
-
-  const space = new Space({
-    name: spaceName,
-    defaultLocale,
-    users: [user._id],
-    //organization: organization_id
-  });
-
-  const organization = new Organization();
-  organization.spaces = [space._id];
-
-  // await space.save();
-  // await user.save();
-
-  // space.save((err) => {
-  //   if (err) { return next(err); }
-  //   res.json({
-  //     status: 'SUCCESS',
-  //     detail: 'Create space successfully',
-  //     space: space,
-  //   });
-  // });
-};*/
 
 exports.deleteSpace = function (req, res, next) {
   var spaceId = req.params.space_id;
   Space.findOne({ _id: spaceId }, function (err, space) {
-    if (err) {
-      return next(err);
-    }
+    if (err) next(err);
 
     if (!space) {
       res.json({

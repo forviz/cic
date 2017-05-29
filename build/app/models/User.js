@@ -1,10 +1,5 @@
 'use strict';
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.getProvider = undefined;
-
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
 var _lodash = require('lodash');
@@ -16,6 +11,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 var bcrypt = require('bcrypt-nodejs');
 var crypto = require('crypto');
 var mongoose = require('mongoose');
+
 var Schema = mongoose.Schema;
 
 var userSchema = new mongoose.Schema({
@@ -54,16 +50,14 @@ var userSchema = new mongoose.Schema({
  */
 userSchema.pre('save', function save(next) {
   var user = this;
-  if (!user.isModified('password')) {
-    return next();
-  }
+  if (!user.isModified('password')) next();
   bcrypt.genSalt(10, function (err, salt) {
     if (err) {
-      return next(err);
+      next(err);
     }
-    bcrypt.hash(user.password, salt, null, function (err, hash) {
-      if (err) {
-        return next(err);
+    bcrypt.hash(user.password, salt, null, function (err2, hash) {
+      if (err2) {
+        next(err2);
       }
       user.password = hash;
       next();
@@ -71,18 +65,12 @@ userSchema.pre('save', function save(next) {
   });
 });
 
-var getProvider = exports.getProvider = function getProvider(identity) {
-  return _lodash2.default.head(_lodash2.default.split(identity, '|'));
-};
-
-userSchema.statics.findByIdentity = function (identity, cb) {
-  // const identityProvider = getProvider(identity);
+// export const getProvider = identity => _.head(_.split(identity, '|'));
+userSchema.statics.findByIdentity = function findByIdentity(identity, cb) {
   var _$split = _lodash2.default.split(identity, '|'),
       _$split2 = _slicedToArray(_$split, 2),
       identityProvider = _$split2[0],
       identityNumber = _$split2[1];
-
-  console.log("identityProvider:: ", identityProvider);
 
   return this.findOne({
     identities: {
@@ -106,10 +94,12 @@ userSchema.methods.comparePassword = function comparePassword(candidatePassword,
 /**
  * Helper method for getting user's gravatar.
  */
-userSchema.methods.gravatar = function gravatar(size) {
-  if (!size) {
-    size = 200;
-  }
+userSchema.methods.gravatar = function gravatar() {
+  var size = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 200;
+
+  // if (!size) {
+  //   size = 200;
+  // }
   if (!this.email) {
     return 'https://gravatar.com/avatar/?s=' + size + '&d=retro';
   }

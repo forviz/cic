@@ -39,10 +39,7 @@ const updateAsset = (req, res, next) => {
   Space.findOne({ _id: spaceId }, (err, space) => {
     if (err) next(err);
 
-
-    const isExistingInSpace = _.find(space.assets, (asset) => {
-      return asset.equals(assetId);
-    });
+    const isExistingInSpace = _.find(space.assets, asset => asset.equals(assetId));
     if (isExistingInSpace) {
       // Update asset
       Asset.findOne({ _id: assetId }, (errFind, asset) => {
@@ -121,7 +118,7 @@ exports.truncateAsset = (req, res, next) => {
   const spaceId = req.params.space_id;
   Space.findOne({ _id: spaceId }, (err, space) => {
     if (err) next(err);
-    space.assets = [];
+    space.assets.clear();
     space.save((errSave) => {
       if (errSave) _helper.handleError(errSave, next);
 

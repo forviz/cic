@@ -11,7 +11,7 @@ const _helper = require('./helper');
  */
 exports.getAllAssets = (req, res, next) => {
   const spaceId = req.params.space_id;
-  Space.findOne({ _id: spaceId }).populate('assets').exec((err, space) => {
+   Space.findOne({ _id: spaceId }).populate('assets').exec((err, space) => {
     if (err) next(err);
     res.json({
       items: space.assets,

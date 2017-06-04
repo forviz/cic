@@ -17,10 +17,10 @@ export const getSpace = (spaceId) => {
 };
 
 
-export const createNewSpace = (name, { defaultLocale }) => {
+export const createNewSpace = (name, { organizationId, defaultLocale }) => {
 
   return (dispatch) => {
-    return fetchCreateSpace(name, { defaultLocale })
+    return fetchCreateSpace(name, { organizationId, defaultLocale })
     .then((res) => {
       console.log('createSpace', res);
       return res;

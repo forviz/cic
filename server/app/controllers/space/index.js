@@ -125,12 +125,19 @@ exports.updateSpace = async (req, res, next) => {
 exports.createSpace = async (req, res) => {
   const spaceName = req.body.name;
   const defaultLocale = req.body.defaultLocale;
+  const organizationId = req.body.organizationId;
 
   const userOpenId = getIdentityFromToken(req);
   const user = await getUserFromIdentity(userOpenId);
-  const organizations = await getOrganizationsFromUser(user);
 
-  const organizationToUse = organizations[0];
+  let organizationToUse;
+  if (organizationId) {
+    organizationToUse = await Organization.findOne({ _id: organizationId })
+  } else {
+    // Use Default User Organization
+    const organizations = await getOrganizationsFromUser(user);
+    organizationToUse = organizations[0];
+  }
 
   const space = new Space({
     name: spaceName,

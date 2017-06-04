@@ -1,13 +1,21 @@
 import _ from 'lodash';
 // import { createSelector } from 'reselect';
 
-export const getUser = (state) => {
-  return state.session.user;
-}
+export const getUser = state => state.session.user;
+export const getIsAuthenticated = state => state.session.user.isAuthenticated;
 
-export const getIsAuthenticated = (state) => {
-  return state.session.user.isAuthenticated;
-}
+export const getUserOrganizationsWithSpaces = (state) => {
+  const organizationIds = _.get(getUser(state), 'organizations');
+  return _.map(organizationIds, (id) => {
+    const organization = _.get(state, `entities.organizations.entities.${id}`);
+    return {
+      ...organization,
+      spaces: _.map(organization.spaces, (spaceId) => {
+        return _.get(state, `entities.spaces.entities.${spaceId}`);
+      }),
+    };
+  });
+};
 
 export const getUserSpaces = (state) => {
   const spaceIds = _.get(getUser(state), 'spaces');

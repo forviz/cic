@@ -27,9 +27,22 @@ const mapValidationToRules = (field) => {
 
 class EntryEditorForm extends Component {
 
+  state = {
+    prestine: true,
+  }
+
   componentDidMount() {
     // To disabled submit button at the beginning.
     this.props.form.validateFields();
+  }
+
+  handleFieldChange = (e) => {
+    console.log('handleChange', e);
+    if (this.state.prestine) {
+      this.setState({
+        prestine: false,
+      });
+    }
   }
 
   handleSubmit = (saveStatus = 'publish') => {
@@ -53,16 +66,18 @@ class EntryEditorForm extends Component {
           );
         return(<Dropdown.Button type="primary" onClick={e => this.handleSubmit('publish')}  overlay={menu}>Publish </Dropdown.Button>)
       }
-          case 'publish': {
+      case 'publish': {
         const menu = (
           <Menu onClick={(item, key, keyPath) => this.handleSubmit(item.key)}>
             <Menu.Item key="archive">Archived</Menu.Item>
             <Menu.Item key="draft">Draft</Menu.Item>
           </Menu>
           );
+
+        const buttonLabel = this.state.prestine ? 'Change status' : 'Publish changes';
         return(
-          <Dropdown.Button type="primary" onClick={e => this.handleSubmit('publish')}  overlay={menu}>Change status </Dropdown.Button>
-          )
+          <Dropdown.Button type="primary" onClick={e => this.handleSubmit('publish')}  overlay={menu}>{buttonLabel} </Dropdown.Button>
+        );
       }
           case 'archive': {
         const menu = (
@@ -110,6 +125,7 @@ class EntryEditorForm extends Component {
                 {getFieldDecorator(identifier, {
                   initialValue: field.value,
                   rules: field.rules,
+                  onChange: this.handleFieldChange,
                 })(
                   <InputField field={field} spaceId={spaceId} />
                 )}
@@ -127,9 +143,4 @@ class EntryEditorForm extends Component {
 }
 
 
-export default Form.create({
-  // mapPropsToFields
-  onValuesChange: (props, values) => {
-    console.log('onValuesChange', props, values);
-  }
-})(EntryEditorForm);
+export default Form.create({})(EntryEditorForm);

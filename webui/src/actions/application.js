@@ -1,9 +1,19 @@
-import { fetchUserSpaces } from '../api/cic/spaces';
+import { fetchUserSpaces, fetchUserOrganizations } from '../api/cic/spaces';
 
 export const initWithUser = (userId) => {
   return dispatch => {
-    return fetchUserSpaces(userId)
-    .then((spaces) => {
+
+    return Promise.all([
+      fetchUserOrganizations(userId),
+      fetchUserSpaces(userId),
+    ]).then(([organizations, spaces]) => {
+      console.log('organizations', organizations);
+      console.log('spaces', spaces);
+      dispatch({
+        type: 'USER/ORGANIZATIONS/RECEIVED',
+        organizations,
+      });
+
       dispatch({
         type: 'USER/SPACES/RECEIVED',
         spaces,

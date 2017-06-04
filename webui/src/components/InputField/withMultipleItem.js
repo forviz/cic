@@ -13,7 +13,10 @@ const iconStyle = {
 
 export default (InputComponent) => {
   return class extends Component {
-
+    state = {
+      values: [],
+    }
+    
     add = () => {
       const newValues = [...this.state.values, ''];
       this.handleChange(newValues);

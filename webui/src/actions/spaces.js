@@ -22,7 +22,6 @@ export const createNewSpace = (name, { organizationId, defaultLocale }) => {
   return (dispatch) => {
     return fetchCreateSpace(name, { organizationId, defaultLocale })
     .then((res) => {
-      console.log('createSpace', res);
       return res;
     });
   };
@@ -32,14 +31,13 @@ export const updateSpace = (spaceId, { name, defaultLocale }) => {
   return (dispatch) => {
     fetchUpdateSpace(spaceId, { name, defaultLocale })
     .then((res) => {
-      console.log('updateSpace', res);
+      return res;
     });
   };
 };
 
 
 export const populateSpaceWithTemplate = (spaceId, template) => {
-  console.log('populateSpaceWithTemplate', spaceId, template);
   return (dispatch) => {
     switch (template) {
       case 'website':

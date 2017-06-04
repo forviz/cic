@@ -103,6 +103,7 @@ class EntryEditorForm extends Component {
         value: _.get(entry, `fields.${field.identifier}`, ''),
         identifier: field.identifier,
         rules: mapValidationToRules(field),
+        appearance: field.appearance,
         src: field,
       }
     });

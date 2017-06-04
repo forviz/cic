@@ -54,6 +54,7 @@ const spaceSchema = new Schema({
         },
         unique: Boolean,
       },
+      appearance: String,
     }],
   }],
   entries: [{ type: Schema.Types.ObjectId, ref: 'Entry' }],

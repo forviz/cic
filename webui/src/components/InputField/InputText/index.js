@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import _ from 'lodash';
 
-import { Input } from 'antd';
+import { Input, Select } from 'antd';
 
 class InputText extends Component {
 
@@ -13,11 +14,20 @@ class InputText extends Component {
     onChange: PropTypes.func,
   }
 
-
   render() {
-    return (
-      <Input {...this.props} />
-    );
+    const { field, value, onChange } = this.props;
+    const appearance = _.get(field, 'appearance', 'single-line');
+    switch (appearance) {
+      case 'dropdown': {
+        const options = _.get(field, 'src.validations.in', []);
+        return (
+          <Select value={value} onChange={onChange}>
+            {options.map(option => <Select.Option key={option}>{option}</Select.Option>)}
+          </Select>
+        );
+      }
+      default:return (<Input value={value} onChange={onChange} />);
+    }
   }
 }
 

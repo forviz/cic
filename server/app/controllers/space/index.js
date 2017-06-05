@@ -132,7 +132,7 @@ exports.createSpace = async (req, res) => {
 
   let organizationToUse;
   if (organizationId) {
-    organizationToUse = await Organization.findOne({ _id: organizationId })
+    organizationToUse = await Organization.findOne({ _id: organizationId });
   } else {
     // Use Default User Organization
     const organizations = await getOrganizationsFromUser(user);

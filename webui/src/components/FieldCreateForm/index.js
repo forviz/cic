@@ -21,7 +21,6 @@ const shouldCheckValidationRange = (model) => {
 
 const mapFieldsToProps = (fieldsValue) => {
 
-  console.log("mapFieldsToProps -------------- ", fieldsValue.isMultiple);
   const type = _.head(fieldsValue.type);
   const typeObj = fieldsValue.isMultiple !== true ? { type: type } : { type:'Array', items:{ type: type } };
   return {
@@ -41,15 +40,14 @@ const mapFieldsToProps = (fieldsValue) => {
         flags: _.get(fieldsValue, 'validations-pattern-flags'),
       },
       unique: false,
-    }
+    },
+    appearance: _.get(fieldsValue, 'appearance'),
   }
 }
 
 const mapPropsToFields = (props) => {
 
   const model = props.field;
-  console.log('mapPropsToFields', props);
-
   let _type = 'Text';
   if (model) _type = _.get(model, 'type') !== 'Array' ? _.get(model, 'type') : _.get(model, 'items.type');
 
@@ -101,7 +99,10 @@ const mapPropsToFields = (props) => {
     },
     'validations-options': {
       value: getValidationOptions(model),
-    }
+    },
+    appearance: {
+      value: _.get(model, 'appearance'),
+    },
   };
 
   // console.log('mapPropsToFields:props', props);
@@ -143,6 +144,7 @@ class FieldCreateForm extends Component {
 
   render() {
     const { visible, onCancel, form, fieldValues } = this.props;
+    console.log('fieldValues', fieldValues);
     const { getFieldDecorator, getFieldValue } = form;
     return (
       <Modal
@@ -358,7 +360,6 @@ class FieldCreateForm extends Component {
     );
   }
 }
-
 
 
 export default Form.create({

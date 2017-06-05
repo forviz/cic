@@ -36,6 +36,7 @@
     "babel-cli": "^6.24.1",
     "babel-core": "^6.24.1",
     "babel-polyfill": "^6.23.0",
+    "babel-preset-react": "^6.24.1",
     "babel-register": "^6.24.1",
     "chai": "^3.5.0",
     "chai-http": "^3.0.0",

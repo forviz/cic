@@ -1,11 +1,17 @@
 import React, { Component } from 'react';
-
+import PropTypes from 'prop-types';
+import _ from 'lodash';
 import { Modal, Form, Input, Radio, Row, Col, Select, Tabs, Card } from 'antd';
+
 const Option = Select.Option;
 const RadioGroup = Radio.Group;
 const TabPane = Tabs.TabPane;
 
 class CreateNewSpaceModal extends Component {
+
+  static propTypes = {
+    userOrganizations: PropTypes.array,
+  }
 
   state = {
     createType: 'empty',
@@ -25,7 +31,7 @@ class CreateNewSpaceModal extends Component {
       lineHeight: '30px',
     };
 
-    const { visible, onCancel, onSubmit, form } = this.props;
+    const { userOrganizations, visible, onCancel, onSubmit, form } = this.props;
     const { getFieldDecorator } = form;
     return (
       <Modal
@@ -38,7 +44,22 @@ class CreateNewSpaceModal extends Component {
       >
         <Form layout="vertical">
           <Row gutter={16}>
-            <Col span={14}>
+            <Col span={8}>
+              <Form.Item label="Organization">
+                {getFieldDecorator('organization', {
+                  initialValue: _.get(_.head(userOrganizations), '_id', ''),
+                })(
+                  <Select>
+                    {
+                      _.map(userOrganizations, (org) =>
+                        <Option key={org._id} value={org._id}>{org.name}</Option>
+                      )
+                    }
+                  </Select>
+                )}
+              </Form.Item>
+            </Col>
+            <Col span={8}>
               <Form.Item label="Name">
                 {getFieldDecorator('name', {
                   rules: [{ required: true, message: 'Please input the name of space!' }],
@@ -47,7 +68,7 @@ class CreateNewSpaceModal extends Component {
                 )}
               </Form.Item>
             </Col>
-            <Col span={10}>
+            <Col span={8}>
               <Form.Item label="Locale">
                 {getFieldDecorator('defaultLocale', {
                   initialValue: 'en',

@@ -15,6 +15,7 @@ import CreateNewSpaceModal from '../../components/CreateNewSpaceModal';
 
 const Header = Layout.Header;
 const SubMenu = Menu.SubMenu;
+const MenuItemGroup = Menu.ItemGroup;
 
 const actions = {
   createNewSpace: SpaceActions.createNewSpace,
@@ -28,8 +29,7 @@ const mapDispatchToProps = (dispatch) => {
 class AppHeader extends Component {
 
   static propTypes = {
-    // auth: PropTypes.instanceOf(AuthService),
-    userSpaces: PropTypes.array,
+    userOrganizations: PropTypes.array,
     onLogin: PropTypes.func,
     onLogout: PropTypes.func,
   }
@@ -48,10 +48,9 @@ class AppHeader extends Component {
       if (err) {
         return;
       }
-      console.log(values);
       const { createNewSpace } = this.props;
-
-      createNewSpace(values.name, { defaultLocale: values.defaultLocale })
+      debugger;
+      createNewSpace(values.name, { organizationId: values.organization, defaultLocale: values.defaultLocale })
       .then(response => {
         form.resetFields();
         this.setState({ showCreateSpaceModal: false });
@@ -88,10 +87,10 @@ class AppHeader extends Component {
     });
   }
 
+
   renderLeftMenu = () => {
 
-    const { userSpaces } = this.props;
-
+    const { userOrganizations } = this.props;
     return (
       <Menu
         theme="dark"
@@ -101,10 +100,16 @@ class AppHeader extends Component {
       >
         <SubMenu title={'Spaces'}>
           {
-            userSpaces.map(space =>
-              <Menu.Item key={space._id}>
-                <Link to={`/spaces/${space._id}/content_types`}>{space.name || 'No name'}</Link>
-              </Menu.Item>
+            userOrganizations.map(org =>
+              <MenuItemGroup key={org._id} title={org.name}>
+                {
+                  _.map(_.compact(org.spaces), space =>
+                    <Menu.Item key={space._id}>
+                      <Link to={`/spaces/${space._id}/content_types`}>{space.name || 'No name'}</Link>
+                    </Menu.Item>
+                  )
+                }
+              </MenuItemGroup>
             )
           }
           <Menu.Item key="add-new-space">
@@ -147,7 +152,7 @@ class AppHeader extends Component {
 
   render () {
 
-    const { userProfile } = this.props;
+    const { userProfile, userOrganizations } = this.props;
     return (
       <Header className="header">
         <div className="logo" />
@@ -162,6 +167,7 @@ class AppHeader extends Component {
 
         <CreateNewSpaceModal
           ref={this.createSpaceFormRef}
+          userOrganizations={userOrganizations}
           visible={this.state.showCreateSpaceModal}
           onSubmit={this.handleCreateNewSpace}
           onCancel={this.closeCreateNewSpaceModal}

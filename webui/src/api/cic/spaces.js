@@ -12,6 +12,21 @@ export const fetchInitWithUser = (userId) => {
     });
   });
 }
+export const fetchUserOrganizations = () => {
+
+  return fetchWithResponse(`${BASE_URL}/organizations`)
+  .then((response) => {
+    // console.log('space', response);
+    const organizations = _.get(response, 'items');
+    if (organizations) return organizations;
+
+    throw responseError({
+      appMessage: 'Cannot find organizations',
+    });
+  });
+};
+
+
 export const fetchUserSpaces = () => {
 
   return fetchWithResponse(`${BASE_URL}/spaces`)
@@ -60,12 +75,13 @@ export const fetchSpace = (spaceId) => {
   });
 };
 
-export const fetchCreateSpace = (name, { defaultLocale }) => {
+export const fetchCreateSpace = (name, { organizationId, defaultLocale }) => {
   return fetchWithResponse(`${BASE_URL}/spaces`, {
     method: 'POST',
     body: JSON.stringify({
       name,
       defaultLocale,
+      organizationId,
     })
   })
   .then((response) => {

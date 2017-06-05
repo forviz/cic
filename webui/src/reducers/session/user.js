@@ -44,8 +44,14 @@ const user = (state = initialState, action) => {
 
     case 'USER/SPACES/RECEIVED': {
       const ids = _.map(action.spaces, space => space._id);
-      return {...state, spaces: ids };
+      return { ...state, spaces: ids };
     }
+
+    case 'USER/ORGANIZATIONS/RECEIVED': {
+      const ids = _.map(action.organizations, org => org._id);
+      return { ...state, organizations: ids };
+    }
+
     default:
       return state
     }

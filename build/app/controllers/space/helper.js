@@ -3,14 +3,13 @@
 var _ = require('lodash');
 
 exports.handleError = function (err, next) {
-  console.error(err);
   return next(err);
 };
+
 /**
  * Field Validation Helpers
  */
 var validateField = function validateField(value, contentTypeField) {
-  console.log('validateField', value, contentTypeField);
   // Check require
   if (contentTypeField.required && _.isEmpty(value)) return contentTypeField.name + ' is required';
 

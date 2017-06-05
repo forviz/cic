@@ -42,9 +42,11 @@ class SpaceSidebar extends Component {
           <Menu.Item key={`/spaces/${spaceId}/entries`}>
             <NavLink to={`/spaces/${spaceId}/entries`}>Entries</NavLink>
           </Menu.Item>
-          <Menu.Item key={`/spaces/${spaceId}/assets`}>
+          { /*
+            <Menu.Item key={`/spaces/${spaceId}/assets`}>
             <NavLink to={`/spaces/${spaceId}/assets`}>Assets</NavLink>
           </Menu.Item>
+          */ }
           <Menu.Item key={`/spaces/${spaceId}/api/keys`}>
             <NavLink to={`/spaces/${spaceId}/api/keys`}>API Keys</NavLink>
           </Menu.Item>

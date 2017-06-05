@@ -23,7 +23,7 @@ import HomeContainer from './containers/Home';
 import WelcomeContainer from './containers/Welcome';
 import SpaceContainer from './containers/Space';
 
-import { getUserSpaces } from './selectors';
+import { getUserSpaces, getUserOrganizationsWithSpaces } from './selectors';
 
 import AuthService from './modules/auth/AuthService';
 
@@ -48,8 +48,11 @@ const PrivateRoute = ({ component: Component, ...rest }) => {
 }
 
 const mapStateToProps = (state, ownProps) => {
+
+  const userOrganizations = getUserOrganizationsWithSpaces(state);
+  
   return {
-    userSpaces: getUserSpaces(state),
+    userOrganizations,
   }
 };
 
@@ -72,12 +75,10 @@ class App extends Component {
     // On Login Success
     auth.on('login_success', (authResult) => {
       console.log('Login success', authResult);
-
     });
 
     // On Receive Profile
     auth.on('profile_updated', (newProfile) => {
-      console.log('profile_updated', newProfile);
       this.setState({ userProfile: newProfile });
 
       const { actions } = this.props;
@@ -107,8 +108,7 @@ class App extends Component {
   }
 
   render() {
-
-    const { userSpaces } = this.props;
+    const { userSpaces, userOrganizations } = this.props;
     const { userProfile } = this.state;
     return (
       <LocaleProvider locale={enUS}>
@@ -116,7 +116,7 @@ class App extends Component {
           <Layout>
             <AppHeader
               userProfile={userProfile}
-              userSpaces={userSpaces}
+              userOrganizations={userOrganizations}
               onLogin={this.handleLogin}
               onLogout={this.handleLogout}
             />

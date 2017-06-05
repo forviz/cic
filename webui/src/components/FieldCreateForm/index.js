@@ -343,9 +343,8 @@ class FieldCreateForm extends Component {
                       })(
                         <RadioGroup>
                           <RadioButton value="single-line">Single Line</RadioButton>
-                          <RadioButton value="url">URL</RadioButton>
                           <RadioButton value="dropdown">Dropdown</RadioButton>
-                          <RadioButton value="radio">Slug</RadioButton>
+                          <RadioButton value="radio">Radio</RadioButton>
                         </RadioGroup>
                       )}
                     </Form.Item>

@@ -6,6 +6,10 @@ import { Menu, Dropdown, Form } from 'antd';
 
 import arrayToObject from '../../helpers/arrayToObject';
 
+const hasErrors = (fieldsError) => {
+  return Object.keys(fieldsError).some(field => fieldsError[field]);
+}
+
 const mapValidationToRules = (field) => {
   const validations = field.validations;
 
@@ -37,7 +41,6 @@ class EntryEditorForm extends Component {
   }
 
   handleFieldChange = (e) => {
-    console.log('handleChange', e);
     if (this.state.prestine) {
       this.setState({
         prestine: false,
@@ -56,39 +59,38 @@ class EntryEditorForm extends Component {
     });
   }
 
-  renderSaveButton(entryStatus) {
-    switch (entryStatus ) {
+  renderSaveButton = (entryStatus) => {
+    const { getFieldsError } = this.props.form;
+    switch (entryStatus) {
       case 'draft': {
         const menu = (
           <Menu onClick={e => this.handleSubmit('archive')}>
-            <Menu.Item key="archive">Save to Archive</Menu.Item>
+            <Menu.Item key="archive" disabled={hasErrors(getFieldsError())}>Save to Archive</Menu.Item>
           </Menu>
           );
-        return(<Dropdown.Button type="primary" onClick={e => this.handleSubmit('publish')}  overlay={menu}>Publish </Dropdown.Button>)
+        return (<Dropdown.Button type="primary" onClick={e => this.handleSubmit('publish')} overlay={menu} disabled={hasErrors(getFieldsError())}>Publish </Dropdown.Button>)
       }
-      case 'publish': {
+      case 'archive': {
+        const menu = (
+          <Menu onClick={e => this.handleSubmit('unarchive')}>
+            <Menu.Item key="unarchive" disabled={hasErrors(getFieldsError())}>Unarchive</Menu.Item>
+          </Menu>
+          );
+        return (<Dropdown.Button type="primary" onClick={e => this.handleSubmit('publish')} overlay={menu} disabled={hasErrors(getFieldsError())}>Unarchive</Dropdown.Button>);
+      }
+      case 'publish':
+      default: {
         const menu = (
           <Menu onClick={(item, key, keyPath) => this.handleSubmit(item.key)}>
-            <Menu.Item key="archive">Archived</Menu.Item>
+            <Menu.Item key="archive" disabled={hasErrors(getFieldsError())}>Archived</Menu.Item>
             <Menu.Item key="draft">Draft</Menu.Item>
           </Menu>
           );
 
         const buttonLabel = this.state.prestine ? 'Change status' : 'Publish changes';
-        return(
-          <Dropdown.Button type="primary" onClick={e => this.handleSubmit('publish')}  overlay={menu}>{buttonLabel} </Dropdown.Button>
-        );
+        return (<Dropdown.Button type="primary" onClick={e => this.handleSubmit('publish')} overlay={menu}  disabled={hasErrors(getFieldsError())}>{buttonLabel}</Dropdown.Button>);
       }
-          case 'archive': {
-        const menu = (
-          <Menu onClick={e => this.handleSubmit('unarchive')}>
-            <Menu.Item key="unarchive">Unarchive</Menu.Item>
-          </Menu>
-          );
-        return(
-          <Dropdown.Button type="primary" onClick={e => this.handleSubmit('publish')}  overlay={menu}>Unarchive</Dropdown.Button>
-          )
-      }
+
     }
   }
 
@@ -99,7 +101,7 @@ class EntryEditorForm extends Component {
       return {
         label: field.name,
         type: _isMultple ? _.get(field, 'items.type') : field.type,
-        multiple:  _isMultple,
+        multiple: _isMultple,
         value: _.get(entry, `fields.${field.identifier}`, ''),
         identifier: field.identifier,
         rules: mapValidationToRules(field),
@@ -108,12 +110,8 @@ class EntryEditorForm extends Component {
       }
     });
 
-    const { getFieldDecorator, getFieldsError } = this.props.form;
-    const menu = (
-        <Menu >
-          <Menu.Item key="1">Save as archive</Menu.Item>
-        </Menu>
-        );
+    const { getFieldDecorator } = this.props.form;
+    const menu = (<Menu ><Menu.Item key="1">Save as archive</Menu.Item></Menu>);
     return (
       <Form layout="horizontal">
         {

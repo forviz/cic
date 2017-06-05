@@ -40,7 +40,7 @@ const PrivateRoute = ({ component: Component, ...rest }) => {
       <Component {...props}/>
     ) : (
       <Redirect to={{
-        pathname: '/login',
+        pathname: '/',
         state: { from: props.location }
       }}/>
     )
@@ -50,7 +50,7 @@ const PrivateRoute = ({ component: Component, ...rest }) => {
 const mapStateToProps = (state, ownProps) => {
 
   const userOrganizations = getUserOrganizationsWithSpaces(state);
-  
+
   return {
     userOrganizations,
   }

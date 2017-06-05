@@ -124,9 +124,9 @@ class Space extends Component {
             </Breadcrumb>
             <Content style={{ background: '#fff', padding: 24, margin: 0, minHeight: 280 }}>
               {
-                routes.map((route, index) =>
+                routes.map((route) =>
                   <Route
-                    key={index}
+                    key={route.path}
                     path={route.path}
                     exact={route.exact}
                     component={route.main}

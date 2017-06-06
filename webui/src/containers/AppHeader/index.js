@@ -120,6 +120,15 @@ class AppHeader extends Component {
     );
   }
 
+  handleClickUserMenu = (e) => {
+    const key = e.key;
+    switch (key) {
+      case 'logout': this.props.onLogout(); break;
+      default: break;
+    }
+
+  }
+
   renderUserMenu = (userProfile) => {
     return (
       <Menu
@@ -127,9 +136,10 @@ class AppHeader extends Component {
         mode="horizontal"
         defaultSelectedKeys={['1']}
         style={{ lineHeight: '64px' }}
-        onClick={this.props.onLogout}
+        onClick={this.handleClickUserMenu}
       >
         <SubMenu title={<span><img src={userProfile.picture} alt="Profile" width="32" height="32" style={{ position: 'relative', top: 4, marginBottom: -8, left: -4 }} /> {userProfile.email}</span>}>
+          <Menu.Item key="organization"><Link to="/account/profile/organization">Organizatoin</Link></Menu.Item>
           <Menu.Item key="logout">Logout</Menu.Item>
         </SubMenu>
       </Menu>

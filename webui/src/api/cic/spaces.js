@@ -12,10 +12,12 @@ export const fetchInitWithUser = (userId) => {
     });
   });
 }
+
 export const fetchUserOrganizations = () => {
 
   return fetchWithResponse(`${BASE_URL}/organizations`)
   .then((response) => {
+
     // console.log('space', response);
     const organizations = _.get(response, 'items');
     if (organizations) return organizations;
@@ -85,7 +87,12 @@ export const fetchCreateSpace = (name, { organizationId, defaultLocale }) => {
     })
   })
   .then((response) => {
-    return response;
+
+    if (response.status === 'SUCCESS') return response;
+
+    throw responseError({
+      appMessage: 'Cannot create spaces',
+    });
   });
 }
 

@@ -42,6 +42,9 @@ const user = (state = initialState, action) => {
         isAuthenticated: false
       });
 
+    case 'USER/PROFILE/RECEIVED':
+      return { ...state, ...action.profile };
+
     case 'USER/SPACES/RECEIVED': {
       const ids = _.map(action.spaces, space => space._id);
       return { ...state, spaces: ids };
@@ -49,7 +52,10 @@ const user = (state = initialState, action) => {
 
     case 'USER/ORGANIZATIONS/RECEIVED': {
       const ids = _.map(action.organizations, org => org._id);
-      return { ...state, organizations: ids };
+      return {
+        ...state,
+        organizations: ids,
+      };
     }
 
     default:

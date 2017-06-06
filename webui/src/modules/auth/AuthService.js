@@ -37,17 +37,15 @@ export default class AuthService extends EventEmitter {
     // const token = authResult.idToken;
 
     this.setToken(token);
-    console.log('_doAuthentication', authResult);
-    const decoded = jwtDecode(token);
-    console.log('decoded', decoded);
+
     // Async loads the user profile data
     this.lock.getUserInfo(token, (error, profile) => {
       if (error) {
         console.log('Error loading the Profile', error)
         this.emit('login_error', error);
       } else {
-        this.setProfile(profile)
-        this.emit('login_success', authResult);
+        this.setProfile(profile);
+        this.emit('login_success', authResult, profile);
 
       }
     });

@@ -1,5 +1,6 @@
 import { fetchSpace, fetchCreateSpace, fetchUpdateSpace } from '../api/cic/spaces';
 import { fetchCreateContentType } from '../api/cic/contentTypes';
+import { handleError } from './application';
 // import { upload } from '../../api/cic/assets';
 
 // Fetch Space Info
@@ -23,6 +24,8 @@ export const createNewSpace = (name, { organizationId, defaultLocale }) => {
     return fetchCreateSpace(name, { organizationId, defaultLocale })
     .then((res) => {
       return res;
+    }).catch(error => {
+      handleError(error);
     });
   };
 };

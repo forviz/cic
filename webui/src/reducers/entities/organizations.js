@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import convertArrayToEntities from '../../helpers/convertArrayToEntities';
 
 const initialState = {
   entities: {

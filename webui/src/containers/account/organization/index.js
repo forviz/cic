@@ -9,6 +9,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
 import * as Actions from './actions';
+import { getUserOrganizations } from '../../../selectors';
 import '../../../styles/style.css';
 
 class Organization extends Component{
@@ -17,6 +18,7 @@ class Organization extends Component{
 
 
 	render(){
+    console.log("this.props:: ", this.props);
     const organizations = this.props.organizationsProp;
 
     const dataSource = _.map(organizations, org => {
@@ -50,11 +52,11 @@ class Organization extends Component{
         <br/><br/>
   			<div><h2>Organization</h2></div><br/>
         <Table dataSource={dataSource} columns={columns}/>
-        
+
         <Link to="/account/profile/addnew">New Organization</Link>
         <Button type="danger" onClick={this.props.actions.leaveOrganization}>Delete Organization</Button>
 
-        
+
       </div>
 
 		)
@@ -70,7 +72,8 @@ const mapStateToProps = (state, ownProps) => { // map dataManager
   console.log('mapStateToProps', state);
   const organizations = state.entities.organizations.entities;
   return {
-    organizationsProp: organizations,
+    // organizationsProp: organizations,
+    organizationsProp: getUserOrganizations(state),
   }
 }
 

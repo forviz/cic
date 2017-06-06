@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
 import * as Actions from './actions';
-import {getCurrentUser} from '../../../selectors';
+import { getCurrentUser, getUserOrganizations } from '../../../selectors';
 
 class AccountSetting extends Component{
 
@@ -18,12 +18,10 @@ class AccountSetting extends Component{
 	render(){
 
     console.log('settings', this.props);
-    const { profile } = this.props.userProp;
-    
-    const {email, name }  = profile;
+    const { userProp } = this.props;
 
-    
-
+		if (!userProp) return (<div>No user </div>);
+    const { email, name } = userProp;
 		return(
       <div>
         <br/><br/><h2>User Details</h2><br/>
@@ -43,6 +41,7 @@ const mapStateToProps = (state, ownProps) => { // map dataManager
   const user = getCurrentUser(state); //../../../selectors
   return {
     userProp: user,
+		userOrganizations: getUserOrganizations(state),
   }
 }
 

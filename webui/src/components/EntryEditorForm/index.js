@@ -61,37 +61,51 @@ class EntryEditorForm extends Component {
 
   renderSaveButton = (entryStatus) => {
     const { getFieldsError } = this.props.form;
+
+    let primaryButton = { status: '', label: '' };
+    let secondaryButtons = [
+      { status: '', label: '' },
+    ];
+
     switch (entryStatus) {
-      case 'draft': {
-        const menu = (
-          <Menu onClick={e => this.handleSubmit('archive')}>
-            <Menu.Item key="archive" disabled={hasErrors(getFieldsError())}>Save to Archive</Menu.Item>
-          </Menu>
-          );
-        return (<Dropdown.Button type="primary" onClick={e => this.handleSubmit('publish')} overlay={menu} disabled={hasErrors(getFieldsError())}>Publish </Dropdown.Button>)
-      }
-      case 'archive': {
-        const menu = (
-          <Menu onClick={e => this.handleSubmit('unarchive')}>
-            <Menu.Item key="unarchive" disabled={hasErrors(getFieldsError())}>Unarchive</Menu.Item>
-          </Menu>
-          );
-        return (<Dropdown.Button type="primary" onClick={e => this.handleSubmit('publish')} overlay={menu} disabled={hasErrors(getFieldsError())}>Unarchive</Dropdown.Button>);
-      }
+      case 'draft':
+        primaryButton = { status: 'publish', label: 'Publish' };
+        secondaryButtons = [{ status: 'archive', label: 'Save to Archive' }];
+        break;
+
+      case 'archive':
+        primaryButton = { status: 'publish', label: 'Unarchive' };
+        secondaryButtons = [{ status: 'publish', label: 'Published' }];
+        break;
+
       case 'publish':
-      default: {
-        const menu = (
-          <Menu onClick={item => this.handleSubmit(item.key)}>
-            <Menu.Item key="archive" disabled={hasErrors(getFieldsError())}>Archived</Menu.Item>
-            <Menu.Item key="draft">Draft</Menu.Item>
-          </Menu>
-          );
-
-        const buttonLabel = this.state.prestine ? 'Change status' : 'Publish changes';
-        return (<Dropdown.Button type="primary" onClick={e => this.handleSubmit('publish')} overlay={menu}  disabled={hasErrors(getFieldsError())}>{buttonLabel}</Dropdown.Button>);
-      }
-
+      default:
+        primaryButton = {
+          status: 'publish',
+          label: this.state.prestine ? 'Change status' : 'Publish changes',
+        };
+        secondaryButtons = [
+          { status: 'archive', label: 'Archived' },
+          { status: 'draft', label: 'Draft' },
+        ];
+        break;
     }
+
+    const menu = (
+      <Menu onClick={item => this.handleSubmit(item.key)}>
+        {_.map(secondaryButtons, btn => <Menu.Item key={btn.status}>{btn.label}</Menu.Item>)}
+      </Menu>
+    );
+    return (
+      <Dropdown.Button
+        type="primary"
+        onClick={e => this.handleSubmit(primaryButton.status, e)}
+        overlay={menu}
+        disabled={hasErrors(getFieldsError())}
+      >
+        {primaryButton.label}
+      </Dropdown.Button>
+    );
   }
 
   render() {
@@ -116,7 +130,7 @@ class EntryEditorForm extends Component {
       <Form layout="horizontal">
         {
           _.map(fields, (field, identifier) =>
-            <Form.Item
+            (<Form.Item
               label={field.label}
               key={field.identifier}
             >
@@ -127,7 +141,7 @@ class EntryEditorForm extends Component {
               })(
                 <InputField field={field} spaceId={spaceId} />
               )}
-            </Form.Item>
+            </Form.Item>)
           )
         }
         <Form.Item>

@@ -12,15 +12,14 @@ export const getValue = (obj) => {
 export const convertToURLParam = data => `?${_.join(_.map(data, (value, key) => `${key}=${value}`), '&')}`;
 
 class AppError extends Error {
-  constructor({ type, code, name, appMessage, debugMessage, serviceMessage, trxId, context }) {
+  constructor({ type, code, name, message, appMessage, serviceMessage, trxId, context }) {
     super(appMessage);
     this.name = name;
-    this.message = appMessage;
+    this.message = message;
 
     this.type = type || 'ERROR';
     this.code = code;
     this.appMessage = appMessage;
-    this.debugMessage = debugMessage;
     this.serviceMessage = serviceMessage;
     this.trxId = trxId;
     this.context = context;
@@ -32,7 +31,6 @@ class AppError extends Error {
     }
   }
 }
-
 
 export const appError = ({ code, name, appMessage, debugMessage, serviceMessage, trxId, context }) => {
   return new AppError({
@@ -53,10 +51,9 @@ export const redirectionError = props => new AppError({ ...props, code: 300, nam
 export const clientError = props => new AppError({ ...props, code: 400, name: !_.isEmpty(props.name) ? props.name : 'Client Error' });
 export const serverError = props => new AppError({ ...props, code: 500, name: !_.isEmpty(props.name) ? props.name : 'Server Error' });
 export const responseError = props => new AppError({ ...props, code: 600, name: !_.isEmpty(props.name) ? props.name : 'Response Error' });
-
+export const unauthorizeError = props => new AppError({ ...props, code: 401, name: !_.isEmpty(props.name) ? props.name : 'Unauthorize' });
 
 export function prepareRequest(request) {
-
   const BEARER_TOKEN = localStorage.getItem('access_token');
   const headers = {
     Authorization: `Bearer ${BEARER_TOKEN}`,
@@ -64,7 +61,6 @@ export function prepareRequest(request) {
   };
 
   return {
-    // default
     method: _.get(request, 'method', 'GET'),
     credentials: 'same-origin',
     headers: {
@@ -81,91 +77,36 @@ export const fetchWithResponse = (url, params) => {
   };
 
   const timeout = new Promise((resolve, reject) => {
-    const timeoutError = clientError({
-      name: 'Timeout Error',
-      appMessage: {
-        'en-message': `It took longer than we expect (${options.timeoutMS}ms)`,
-        'th-messsage': `ใช้เวลาต่อ service นานผิดปกติ (${options.timeoutMS}ms)`,
-      },
-      action: ['retry'],
-      debugMessage: `Service Timeout ${options.timeoutMS}ms`,
-      serviceMessage: `Service Timeout ${options.timeoutMS}ms`,
-      trxId: '',
-    });
+    const timeoutError = clientError({ name: 'TimeoutError' });
     setTimeout(reject, options.timeoutMS, timeoutError);
   });
 
   const _fetch = new Promise((resolve, reject) => {
     fetch(url, prepareRequest(params))
     .then((response) => {
-      // ### 1XX Informational do nothing
-      // ### 2XX Success
+      if (response.status === 401) {
+        return reject(unauthorizeError({ name: 'jwtTokenExpire' }));
+      }
+
       if (response.status >= 200 && response.status <= 299) {
         return resolve(response.json());
-        // return response.json();
       }
 
       // ### 3XX Redirection
       if (response.status >= 300 && response.status <= 399) {
-        return reject(redirectionError({
-          name: 'Redirection Error',
-          appMessage: {
-            'en-message': `Service ${url} redirection, please contact team`,
-            'th-messsage': `Service ${url} มีปัญหา`,
-          },
-          debugMessage: `Service return with status ${response.status}`,
-          serviceMessage: `Service return with status ${response.status}`,
-          trxId: '',
-          context: {
-            url,
-            params,
-          },
-        }));
+        return reject(redirectionError({ name: 'RedirectionError' }));
       }
 
       // ### 4XX Redirection
       if (response.status >= 400 && response.status <= 499) {
-        return reject(clientError({
-          name: 'Client Error',
-          appMessage: {
-            'en-message': `Service ${url} client, please contact team`,
-            'th-messsage': `Service ${url} มีปัญหา`,
-          },
-          debugMessage: `Service return with status ${response.status}`,
-          serviceMessage: `Service return with status ${response.status}`,
-          trxId: '',
-          context: {
-            url,
-            params,
-          },
-        }));
+        return reject(clientError({ name: 'ClientError' }));
       }
 
       if (response.status >= 500 && response.status <= 599) {
-        // return response.json();
         return resolve(response.json());
       }
-
-      return reject(serverError({
-        name: 'Unknown Error',
-        appMessage: {
-          'en-message': `Service ${url} error, please contact team`,
-          'th-messsage': `Service ${url} มีปัญหา`,
-        },
-        debugMessage: `Service return with status ${response.status}`,
-        serviceMessage: `Service return with status ${response.status}`,
-        trxId: '',
-        context: {
-          url,
-          params,
-        },
-      })); // serverError
-
-      // if (error) reject(error);
+      return reject(serverError({ name: 'UnknownError' }));
     });
   });
-
   return Promise.race([timeout, _fetch]);
-    // .then(json => resolve(json))
-    // .catch(err => reject(err));
 };

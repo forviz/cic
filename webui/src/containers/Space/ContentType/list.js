@@ -1,14 +1,14 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
+import _ from 'lodash';
+import { Popconfirm, Button, Table, Icon, Col, Row, Dropdown, Menu } from 'antd';
 
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
 import * as Actions from './actions';
-import _ from 'lodash';
 
-import { Popconfirm, message, Button, Table, Icon, Col, Row, Dropdown, Menu } from 'antd';
 import { getActiveSpace } from '../../../selectors';
 import ContentTypeCreateForm from '../../../components/ContentTypeCreateForm';
 
@@ -18,6 +18,10 @@ class ContentTypeList extends Component {
 
   static propTypes = {
     space: PropTypes.object,
+    actions: PropTypes.shape({
+      deleteContentType: PropTypes.func,
+      createContentType: PropTypes.func,
+    }).isRequired,
   }
 
   displayName = 'ContentTypeList';
@@ -29,11 +33,7 @@ class ContentTypeList extends Component {
   confirmDeleteContentType = (typeId) => {
     const { deleteContentType } = this.props.actions;
     const { space } = this.props;
-    deleteContentType(space._id, typeId)
-    .then(response => {
-      message.success('ContentType deleted');
-
-    });
+    deleteContentType(space._id, typeId);
   }
 
   cancel = (e) => {
@@ -41,29 +41,22 @@ class ContentTypeList extends Component {
   }
 
   handleSelectAddContentType = () => {
-    // const { space } = this.props;
-    // const { createContentType } = this.props.actions;
-    // createContentType(space._id);
-
     this.setState({
       modalVisible: true,
     });
   }
 
   handleSubmitContentTypeCreate = () => {
-
     const form = this.form;
     form.validateFields((err, values) => {
       if (err) {
         return;
       }
 
-      console.log('Received values of form: ', values);
-
       const { createContentType } = this.props.actions;
       const { space } = this.props;
       createContentType(space._id, values)
-      .then(response => {
+      .then(() => {
         form.resetFields();
         this.setState({ modalVisible: false });
       });
@@ -148,7 +141,11 @@ class ContentTypeList extends Component {
     const actionMenus = (
       <Menu>
         <Menu.Item key="export">
-          <a href={`${API_PATH}/spaces/${space._id}/content_types?access_token=${deliveryKey}`} target="_blank">Preview JSON</a>
+          <a
+            href={`${API_PATH}/spaces/${space._id}/content_types?access_token=${deliveryKey}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >Preview JSON</a>
         </Menu.Item>
       </Menu>
     );
@@ -161,18 +158,13 @@ class ContentTypeList extends Component {
           </Col>
           <Col span={12} style={{ textAlign: 'right' }}>
             <Dropdown overlay={actionMenus}>
-              <a className="ant-dropdown-link" href="#">
+              <Button className="ant-dropdown-link">
                 Actions <Icon type="down" />
-              </a>
+              </Button>
             </Dropdown>
           </Col>
         </Row>
-        <Row>
-          <Col>
-            <Table columns={columns} dataSource={data} />
-          </Col>
-        </Row>
-
+        <Row><Col><Table columns={columns} dataSource={data} /></Col></Row>
         <ContentTypeCreateForm
           ref={this.createFormRef}
           visible={this.state.modalVisible}
@@ -192,16 +184,16 @@ ContentTypeList.propTypes = {
 const mapStateToProps = (state, ownProps) => {
   return {
     space: getActiveSpace(state, ownProps),
-  }
-}
+  };
+};
 
 const actions = {
   createContentType: Actions.createContentType,
   deleteContentType: Actions.deleteContentType,
-}
+};
 
 const mapDispatchToProps = (dispatch) => {
   return { actions: bindActionCreators(actions, dispatch) };
-}
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(ContentTypeList);

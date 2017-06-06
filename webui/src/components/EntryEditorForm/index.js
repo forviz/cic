@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
+import { Menu, Dropdown, Form } from 'antd';
 import _ from 'lodash';
 
 import InputField from '../InputField';
-import { Menu, Dropdown, Form } from 'antd';
-
 import arrayToObject from '../../helpers/arrayToObject';
+
+const hasErrors = fieldsError => Object.keys(fieldsError).some(field => fieldsError[field]);
 
 const mapValidationToRules = (field) => {
   const validations = field.validations;
@@ -13,15 +14,13 @@ const mapValidationToRules = (field) => {
 
   if (field.required) rules.push({ required: true, message: 'Please enter value' });
   if (validations.regexp) {
-    const regexp = new RegExp(_.get(validations, 'regexp.pattern'), _.get(validations, 'regexp.flag', 'ig'))
+    const regexp = new RegExp(_.get(validations, 'regexp.pattern'), _.get(validations, 'regexp.flag', 'ig'));
     rules.push({ pattern: regexp, message: 'Wrong Pattern' });
   }
   if (validations.in && _.size(validations.in) > 0) {
     const inString = _.join(_.get(validations, 'in'), ',');
     rules.push({ type: 'enum', enum: _.get(validations, 'in'), message: `Must be one of ${inString}` });
   }
-
-  // console.log(rules);
   return rules;
 };
 
@@ -37,7 +36,6 @@ class EntryEditorForm extends Component {
   }
 
   handleFieldChange = (e) => {
-    console.log('handleChange', e);
     if (this.state.prestine) {
       this.setState({
         prestine: false,
@@ -47,92 +45,94 @@ class EntryEditorForm extends Component {
 
   handleSubmit = (saveStatus = 'publish') => {
     console.log('status', saveStatus);
-     this.props.form.validateFields((err, values) => {
-      if (!err) {
+    this.props.form.validateFields((err, values) => {
+      // if (err) console.log(err);
+      if (true || !err) {
         // const valuesWithStatus = { ...values, status : saveStatus }
         const { onSubmit } = this.props;
-        onSubmit(values , saveStatus);
+        onSubmit(values, saveStatus);
       }
     });
   }
 
-  renderSaveButton(entryStatus) {
-    switch (entryStatus ) {
-      case 'draft': {
-        const menu = (
-          <Menu onClick={e => this.handleSubmit('archive')}>
-            <Menu.Item key="archive">Save to Archive</Menu.Item>
-          </Menu>
-          );
-        return(<Dropdown.Button type="primary" onClick={e => this.handleSubmit('publish')}  overlay={menu}>Publish </Dropdown.Button>)
-      }
-      case 'publish': {
-        const menu = (
-          <Menu onClick={(item, key, keyPath) => this.handleSubmit(item.key)}>
-            <Menu.Item key="archive">Archived</Menu.Item>
-            <Menu.Item key="draft">Draft</Menu.Item>
-          </Menu>
-          );
-
-        const buttonLabel = this.state.prestine ? 'Change status' : 'Publish changes';
-        return(
-          <Dropdown.Button type="primary" onClick={e => this.handleSubmit('publish')}  overlay={menu}>{buttonLabel} </Dropdown.Button>
-        );
-      }
-          case 'archive': {
-        const menu = (
-          <Menu onClick={e => this.handleSubmit('unarchive')}>
-            <Menu.Item key="unarchive">Unarchive</Menu.Item>
-          </Menu>
-          );
-        return(
-          <Dropdown.Button type="primary" onClick={e => this.handleSubmit('publish')}  overlay={menu}>Unarchive</Dropdown.Button>
-          )
-      }
+  renderSaveButton = (entryStatus) => {
+    const { getFieldsError } = this.props.form;
+    let primaryButton = { status: '', label: '' };
+    let secondaryButtons = [{ status: '', label: '' }];
+    switch (entryStatus) {
+      case 'draft':
+        primaryButton = { status: 'publish', label: 'Publish' };
+        secondaryButtons = [{ status: 'archive', label: 'Save to Archive' }];
+        break;
+      case 'archive':
+        primaryButton = { status: 'publish', label: 'Unarchive' };
+        secondaryButtons = [{ status: 'publish', label: 'Published' }];
+        break;
+      case 'publish':
+      default:
+        primaryButton = {
+          status: 'publish',
+          label: this.state.prestine ? 'Change status' : 'Publish changes',
+        };
+        secondaryButtons = [
+          { status: 'archive', label: 'Archived' },
+          { status: 'draft', label: 'Draft' },
+        ];
+        break;
     }
+    const menu = (
+      <Menu onClick={item => this.handleSubmit(item.key)}>
+        {_.map(secondaryButtons, btn => <Menu.Item key={btn.status}>{btn.label}</Menu.Item>)}
+      </Menu>
+    );
+    return (
+      <Dropdown.Button
+        type="primary"
+        onClick={e => this.handleSubmit(primaryButton.status, e)}
+        overlay={menu}
+        disabled={hasErrors(getFieldsError())}
+      >
+        {primaryButton.label}
+      </Dropdown.Button>
+    );
   }
 
   render() {
     const { spaceId, contentType, entry } = this.props;
-    const fields = _.mapValues(arrayToObject(contentType.fields, 'identifier'), field => {
+    const fields = _.mapValues(arrayToObject(contentType.fields, 'identifier'), (field) => {
       const _isMultple = _.get(field, 'type') === 'Array';
       return {
         label: field.name,
         type: _isMultple ? _.get(field, 'items.type') : field.type,
-        multiple:  _isMultple,
+        multiple: _isMultple,
         value: _.get(entry, `fields.${field.identifier}`, ''),
         identifier: field.identifier,
         rules: mapValidationToRules(field),
         appearance: field.appearance,
+        helpText: field.helpText,
         src: field,
       }
     });
 
-    const { getFieldDecorator, getFieldsError } = this.props.form;
-    const menu = (
-        <Menu >
-          <Menu.Item key="1">Save as archive</Menu.Item>
-        </Menu>
-        );
+    const { getFieldDecorator } = this.props.form;
     return (
       <Form layout="horizontal">
         {
-          _.map(fields, (field, identifier) => {
-            return (
-              <Form.Item
-                label={field.label}
-                key={field.identifier}
-              >
-                {getFieldDecorator(identifier, {
-                  initialValue: field.value,
-                  rules: field.rules,
-                  onChange: this.handleFieldChange,
-                })(
-                  <InputField field={field} spaceId={spaceId} />
-                )}
-              </Form.Item>
-            );
-          })
+          _.map(fields, (field, identifier) =>
+            (<Form.Item
+              label={field.label}
+              key={field.identifier}
+              help={field.helpText}
+            >
+              {getFieldDecorator(identifier, {
+                initialValue: field.value,
+                rules: field.rules,
+                onChange: this.handleFieldChange,
+              })(
+                <InputField field={field} spaceId={spaceId} />
+              )}
+            </Form.Item>)
+          )
         }
         <Form.Item>
           <p>status: {entry.status}</p>

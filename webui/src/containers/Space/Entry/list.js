@@ -9,7 +9,7 @@ import { bindActionCreators } from 'redux';
 import * as Actions from './actions';
 import _ from 'lodash';
 
-import { Button, Table, Icon, Col, Row, Menu, Dropdown, message, Popconfirm, Tag } from 'antd';
+import { Button, Table, Icon, Col, Row, Menu, Dropdown, Popconfirm, Tag } from 'antd';
 import { getActiveSpace, getSpaceEntries } from '../../../selectors';
 
 const API_PATH = process.env.REACT_APP_API_PATH;
@@ -43,10 +43,7 @@ class EntryList extends Component {
   confirmDeleteEntry = (entryId) => {
     const { deleteEntry } = this.props.actions;
     const { space } = this.props;
-    deleteEntry(space._id, entryId)
-    .then(response => {
-      message.success('Deleted Entry');
-    });
+    deleteEntry(space._id, entryId);
   }
 
   cancel = (e) => {

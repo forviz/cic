@@ -1,6 +1,6 @@
 import { fetchSpace, fetchCreateSpace, fetchUpdateSpace } from '../api/cic/spaces';
 import { fetchCreateContentType } from '../api/cic/contentTypes';
-// import { upload } from '../../api/cic/assets';
+import { openNotification } from './notification';
 
 // Fetch Space Info
 export const getSpace = (spaceId) => {
@@ -22,6 +22,7 @@ export const createNewSpace = (name, { organizationId, defaultLocale }) => {
   return (dispatch) => {
     return fetchCreateSpace(name, { organizationId, defaultLocale })
     .then((res) => {
+      openNotification('success', { message: 'Space created' });
       return res;
     });
   };
@@ -31,6 +32,7 @@ export const updateSpace = (spaceId, { name, defaultLocale }) => {
   return (dispatch) => {
     fetchUpdateSpace(spaceId, { name, defaultLocale })
     .then((res) => {
+      openNotification('success', { message: `Space ${name} Updated` });
       return res;
     });
   };
@@ -80,12 +82,12 @@ export const populateSpaceWithTemplate = (spaceId, template) => {
                 identifier: 'tag',
                 type: 'Array',
                 items: {
-                  type: "Link",
-                  linkType: "Entry",
+                  type: 'Link',
+                  linkType: 'Entry',
                   validations: [
                     {
                       linkContentType: [
-                        "category"
+                        'category'
                       ]
                     }
                   ]
@@ -97,6 +99,7 @@ export const populateSpaceWithTemplate = (spaceId, template) => {
           dispatch({
             type: 'CREATE/TEMPLATE/COMPLETE',
           });
+          openNotification('success', { message: 'Create space with template completed' });
         });
       case 'condo':
         /* Create UnitType, Unit, Floor */
@@ -116,7 +119,8 @@ export const populateSpaceWithTemplate = (spaceId, template) => {
                 items: {
                   type: 'Link',
                   linkType: 'Asset'
-                }, required: false
+                },
+                required: false
               }
             ],
           }),
@@ -149,13 +153,15 @@ export const populateSpaceWithTemplate = (spaceId, template) => {
             fields: [
               { name: 'Title', identifier: 'title', type: 'Text', required: true },
               { name: 'Detail', identifier: 'detail', type: 'LongText', required: false },
-              { name: 'Category', identifier: 'category', type: 'Link', required: false, validations:{ linkContentType: ['category'] }},
+              { name: 'Category', identifier: 'category', type: 'Link', required: false, validations: { linkContentType: ['category'] } },
             ],
           }),
         ], (response) => {
           dispatch({
             type: 'CREATE/TEMPLATE/COMPLETE',
           });
+          openNotification('success', { message: 'Create space with template completed' });
+
         });
       case 'directory':
         /* Create Shop, , Category, Floor, Facilities */
@@ -208,6 +214,7 @@ export const populateSpaceWithTemplate = (spaceId, template) => {
           dispatch({
             type: 'CREATE/TEMPLATE/COMPLETE',
           });
+          openNotification('success', { message: 'Create space with template completed' });
         });
       default: break;
     }

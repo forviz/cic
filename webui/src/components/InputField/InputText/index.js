@@ -1,8 +1,14 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
+import { Input, Select, Radio } from 'antd';
 
-import { Input, Select } from 'antd';
+const RadioGroup = Radio.Group;
+const radioStyle = {
+  display: 'block',
+  height: '30px',
+  lineHeight: '30px',
+};
 
 class InputText extends Component {
 
@@ -24,6 +30,15 @@ class InputText extends Component {
           <Select value={value} onChange={onChange}>
             {options.map(option => <Select.Option key={option}>{option}</Select.Option>)}
           </Select>
+        );
+      }
+
+      case 'radio': {
+        const options = _.get(field, 'src.validations.in', []);
+        return (
+          <RadioGroup onChange={onChange} value={value}>
+            {options.map(option => <Radio style={radioStyle} key={option} value={option}>{option}</Radio>)}
+          </RadioGroup>
         );
       }
       default:return (<Input value={value} onChange={onChange} />);

@@ -1,6 +1,9 @@
 import _ from 'lodash';
+import React from 'react';
+import { Button } from 'antd';
 import { fetchGetSingleEntry, fetchEntryInSpace, fetchCreateEntry, fetchUpdateEntry, fetchDeleteEntry } from '../../../api/cic/entries';
 import { getSpace } from '../../../actions/spaces';
+import { openNotification } from '../../../actions/notification';
 
 export const getEntryInSpace = (spaceId) => {
   return (dispatch) => {
@@ -47,8 +50,29 @@ export const updateEntry = (spaceId, entryId, contentType, fields, status) => {
   return (dispatch) => {
     return fetchUpdateEntry(spaceId, entryId, contentType._id, fields, status)
     .then((updateResponse) => {
-      window.location = `/spaces/${spaceId}/entries/`;
+
+      const btnClick = () => {
+        window.location = `/spaces/${spaceId}/entries/`;
+      };
+      const btn = (
+        <Button type="primary" size="small" onClick={btnClick}>
+          Back to List
+        </Button>
+      );
+      openNotification('success', {
+        message: 'Entry Updated',
+        duration: 5,
+        btn,
+      });
+
       return updateResponse;
+    })
+    .catch((err) => {
+      openNotification('error', {
+        message: 'Cannot save entry',
+        description: err.message,
+        duration: 0,
+      });
     })
   };
 };
@@ -59,6 +83,8 @@ export const deleteEntry = (spaceId, entryId) => {
     .then((deleteResponse) => {
       console.log(deleteResponse);
       dispatch(getSpace(spaceId));
+      openNotification('success', { message: 'Entry Deleted' });
+
     })
   };
 };

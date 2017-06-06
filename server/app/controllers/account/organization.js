@@ -12,6 +12,7 @@ exports.getAll = async (req, res) => {
   const organizations = await Organization.find({ });
 
   res.json({
+    status: 'SUCCESS',
     items: organizations,
   });
 };
@@ -21,6 +22,7 @@ exports.getSingle = async (req, res, next) => {
   Organization.findOne({ _id: organizationId }).exec((err, organization) => {
     if (err) next(err);
     res.json({
+      status: 'SUCCESS',
       title: 'find organization',
       organization,
     });
@@ -47,7 +49,7 @@ exports.createOrganization = async (req, res, next) => {
     await user.save();
 
     res.json({
-      status: 'success',
+      status: 'SUCCESS',
       item: organization,
     });
   } catch (e) {
@@ -66,6 +68,7 @@ exports.getAllMemberOrganization = async (req, res, next) => {
     const result = await Organization.find({ _id: organizationId }).populate('users.Members');
 
     res.json({
+      status: 'SUCCESS',
       organization: organizationId,
       members: result[0].users.Members,
     });

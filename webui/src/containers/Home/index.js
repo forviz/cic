@@ -1,39 +1,49 @@
 import React, { Component } from 'react';
+import T from 'prop-types';
 import _ from 'lodash';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-
 import {
-  Link
-} from 'react-router-dom'
-
+  Link,
+} from 'react-router-dom';
 import { Card, Row, Col, Steps, Button, Tooltip } from 'antd';
+
+import AuthService from '../../modules/auth/AuthService';
 import * as SpaceActions from '../../actions/spaces';
+import { getUser, getUserOrganizationsWithSpaces } from '../../selectors';
 
 const Step = Steps.Step;
 
-const mapStateToProps = (state) => {
-  return {
-    user: state.user,
-  }
-};
+const mapStateToProps = state => ({
+  userProfile: getUser(state),
+  userOrganizations: getUserOrganizationsWithSpaces(state),
+});
 
-const mapDispatchToProps = (dispatch) => {
-  return {
-    actions: bindActionCreators({
-      createNewSpace: SpaceActions.createNewSpace,
-    }, dispatch),
-  };
-};
+const mapDispatchToProps = dispatch => ({
+  actions: bindActionCreators({
+    createNewSpace: SpaceActions.createNewSpace,
+  }, dispatch),
+});
 
 class Home extends Component {
 
-  showCreateSpaceModal = () => {
+  static propTypes = {
+    userProfile: T.shape({
+      email: T.string,
+    }),
+    userOrganizations: T.arrayOf(T.shape({
+      _id: T.string,
+      name: T.string,
+    })),
+    auth: T.instanceOf(AuthService).isRequired,
+  }
 
+  static defaultProps = {
+    userProfile: {},
+    userOrganizations: [],
   }
 
   renderHomeForGuest = () => {
-
     const { auth } = this.props;
     return (
       <Row type="flex" justify="center">
@@ -65,35 +75,43 @@ class Home extends Component {
     );
   }
 
-  renderHomeForUser = (userProfile, userSpaces) => {
-    return (
-      <Row gutter={16}>
-        {
-          _.map(userSpaces, space =>
-            <Col span={8} key={space._id}>
-              <Link to={`spaces/${space._id}/content_types`}>
-                <Tooltip placement="bottom" title="Click to enter space">
-                  <Card loading title={space.name} style={{ marginBottom: 16, textAlign: 'center' }}>
-                    {space.description}
-                  </Card>
-                </Tooltip>
-              </Link>
-            </Col>
-          )
-        }
-      </Row>
-    )
+  renderTooltip = (title, description) =>
+    (<Tooltip placement="bottom" title="Click to enter space">
+      <Card loading title={title} style={{ marginBottom: 16, textAlign: 'center' }}>
+        {description}
+      </Card>
+    </Tooltip>);
+
+  renderHomeForUser = (userProfile, userOrganizations) => {
+    return _.map(userOrganizations, (org) => {
+      const orgSpaces = _.map(_.compact(org.spaces), space =>
+        (<Col span={8} key={space._id}>
+          <Link to={`spaces/${space._id}/content_types`}>
+            {this.renderTooltip(space.name, space.description)}
+          </Link>
+        </Col>)
+      );
+
+      return (
+        <Row gutter={16} key={org._id}>
+          <h3 style={{ marginBottom: 20 }}>{org.name}</h3>
+          {orgSpaces}
+        </Row>
+      );
+    });
   }
 
   render() {
-    const { userProfile, userSpaces } = this.props;
-
-    const homeContent =  _.isEmpty(userProfile) ? this.renderHomeForGuest() : this.renderHomeForUser(userProfile, userSpaces);
+    const { userProfile, userOrganizations } = this.props;
+    const content = _.isEmpty(userProfile) ?
+      this.renderHomeForGuest()
+      :
+      this.renderHomeForUser(userProfile, userOrganizations);
     return (
       <div style={{ padding: 40 }}>
-        {homeContent}
+        {content}
       </div>
-    )
+    );
   }
 }
 

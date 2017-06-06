@@ -138,6 +138,7 @@ const updateEntry = async (req, res, next) => {
 
   try {
     const space = await Space.findOne({ _id: spaceId });
+    const isExistingEntry = _.some(space.entries, id => id.equals(entryId));
     const contentTypeInfo = _.find(space.contentTypes, ct => ct._id.equals(contentTypeId));
     if (!contentTypeInfo) {
       res.json({
@@ -147,13 +148,15 @@ const updateEntry = async (req, res, next) => {
       return;
     }
 
-    const validation = helper.validateFields(fields, contentTypeInfo);
-    if (!validation.valid) {
-      res.json({
-        status: 'UNSUCCESSFUL',
-        message: validation.message,
-      });
-      return;
+    if (isExistingEntry) {
+      const validation = helper.validateFields(fields, contentTypeInfo);
+      if (!validation.valid) {
+        res.json({
+          status: 'UNSUCCESSFUL',
+          message: validation.message,
+        });
+        return;
+      }
     }
 
     const entry = await Entry.findOneAndUpdate({ _id: entryId }, {
@@ -187,6 +190,7 @@ exports.createEntry = (req, res, next) => {
   // Create new objectId
   const entryId = mongoose.Types.ObjectId();
   req.params.entry_id = entryId;
+  console.log('createEntry entryId', entryId);
   return updateEntry(req, res, next);
 };
 

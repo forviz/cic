@@ -8,7 +8,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "lint": "node_modules/.bin/eslint *.js server/app",
+    "lint": "node_modules/.bin/eslint *.js server/app webui/src",
     "test": "MONGODB_URI=mongodb://localhost:27017/cic_test PORT=7654 mocha --reporter spec server/**/*.test.js",
     "test:watch": "npm run test -- --watch",
     "dev:server": "cross-env NODE_ENV=development ./node_modules/.bin/nodemon server/app/index.js",

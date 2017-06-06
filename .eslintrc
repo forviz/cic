@@ -1,6 +1,9 @@
 {
   "parser": "babel-eslint",
   "extends": "airbnb",
+  "env": {
+    "browser": true,
+  },
   "plugins": [
     "react"
   ],
@@ -9,6 +12,8 @@
     "guard-for-in": "warn",
     "no-restricted-syntax": "warn",
     "react/jsx-filename-extension": "off",
-    "jsx-a11y/href-no-hash": "off"
+    "jsx-a11y/href-no-hash": "off",
+    "arrow-body-style": "warn",
+    "react/forbid-prop-types": "warn"
   }
 }

@@ -1,21 +1,23 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import T from 'prop-types';
+import _ from 'lodash';
 import { Link } from 'react-router-dom';
 
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import { Button, Row, Col, Icon, Table, Popconfirm } from 'antd';
 
 import * as Actions from './actions';
-import _ from 'lodash';
-
-import { Button, Row, Col, Icon, Table, Popconfirm, message } from 'antd';
-
 import { getActiveSpace } from '../../../selectors';
 
 class ContentTypeList extends Component {
 
   static propTypes = {
-    space: PropTypes.object,
+    space: T.object,
+    actions: T.shape({
+      createApiKey: T.func,
+      deleteApiKey: T.func,
+    }).isRequired,
   }
 
   displayName = 'ApiKeys';
@@ -33,10 +35,7 @@ class ContentTypeList extends Component {
   confirmDeleteApiKey = (keyId) => {
     const { deleteApiKey } = this.props.actions;
     const { space } = this.props;
-    deleteApiKey(space._id, keyId)
-    .then(response => {
-      message.success('ApiKey deleted');
-    });
+    deleteApiKey(space._id, keyId);
   }
 
 
@@ -100,7 +99,7 @@ class ContentTypeList extends Component {
 }
 
 ContentTypeList.propTypes = {
-  items: PropTypes.array,
+  items: T.array,
 };
 
 const mapStateToProps = (state, ownProps) => {

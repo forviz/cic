@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import T from 'prop-types';
 import _ from 'lodash';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { Row, Col } from 'antd';
 import * as Actions from './actions';
+import Space from '../../../proptypes/Space';
 import { getActiveSpace, getEntryId, getActiveEntry } from '../../../selectors';
 
 import EntryEditorForm from '../../../components/EntryEditorForm';
@@ -12,7 +13,15 @@ import EntryEditorForm from '../../../components/EntryEditorForm';
 class EntrySingle extends Component {
 
   static propTypes = {
-    fields: PropTypes.array,
+    space: T.instanceOf(Space).isRequired,
+    entry: T.shape({
+      _id: T.string,
+    }).isRequired,
+    fields: T.array,
+    actions: T.shape({
+      getSingleEntry: T.func,
+      updateEntry: T.func,
+    }).isRequired,
   }
 
   componentDidMount = () => {

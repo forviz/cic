@@ -4,7 +4,7 @@ const initialState = {
   entities: {},
   fetchStatus: {},
   errors: {},
-}
+};
 
 const entries = (state = initialState, action) => {
   switch (action.type) {
@@ -18,12 +18,12 @@ const entries = (state = initialState, action) => {
         fetchStatus: {
           ...state.fetchStatus,
           [action.item._id]: 'loaded',
-        }
-      }
+        },
+      };
     }
 
     default: return state;
   }
-}
+};
 
 export default entries;

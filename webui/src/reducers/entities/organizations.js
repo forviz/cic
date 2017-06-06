@@ -6,7 +6,7 @@ const initialState = {
   entities: {},
   fetchStatus: {},
   errors: {},
-}
+};
 
 const spaces = (state = initialState, action) => {
   switch (action.type) {
@@ -15,11 +15,11 @@ const spaces = (state = initialState, action) => {
       return {
         ...state,
         entities: _.assign({}, state.entities, convertArrayToEntities(action.organizations, '_id')),
-      }
+      };
     }
 
     default: return state;
   }
-}
+};
 
 export default spaces;

@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import T from 'prop-types';
 import _ from 'lodash';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -6,8 +7,7 @@ import { bindActionCreators } from 'redux';
 import {
   Route,
   Link,
-} from 'react-router-dom'
-
+} from 'react-router-dom';
 
 import { Layout, Breadcrumb } from 'antd';
 import SpaceSidebar from './Sidebar';
@@ -28,10 +28,9 @@ import { getActiveSpace } from '../../selectors';
 const { Content, Sider } = Layout;
 
 const mapStateToProps = (state, ownProps) => {
-
   return {
     space: getActiveSpace(state, ownProps),
-  }
+  };
 };
 
 const mapDispatchToProps = (dispatch) => {
@@ -40,9 +39,19 @@ const mapDispatchToProps = (dispatch) => {
       initWithSpaceId: Actions.initWithSpaceId,
     }, dispatch),
   };
-}
+};
 
 class Space extends Component {
+
+  static propTypes = {
+    space: T.shape({
+      _id: T.string,
+    }),
+  }
+
+  static defaultProps = {
+    space: {},
+  }
 
   render() {
     const { space } = this.props;
@@ -51,7 +60,7 @@ class Space extends Component {
     const routes = [
       {
         path: '/spaces/:spaceId/content_types',
-        exact: true ,
+        exact: true,
         main: ContentTypeListContainer,
       },
       {
@@ -61,28 +70,28 @@ class Space extends Component {
       },
       {
         path: '/spaces/:spaceId/entries',
-        exact: true ,
-        main: EntryListContainer
+        exact: true,
+        main: EntryListContainer,
       },
       {
         path: '/spaces/:spaceId/entries/:entryId',
-        exact: true ,
-        main: EntrySingleContainer
+        exact: true,
+        main: EntrySingleContainer,
       },
       {
         path: '/spaces/:spaceId/assets',
-        exact: true ,
-        main: AssetListContainer
+        exact: true,
+        main: AssetListContainer,
       },
       {
         path: '/spaces/:spaceId/assets/:assetId',
-        exact: true ,
-        main: AssetSingleContainer
+        exact: true,
+        main: AssetSingleContainer,
       },
       {
         path: '/spaces/:spaceId/api/keys',
-        exact: true ,
-        main: SpaceApiKeyContainer
+        exact: true,
+        main: SpaceApiKeyContainer,
       },
       {
         path: '/spaces/:spaceId/api/keys/:keyId',
@@ -91,8 +100,8 @@ class Space extends Component {
       },
       {
         path: '/spaces/:spaceId/settings',
-        exact: true ,
-        main: SpaceSettingContainer
+        exact: true,
+        main: SpaceSettingContainer,
       },
     ];
 
@@ -124,19 +133,19 @@ class Space extends Component {
             </Breadcrumb>
             <Content style={{ background: '#fff', padding: 24, margin: 0, minHeight: 280 }}>
               {
-                routes.map((route) =>
-                  <Route
+                routes.map(route =>
+                  (<Route
                     key={route.path}
                     path={route.path}
                     exact={route.exact}
                     component={route.main}
-                  />)
+                  />))
               }
             </Content>
           </Layout>
         </Layout>
       </div>
-    )
+    );
   }
 }
 

@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import { Layout, LocaleProvider } from 'antd';
+
 import _ from 'lodash';
 
 import {
@@ -13,8 +15,6 @@ import enUS from 'antd/lib/locale-provider/en_US';
 
 import 'antd/dist/antd.css';
 import './App.css';
-
-import { Layout, LocaleProvider } from 'antd';
 
 import * as Actions from './actions/application';
 

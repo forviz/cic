@@ -50,11 +50,11 @@ class EntryEditorForm extends Component {
 
   handleSubmit = (saveStatus = 'publish') => {
     console.log('status', saveStatus);
-     this.props.form.validateFields((err, values) => {
+    this.props.form.validateFields((err, values) => {
       if (!err) {
         // const valuesWithStatus = { ...values, status : saveStatus }
         const { onSubmit } = this.props;
-        onSubmit(values , saveStatus);
+        onSubmit(values, saveStatus);
       }
     });
   }
@@ -81,7 +81,7 @@ class EntryEditorForm extends Component {
       case 'publish':
       default: {
         const menu = (
-          <Menu onClick={(item, key, keyPath) => this.handleSubmit(item.key)}>
+          <Menu onClick={item => this.handleSubmit(item.key)}>
             <Menu.Item key="archive" disabled={hasErrors(getFieldsError())}>Archived</Menu.Item>
             <Menu.Item key="draft">Draft</Menu.Item>
           </Menu>
@@ -115,22 +115,20 @@ class EntryEditorForm extends Component {
     return (
       <Form layout="horizontal">
         {
-          _.map(fields, (field, identifier) => {
-            return (
-              <Form.Item
-                label={field.label}
-                key={field.identifier}
-              >
-                {getFieldDecorator(identifier, {
-                  initialValue: field.value,
-                  rules: field.rules,
-                  onChange: this.handleFieldChange,
-                })(
-                  <InputField field={field} spaceId={spaceId} />
-                )}
-              </Form.Item>
-            );
-          })
+          _.map(fields, (field, identifier) =>
+            <Form.Item
+              label={field.label}
+              key={field.identifier}
+            >
+              {getFieldDecorator(identifier, {
+                initialValue: field.value,
+                rules: field.rules,
+                onChange: this.handleFieldChange,
+              })(
+                <InputField field={field} spaceId={spaceId} />
+              )}
+            </Form.Item>
+          )
         }
         <Form.Item>
           <p>status: {entry.status}</p>

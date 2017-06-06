@@ -163,6 +163,7 @@ class ContentTypeSingle extends Component {
         <FieldCreateForm
           ref={this.createFormRef}
           field={this.state.fieldValues}
+          contentTypes={space.contentTypes}
           visible={this.state.modalVisible}
           onCancel={this.handleCancel}
           onSubmit={this.handleSubmitFieldCreate}

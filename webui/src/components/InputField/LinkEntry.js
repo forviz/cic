@@ -4,7 +4,7 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 
-import { Select, Spin, Tag } from 'antd';
+import { Select, Spin, Tag, Cascader } from 'antd';
 import * as EntryActions from '../../actions/entries';
 import { getActiveSpaceFromId, getSpaceEntriesFromSpaceId } from '../../selectors';
 
@@ -28,8 +28,8 @@ class LinkSelect extends Component {
   }
 
   componentDidMount() {
-    const { space, getEntryInSpace } = this.props;
-    getEntryInSpace(space._id);
+    const { spaceId, getEntryInSpace } = this.props;
+    getEntryInSpace(spaceId);
   }
 
   handleChange = (key) => {
@@ -37,13 +37,11 @@ class LinkSelect extends Component {
   }
 
   render() {
-    const { value, space, entries } = this.props;
-    console.log('LinkEntry::field', this.props);
-    // const entryWithContentType = _.map(entries, entry => {
-    //   return { ...entry, contentType: _.find(space.contentTypes, ct => ct._id === entry.contentTypeId) };
-    // });
+    const { options, value, space, entries } = this.props;
     const { fetching, data } = this.state;
 
+    return (<Cascader options={options} onChange={this.handleChange} placeholder="Please select" />);
+    /*
     return (
       <Select
         size="large"
@@ -54,18 +52,18 @@ class LinkSelect extends Component {
         onSearch={this.fetchUser}
         onChange={this.handleChange}
       >
-        {entries.map((entry, index) =>
+        {entries.map((entry) =>
           <Option key={entry._id}>
-            <Tag color="green">{entry.contentType.name}</Tag> {_.get(entry, `fields.${entry.contentType.displayField}`)}
+            <Tag color="green">{_.get(entry, 'contentType.name', 'Unknown')}</Tag> {_.get(entry, `fields.${_.get(entry, 'contentType.displayField')}`)}
           </Option>)}
       </Select>
-    );
+    );*/
   }
 }
 
 const mapStateToProps = (state, ownProps) => {
 
-  const linkContentType = _.get(ownProps, 'field.src.validations.linkContentType', []);
+  const linkContentType = _.compact(_.get(ownProps, 'field.src.validations.linkContentType', []));
 
   // Get All Entries
   const allEntries = getSpaceEntriesFromSpaceId(state, ownProps.spaceId);
@@ -73,25 +71,28 @@ const mapStateToProps = (state, ownProps) => {
   // Get Space
   const space = getActiveSpaceFromId(state, ownProps.spaceId);
 
-  // Attach ContentType to Entry
-  const entryWithContentType = _.map(allEntries, entry => {
-    return { ...entry, contentType: _.find(space.contentTypes, ct => ct._id === entry.contentTypeId) };
-  });
+  // Get ContentTypes
+  const spaceContentTypes = space.contentTypes;
 
-  // Filter Entries by linkContentType
-  let filteredEntries;
-  if (linkContentType.length > 0) {
-    filteredEntries = _.filter(entryWithContentType, entry => {
-      return _.includes(linkContentType, entry.contentType.identifier);
-    });
-  } else {
-    filteredEntries = allEntries;
-  }
+  const inputOptions = _.map(spaceContentTypes, (ct) => {
+    const ctIsEisabled = linkContentType.length === 0 || _.includes(linkContentType, ct.identifier);
+    return {
+      value: ct._id,
+      label: ct.name,
+      disabled: !ctIsEisabled,
+      children: _.map(_.filter(allEntries, entry => entry.contentTypeId === ct._id), (entry) => {
+        return {
+          value: entry._id,
+          label: _.get(entry, `fields.${ct.displayField}`),
+        };
+      }),
+    };
+  });
 
   return {
     value: ownProps.value,
+    options: inputOptions,
     space: getActiveSpaceFromId(state, ownProps.spaceId),
-    entries: filteredEntries,
   };
 }
 const actions = {

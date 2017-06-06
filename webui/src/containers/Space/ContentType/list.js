@@ -7,6 +7,7 @@ import { Popconfirm, message, Button, Table, Icon, Col, Row, Dropdown, Menu } fr
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
+import { openNotification } from '../../../actions/notification';
 import * as Actions from './actions';
 
 import { getActiveSpace } from '../../../selectors';

@@ -1,12 +1,15 @@
 import _ from 'lodash';
 import { fetchCreateContentType, fetchUpdateContentType, fetchDeleteContentType } from '../../../api/cic/contentTypes';
 import { getSpace } from '../../../actions/spaces';
+import { openNotification } from '../../../actions/notification';
 
 export const createContentType = (spaceId, values) => {
   return (dispatch) => {
     return fetchCreateContentType(spaceId, values)
     .then((createResponse) => {
+      const contentTypeName = _.get(createResponse, 'item.name', 'ContentType');
       dispatch(getSpace(spaceId));
+      openNotification('success', { message: `${contentTypeName} Created` });
     });
   }
 }
@@ -16,14 +19,14 @@ export const deleteContentType = (spaceId, contentTypeId) => {
     return fetchDeleteContentType(spaceId, contentTypeId)
     .then((updateResponse) => {
       dispatch(getSpace(spaceId));
+      openNotification('success', { message: 'ContentType Deleted' });
     });
   };
 };
 
 export const addField = (spaceId, contentTypeId, contentType, values) => {
   return (dispatch) => {
-
-    const typeObj = values.isMultiple !== true ? { type:values.type } : { type:'Array', items:{ type:values.type } };
+    const typeObj = values.isMultiple !== true ? { type: values.type } : { type: 'Array', items: { type: values.type } };
     const _contentTypeToUpdate = _.assign({}, contentType, {
       displayField: (values.isDisplayField === true) ? values.identifier : contentType.displayField,
       fields: [...contentType.fields, values]
@@ -31,8 +34,8 @@ export const addField = (spaceId, contentTypeId, contentType, values) => {
 
     return fetchUpdateContentType(spaceId, contentTypeId, _contentTypeToUpdate)
     .then((createResponse) => {
-      console.log('createResponse', createResponse);
       dispatch(getSpace(spaceId));
+      openNotification('success', { message: `Field ${values.name} Created` });
     });
   }
 }
@@ -52,11 +55,11 @@ export const updateField = (spaceId, contentTypeId, contentType, values) => {
       })
     });
 
-    console.log('_contentTypeToUpdate', _contentTypeToUpdate);
     return fetchUpdateContentType(spaceId, contentTypeId, _contentTypeToUpdate)
     .then((res) => {
       console.log('updateFieldResponse', res);
       dispatch(getSpace(spaceId));
+      openNotification('success', { message: 'Field Updated' });
     });
   }
 }
@@ -72,7 +75,7 @@ export const deleteField = (spaceId, contentTypeId, contentType, fieldId) => {
     return fetchUpdateContentType(spaceId, contentTypeId, _contentTypeToUpdate)
     .then((deleteResponse) => {
       dispatch(getSpace(spaceId));
+      openNotification('success', { message: 'Field Deleted' });
     });
-
   }
 }

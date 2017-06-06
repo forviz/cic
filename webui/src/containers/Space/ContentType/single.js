@@ -52,10 +52,6 @@ class ContentTypeSingle extends Component {
     const fieldOperation = _.isEmpty(fieldModel._id) ? addField : updateField;
     fieldOperation(space._id, contentType._id, contentType, fieldModel)
     .then(() => {
-      notification.info({
-        message: 'Field Updated',
-        description: '',
-      });
       form.resetFields();
       this.setState({
         modalVisible: false,
@@ -70,12 +66,7 @@ class ContentTypeSingle extends Component {
     const { deleteField } = this.props.actions;
 
     deleteField(space._id, contentType._id, contentType, fieldId)
-    .then(response => {
-      notification.info({
-        message: 'Delete Field Complete',
-        description: '',
-      });
-    });
+    .then(response => response);
   }
 
   handleCancel = () => {

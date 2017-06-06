@@ -74,8 +74,15 @@ const updateContentType = async (req, res, next) => {
         type: 'ContentType',
         id: contentTypeId,
         updatedAt: Date.now(),
+        space: {
+          sys: {
+            type: 'Link',
+            linkType: 'Space',
+            id: space._id,
+          },
+        },
       },
-      space,
+      item: contentTypeToUpdate,
     });
   } catch (e) {
     next(e);

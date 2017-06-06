@@ -4,7 +4,7 @@ import _ from 'lodash';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
-import { Button, Row, Col, Icon, Popconfirm, Table } from 'antd';
+import { Button, Row, Col, Icon, Popconfirm, Table, notification } from 'antd';
 
 import { getActiveSpace, getActiveContentType } from '../../../selectors';
 
@@ -41,18 +41,21 @@ class ContentTypeSingle extends Component {
     this.setState({
       fieldValues: field,
       modalVisible: true,
-    })
+    });
   }
 
   handleSubmitFieldCreate = (fieldModel) => {
-
     const form = this.form;
     const { space, contentType } = this.props;
     const { addField, updateField } = this.props.actions;
 
     const fieldOperation = _.isEmpty(fieldModel._id) ? addField : updateField;
     fieldOperation(space._id, contentType._id, contentType, fieldModel)
-    .then(response => {
+    .then(() => {
+      notification.info({
+        message: 'Field Updated',
+        description: '',
+      });
       form.resetFields();
       this.setState({
         modalVisible: false,
@@ -68,7 +71,10 @@ class ContentTypeSingle extends Component {
 
     deleteField(space._id, contentType._id, contentType, fieldId)
     .then(response => {
-      console.log('action response', response);
+      notification.info({
+        message: 'Delete Field Complete',
+        description: '',
+      });
     });
   }
 
@@ -130,27 +136,22 @@ class ContentTypeSingle extends Component {
         ),
       }
     ];
-
     const data = _.map(_.get(contentType, 'fields'), (field, i) => ({
       _id: field._id,
       key: i,
       name: field.name,
-      type: field.type,
+      type: field.type !== 'Array' ? field.type : `List of ${_.get(field, 'items.type')}`,
     }));
 
     return (
       <div>
-        <Row>
-          <Col>
-            <div style={{ marginBottom: 20 }}>
-              <Button type="primary" onClick={this.handleClickAddField}><Icon type="plus" /> Add Field</Button>
-            </div>
-          </Col>
-        </Row>
+        <div style={{ marginBottom: 20 }}>
+          <Button type="primary" onClick={this.handleClickAddField}><Icon type="plus" /> Add Field</Button>
+        </div>
         <Row>
           <Col>
             <Table
-              showHeader={true}
+              showHeader
               columns={columns}
               dataSource={data}
               locale={{

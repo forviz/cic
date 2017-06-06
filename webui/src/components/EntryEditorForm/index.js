@@ -1,14 +1,11 @@
 import React, { Component } from 'react';
+import { Menu, Dropdown, Form } from 'antd';
 import _ from 'lodash';
 
 import InputField from '../InputField';
-import { Menu, Dropdown, Form } from 'antd';
-
 import arrayToObject from '../../helpers/arrayToObject';
 
-const hasErrors = (fieldsError) => {
-  return Object.keys(fieldsError).some(field => fieldsError[field]);
-}
+const hasErrors = fieldsError => Object.keys(fieldsError).some(field => fieldsError[field]);
 
 const mapValidationToRules = (field) => {
   const validations = field.validations;
@@ -17,15 +14,13 @@ const mapValidationToRules = (field) => {
 
   if (field.required) rules.push({ required: true, message: 'Please enter value' });
   if (validations.regexp) {
-    const regexp = new RegExp(_.get(validations, 'regexp.pattern'), _.get(validations, 'regexp.flag', 'ig'))
+    const regexp = new RegExp(_.get(validations, 'regexp.pattern'), _.get(validations, 'regexp.flag', 'ig'));
     rules.push({ pattern: regexp, message: 'Wrong Pattern' });
   }
   if (validations.in && _.size(validations.in) > 0) {
     const inString = _.join(_.get(validations, 'in'), ',');
     rules.push({ type: 'enum', enum: _.get(validations, 'in'), message: `Must be one of ${inString}` });
   }
-
-  // console.log(rules);
   return rules;
 };
 
@@ -63,21 +58,17 @@ class EntryEditorForm extends Component {
     const { getFieldsError } = this.props.form;
 
     let primaryButton = { status: '', label: '' };
-    let secondaryButtons = [
-      { status: '', label: '' },
-    ];
+    let secondaryButtons = [{ status: '', label: '' }];
 
     switch (entryStatus) {
       case 'draft':
         primaryButton = { status: 'publish', label: 'Publish' };
         secondaryButtons = [{ status: 'archive', label: 'Save to Archive' }];
         break;
-
       case 'archive':
         primaryButton = { status: 'publish', label: 'Unarchive' };
         secondaryButtons = [{ status: 'publish', label: 'Published' }];
         break;
-
       case 'publish':
       default:
         primaryButton = {
@@ -110,7 +101,7 @@ class EntryEditorForm extends Component {
 
   render() {
     const { spaceId, contentType, entry } = this.props;
-    const fields = _.mapValues(arrayToObject(contentType.fields, 'identifier'), field => {
+    const fields = _.mapValues(arrayToObject(contentType.fields, 'identifier'), (field) => {
       const _isMultple = _.get(field, 'type') === 'Array';
       return {
         label: field.name,
@@ -125,7 +116,6 @@ class EntryEditorForm extends Component {
     });
 
     const { getFieldDecorator } = this.props.form;
-    const menu = (<Menu ><Menu.Item key="1">Save as archive</Menu.Item></Menu>);
     return (
       <Form layout="horizontal">
         {

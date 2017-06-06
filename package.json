@@ -23,15 +23,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Doppy/cic.git"
+    "url": "git+https://github.com/forviz/cic.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/Doppy/cic/issues"
+    "url": "https://github.com/forviz/cic/issues"
   },
-  "homepage": "https://github.com/Doppy/cic#readme",
+  "homepage": "https://github.com/forviz/cic#readme",
   "devDependencies": {
     "babel-cli": "^6.24.1",
     "babel-core": "^6.24.1",

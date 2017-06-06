@@ -15,7 +15,7 @@ import { getUser, getUserOrganizationsWithSpaces } from '../../selectors';
 const Step = Steps.Step;
 
 const mapStateToProps = state => ({
-  user: getUser(state),
+  userProfile: getUser(state),
   userOrganizations: getUserOrganizationsWithSpaces(state),
 });
 

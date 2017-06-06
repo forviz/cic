@@ -2,12 +2,11 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import _ from 'lodash';
-import { Popconfirm, message, Button, Table, Icon, Col, Row, Dropdown, Menu } from 'antd';
+import { Popconfirm, Button, Table, Icon, Col, Row, Dropdown, Menu } from 'antd';
 
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
-import { openNotification } from '../../../actions/notification';
 import * as Actions from './actions';
 
 import { getActiveSpace } from '../../../selectors';
@@ -34,10 +33,7 @@ class ContentTypeList extends Component {
   confirmDeleteContentType = (typeId) => {
     const { deleteContentType } = this.props.actions;
     const { space } = this.props;
-    deleteContentType(space._id, typeId)
-    .then(() => {
-      message.success('ContentType deleted');
-    });
+    deleteContentType(space._id, typeId);
   }
 
   cancel = (e) => {

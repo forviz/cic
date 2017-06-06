@@ -15,7 +15,7 @@ const MultiInputText = withMultipleItem(InputText);
 
 class InputField extends Component {
 
-  render() {
+  renderInput() {
     const { spaceId, field, value, onChange } = this.props;
     const type = _.get(this.props, 'field.type');
     switch (type) {
@@ -31,6 +31,10 @@ class InputField extends Component {
         }
         return (<InputText field={field} value={value} onChange={onChange} />);
     }
+  }
+
+  render() {
+    return this.renderInput();
   }
 }
 

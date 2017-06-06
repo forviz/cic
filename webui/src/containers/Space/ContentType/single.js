@@ -4,7 +4,7 @@ import _ from 'lodash';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
-import { Button, Row, Col, Icon, Popconfirm, Table, notification } from 'antd';
+import { Button, Row, Col, Icon, Popconfirm, Table } from 'antd';
 
 import { getActiveSpace, getActiveContentType } from '../../../selectors';
 

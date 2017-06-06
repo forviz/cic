@@ -1,4 +1,5 @@
-import { BASE_URL, fetchWithResponse } from './helper';
+import _ from 'lodash';
+import { BASE_URL, fetchWithResponse, responseError } from './helper';
 
 export const fetchEntryInSpace = (spaceId) => {
   return fetchWithResponse(`${BASE_URL}/spaces/${spaceId}/entries/`, {
@@ -42,18 +43,23 @@ export const fetchUpdateEntry = (spaceId, entryId, contentTypeId, fields, status
       'X-CIC-Content-Type': contentTypeId,
     },
     body: JSON.stringify({
-      fields: fields,
-      status: status,
+      fields,
+      status,
     }),
   })
   .then((response) => {
     console.log('fetchUpdateEntry', response);
-    return response;
+    if (response.status === 'SUCCESS') return response;
+
+    throw responseError({
+      name: 'Cannot save Entry',
+      message: _.join(response.message, ','),
+    });
   });
 };
 
 
-export const fetchDeleteEntry = (spaceId, entryId, contentTypeId, fields) => {
+export const fetchDeleteEntry = (spaceId, entryId, contentTypeId) => {
   return fetchWithResponse(`${BASE_URL}/spaces/${spaceId}/entries/${entryId}`, {
     method: 'DELETE',
   })

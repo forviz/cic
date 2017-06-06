@@ -55,6 +55,7 @@ const spaceSchema = new Schema({
         unique: Boolean,
       },
       appearance: String,
+      helpText: String,
     }],
   }],
   entries: [{ type: Schema.Types.ObjectId, ref: 'Entry' }],

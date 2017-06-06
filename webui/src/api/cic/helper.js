@@ -12,15 +12,14 @@ export const getValue = (obj) => {
 export const convertToURLParam = data => `?${_.join(_.map(data, (value, key) => `${key}=${value}`), '&')}`;
 
 class AppError extends Error {
-  constructor({ type, code, name, appMessage, debugMessage, serviceMessage, trxId, context }) {
+  constructor({ type, code, name, message, appMessage, serviceMessage, trxId, context }) {
     super(appMessage);
     this.name = name;
-    this.message = appMessage;
+    this.message = message;
 
     this.type = type || 'ERROR';
     this.code = code;
     this.appMessage = appMessage;
-    this.debugMessage = debugMessage;
     this.serviceMessage = serviceMessage;
     this.trxId = trxId;
     this.context = context;

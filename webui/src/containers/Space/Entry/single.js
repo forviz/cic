@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { Row, Col, message } from 'antd';
+import { Row, Col } from 'antd';
 import * as Actions from './actions';
 import { getActiveSpace, getEntryId, getActiveEntry } from '../../../selectors';
 
@@ -29,11 +29,7 @@ class EntrySingle extends Component {
     const entryId = entry._id;
 
     const { updateEntry } = this.props.actions;
-    updateEntry(spaceId, entryId, contentType, values, saveStatus)
-    .then(res => {
-      message.info('Entry saved');
-    })
-
+    updateEntry(spaceId, entryId, contentType, values, saveStatus);
     return false;
   }
 

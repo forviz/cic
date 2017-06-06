@@ -2,10 +2,11 @@ import React, { Component } from 'react';
 import T from 'prop-types';
 import _ from 'lodash';
 
-import { Modal, Form, Select, Checkbox, Input, Switch, Row, Col, Menu, Icon, Collapse, Radio } from 'antd';
+import { Modal, Form, Select, Checkbox, Input, Switch, Row, Col, Menu, Icon, Collapse, Radio, Tabs } from 'antd';
 import EditableTagGroup from '../EditableTagGroup';
 import Pattern from '../../helpers/regex-pattern';
 
+const TabPane = Tabs.TabPane;
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
 const CheckboxGroup = Checkbox.Group;
@@ -44,6 +45,7 @@ const mapFieldsToProps = (fieldsValue) => {
       unique: false,
     },
     appearance: _.get(fieldsValue, 'appearance'),
+    helpText: _.get(fieldsValue, 'helpText'),
   };
 };
 
@@ -109,9 +111,19 @@ const mapPropsToFields = (props) => {
     appearance: {
       value: _.get(model, 'appearance'),
     },
+    helpText: {
+      value: _.get(model, 'helpText'),
+    },
   };
   return fields;
 };
+
+
+const shouldDisableTab = (fieldType) => {
+  if (fieldType === 'Text' || fieldType === 'Link') return false;
+  return true;
+};
+
 
 class FieldCreateForm extends Component {
 
@@ -287,16 +299,45 @@ class FieldCreateForm extends Component {
     }
   }
 
+  renderAppearance = (fieldType) => {
+    const { getFieldDecorator } = this.props.form;
+    switch (fieldType) {
+      case 'Text':
+        return (
+          <div>
+            <Form.Item label="Choose how this field should be displayed">
+              {getFieldDecorator('appearance', {
+              })(
+                <RadioGroup>
+                  <RadioButton value="single-line">Single Line</RadioButton>
+                  <RadioButton value="dropdown">Dropdown</RadioButton>
+                  <RadioButton value="radio">Radio</RadioButton>
+                </RadioGroup>
+              )}
+            </Form.Item>
+            <Form.Item label="Help Text">
+              {getFieldDecorator('helpText', {
+              })(<Input placeholder="This help text will show up below the field" />)}
+            </Form.Item>
+          </div>
+        );
+      default:
+        return (<div />);
+    }
+  }
+
   render() {
     const { visible, onCancel, form, fieldValues, field, contentTypes } = this.props;
     const { getFieldDecorator, getFieldValue } = form;
-    const fieldType = _.get(field, 'type', 'Text');
+    // const fieldType = _.get(field, 'type', 'Text');
+    const fieldType = _.head(getFieldValue('type'));
+    const isNew = _.get(field, '_id') === undefined;
     return (
       <Modal
         visible={visible}
         title="Create a new Field"
         cancelText="Cancel"
-        okText="Create"
+        okText={isNew ? 'Create field' : 'Update field'}
         onCancel={onCancel}
         onOk={this.handleSubmit}
         width={800}
@@ -326,52 +367,42 @@ class FieldCreateForm extends Component {
           </Col>
           <Col span={16}>
             <Form layout="vertical">
-              <Form.Item>
-                {getFieldDecorator('_id', {})(<Input type="hidden" />)}
-              </Form.Item>
-              <Form.Item label="Name">
-                {getFieldDecorator('name', {
-                  rules: [{ required: true, message: 'Please input the name of collection!' }],
-                  onChange: e => this.handleInputNameChange(e.target.value)
-                })(
-                  <Input placeholder="Product, Blog, Post, etc..." />
-                )}
-              </Form.Item>
-              <Form.Item label="API Identifier">
-                {getFieldDecorator('identifier', {
-                  rules: [{ required: true, message: 'required' }],
-                })(<Input />)}
-              </Form.Item>
-              <Form.Item>
-                {getFieldDecorator('isDisplayField', {
-                  valuePropName: 'checked',
-                })(<Checkbox>This field represent as title.</Checkbox>)}
-              </Form.Item>
-              <Form.Item>
-                {getFieldDecorator('isMultiple', {
-                  valuePropName: 'checked',
-                })(<Checkbox>This field has multiple items.</Checkbox>)}
-              </Form.Item>
-              <Collapse>
-                <Collapse.Panel header="Validation" key="1">
+              <Tabs defaultActiveKey="settings">
+                <TabPane tab="Settings" key="settings">
+                  <Form.Item>
+                    {getFieldDecorator('_id', {})(<Input type="hidden" />)}
+                  </Form.Item>
+                  <Form.Item label="Name">
+                    {getFieldDecorator('name', {
+                      rules: [{ required: true, message: 'Please input the name of collection!' }],
+                      onChange: e => this.handleInputNameChange(e.target.value)
+                    })(
+                      <Input placeholder="Product, Blog, Post, etc..." size="large" />
+                    )}
+                  </Form.Item>
+                  <Form.Item label="API Identifier">
+                    {getFieldDecorator('identifier', {
+                      rules: [{ required: true, message: 'required' }],
+                    })(<Input size="large" />)}
+                  </Form.Item>
+                  <Form.Item>
+                    {getFieldDecorator('isDisplayField', {
+                      valuePropName: 'checked',
+                    })(<Checkbox>This field represent as title.</Checkbox>)}
+                  </Form.Item>
+                  <Form.Item>
+                    {getFieldDecorator('isMultiple', {
+                      valuePropName: 'checked',
+                    })(<Checkbox>This field has multiple items.</Checkbox>)}
+                  </Form.Item>
+                </TabPane>
+                <TabPane tab="Validation" key="validation">
                   {this.renderValidation(fieldType)}
-                </Collapse.Panel>
-                <Collapse.Panel header="Appearance" key="2">
-                  <div>
-                    <Form.Item>
-                      {getFieldDecorator('appearance', {
-                        initialValue: _.get(fieldValues, 'appearance') || 'single-line',
-                      })(
-                        <RadioGroup>
-                          <RadioButton value="single-line">Single Line</RadioButton>
-                          <RadioButton value="dropdown">Dropdown</RadioButton>
-                          <RadioButton value="radio">Radio</RadioButton>
-                        </RadioGroup>
-                      )}
-                    </Form.Item>
-                  </div>
-                </Collapse.Panel>
-              </Collapse>
+                </TabPane>
+                <TabPane tab="Appearance" key="appearance" disabled={shouldDisableTab(fieldType)}>
+                  {this.renderAppearance(fieldType)}
+                </TabPane>
+              </Tabs>
             </Form>
           </Col>
         </Row>
@@ -383,7 +414,4 @@ class FieldCreateForm extends Component {
 
 export default Form.create({
   mapPropsToFields,
-  onValuesChange: (props, values) => {
-    console.log('form', props, values);
-  },
 })(FieldCreateForm);

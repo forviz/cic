@@ -46,7 +46,8 @@ class EntryEditorForm extends Component {
   handleSubmit = (saveStatus = 'publish') => {
     console.log('status', saveStatus);
     this.props.form.validateFields((err, values) => {
-      if (!err) {
+      // if (err) console.log(err);
+      if (true || !err) {
         // const valuesWithStatus = { ...values, status : saveStatus }
         const { onSubmit } = this.props;
         onSubmit(values, saveStatus);
@@ -108,6 +109,7 @@ class EntryEditorForm extends Component {
         identifier: field.identifier,
         rules: mapValidationToRules(field),
         appearance: field.appearance,
+        helpText: field.helpText,
         src: field,
       }
     });
@@ -120,6 +122,7 @@ class EntryEditorForm extends Component {
             (<Form.Item
               label={field.label}
               key={field.identifier}
+              help={field.helpText}
             >
               {getFieldDecorator(identifier, {
                 initialValue: field.value,

@@ -23,7 +23,7 @@ import HomeContainer from './containers/Home';
 import WelcomeContainer from './containers/Welcome';
 import SpaceContainer from './containers/Space';
 
-import { getUserSpaces, getUserOrganizationsWithSpaces } from './selectors';
+import { getUserOrganizationsWithSpaces } from './selectors';
 
 import AuthService from './modules/auth/AuthService';
 
@@ -35,22 +35,20 @@ const auth = new AuthService(AUTH0_CLIENT_ID, AUTH0_DOMAIN);
 
 const PrivateRoute = ({ component: Component, ...rest }) => {
 
-  return (<Route {...rest} render={props => (
+  return (<Route { ...rest } render={props => (
     auth.loggedIn() ? (
-      <Component {...props}/>
+      <Component {...props} />
     ) : (
       <Redirect to={{
         pathname: '/',
         state: { from: props.location }
-      }}/>
+      }} />
     )
   )}/>);
 }
 
-const mapStateToProps = (state, ownProps) => {
-
+const mapStateToProps = (state) => {
   const userOrganizations = getUserOrganizationsWithSpaces(state);
-
   return {
     userOrganizations,
   }
@@ -95,7 +93,7 @@ class App extends Component {
   componentDidMount() {
     const { actions } = this.props;
     if (!_.isEmpty(_.get(this.state, 'userProfile.sub'))) {
-      actions.initWithUser(this.state.userProfile.sub);
+      actions.initWithUser(this.state.userProfile.sub, auth);
     }
   }
 

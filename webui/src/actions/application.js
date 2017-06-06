@@ -1,14 +1,11 @@
 import { fetchUserSpaces, fetchUserOrganizations } from '../api/cic/spaces';
 
-export const initWithUser = (userId) => {
-  return dispatch => {
-
+export const initWithUser = (userId, auth) => {
+  return (dispatch) => {
     return Promise.all([
       fetchUserOrganizations(userId),
       fetchUserSpaces(userId),
     ]).then(([organizations, spaces]) => {
-      console.log('organizations', organizations);
-      console.log('spaces', spaces);
       dispatch({
         type: 'USER/ORGANIZATIONS/RECEIVED',
         organizations,
@@ -18,6 +15,9 @@ export const initWithUser = (userId) => {
         type: 'USER/SPACES/RECEIVED',
         spaces,
       });
+    })
+    .catch((e) => {
+      if (e.name === 'jwtTokenExpire') auth.login();
     });
-  }
-}
+  };
+};

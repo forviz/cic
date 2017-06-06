@@ -53,6 +53,7 @@ export const redirectionError = props => new AppError({ ...props, code: 300, nam
 export const clientError = props => new AppError({ ...props, code: 400, name: !_.isEmpty(props.name) ? props.name : 'Client Error' });
 export const serverError = props => new AppError({ ...props, code: 500, name: !_.isEmpty(props.name) ? props.name : 'Server Error' });
 export const responseError = props => new AppError({ ...props, code: 600, name: !_.isEmpty(props.name) ? props.name : 'Response Error' });
+export const unauthorizeError = props => new AppError({ ...props, code: 401, name: !_.isEmpty(props.name) ? props.name : 'Unauthorize' });
 
 
 export function prepareRequest(request) {
@@ -100,6 +101,11 @@ export const fetchWithResponse = (url, params) => {
     .then((response) => {
       // ### 1XX Informational do nothing
       // ### 2XX Success
+      if (response.status === 401) {
+        // Unauthorize
+        return reject(unauthorizeError({ name: 'jwtTokenExpire' }));
+      }
+
       if (response.status >= 200 && response.status <= 299) {
         return resolve(response.json());
         // return response.json();

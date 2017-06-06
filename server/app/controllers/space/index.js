@@ -67,6 +67,7 @@ exports.getAll = async (req, res, next) => {
     });
 
     res.json({
+      status: 'SUCCESS',
       items: result,
     });
   } catch (e) {
@@ -81,6 +82,7 @@ exports.getSingle = async (req, res) => {
     const space = await Space.findOne({ _id: spaceId });
     if (space !== null) {
       res.json({
+        status: 'SUCCESS',
         title: 'find space',
         space,
       });

@@ -56,10 +56,8 @@ class EntryEditorForm extends Component {
 
   renderSaveButton = (entryStatus) => {
     const { getFieldsError } = this.props.form;
-
     let primaryButton = { status: '', label: '' };
     let secondaryButtons = [{ status: '', label: '' }];
-
     switch (entryStatus) {
       case 'draft':
         primaryButton = { status: 'publish', label: 'Publish' };
@@ -81,7 +79,6 @@ class EntryEditorForm extends Component {
         ];
         break;
     }
-
     const menu = (
       <Menu onClick={item => this.handleSubmit(item.key)}>
         {_.map(secondaryButtons, btn => <Menu.Item key={btn.status}>{btn.label}</Menu.Item>)}

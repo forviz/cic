@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import T from 'prop-types';
 import _ from 'lodash';
 
 import { Modal, Form, Select, Checkbox, Input, Switch, Row, Col, Menu, Icon, Collapse, Radio } from 'antd';
@@ -43,8 +44,8 @@ const mapFieldsToProps = (fieldsValue) => {
       unique: false,
     },
     appearance: _.get(fieldsValue, 'appearance'),
-  }
-}
+  };
+};
 
 const mapPropsToFields = (props) => {
   const model = props.field;
@@ -109,11 +110,26 @@ const mapPropsToFields = (props) => {
       value: _.get(model, 'appearance'),
     },
   };
-  console.log('fields', fields);
   return fields;
 };
 
 class FieldCreateForm extends Component {
+
+  static propTypes = {
+    visible: T.bool.isRequired,
+    form: T.shape({
+      getFieldDecorator: T.func,
+      getFieldValue: T.func,
+      setFieldsValue: T.func,
+    }).isRequired,
+    onCancel: T.func.isRequired,
+    onSubmit: T.func.isRequired,
+    contentTypes: T.arrayOf(T.shape({ _id: T.string, name: T.string })),
+  }
+
+  static defaultProps = {
+    contentTypes: [],
+  }
 
   state = {
     showValidationRangeSection: false,
@@ -135,175 +151,146 @@ class FieldCreateForm extends Component {
     const { form, onSubmit } = this.props;
     form.validateFields((err, values) => {
       if (!err) {
-        console.log('Received values of form: ', values);
         const fieldValues = mapFieldsToProps(form.getFieldsValue())
         onSubmit(fieldValues);
       }
     });
   }
 
-  renderValidation = (fieldType) => {
+  renderValidationFieldTypeText = () => {
+    const { getFieldDecorator, getFieldValue } = this.props.form;
+    return (
+      <div>
+        <Form.Item>
+          {getFieldDecorator('required', { valuePropName: 'checked' })(<Switch />)}
+          <span style={{ marginLeft: 15 }}>This is required field.</span>
+        </Form.Item>
+        <Row>
+          <Col span="12">
+            <Form.Item>
+              {getFieldDecorator('validations-limit', {
+                valuePropName: 'checked',
+              })(<Switch />)}
+              <span style={{ marginLeft: 15 }}>Limit Character Count</span>
+            </Form.Item>
+          </Col>
+          {
+            getFieldValue('validations-limit') &&
+            <span>
+              <Col span="4">
+                <Form.Item>
+                  {getFieldDecorator('validations-limit-min', {
+                  })(<Input placeholder="Min" />)}
+                </Form.Item>
+              </Col>
+              <Col span="1">
+                <p className="ant-form-split">-</p>
+              </Col>
+              <Col span="4">
+                <Form.Item>
+                  {getFieldDecorator('validations-limit-max', {
+                  })(<Input placeholder="Max" />)}
+                </Form.Item>
+              </Col>
+            </span>
+          }
+        </Row>
+        <Row>
+          <Col span="12">
+            <Form.Item>
+              {getFieldDecorator('validations-match-pattern', {
+                valuePropName: 'checked',
+              })(<Switch />)}
+              <span style={{ marginLeft: 15 }}>Match specific pattern</span>
+            </Form.Item>
+          </Col>
+          {
+            getFieldValue('validations-match-pattern') &&
+            <span>
+              <Col span="4">
+                <Form.Item>
+                  {getFieldDecorator('validations-pattern-template', {
+                    initialValue: 'custom',
+                    onChange: this.handleValidationPatternTemplateChange,
+                  })(
+                    <Select>
+                      <Select.Option value="custom">Custom</Select.Option>
+                      <Select.Option value={Pattern.email.toString()}>Email</Select.Option>
+                      <Select.Option value={Pattern.url.toString()}>URL</Select.Option>
+                    </Select>
+                  )}
+                </Form.Item>
+              </Col>
+              <Col span="8">
+                <Form.Item>
+                  {getFieldDecorator('validations-pattern', {
+                  })(<Input placeholder="Pattern..." />)}
+                </Form.Item>
+              </Col>
+            </span>
+          }
+        </Row>
+        <Row>
+          <Col span="12">
+            <Form.Item>
+              {getFieldDecorator('validations-show-options', {
+                valuePropName: 'checked',
+              })(<Switch />)}
+              <span style={{ marginLeft: 15 }}>Accept only specified value</span>
+            </Form.Item>
+          </Col>
+          {
+            getFieldValue('validations-show-options') &&
+              <Col span="12">
+                <Form.Item>
+                  {getFieldDecorator('validations-options', {})(<EditableTagGroup />)}
+                </Form.Item>
+              </Col>
+          }
+        </Row>
+      </div>
+    );
+  }
+
+  renderValidationFieldTypeLink = () => {
     const { contentTypes } = this.props;
     const contentTypeOptions = _.map(contentTypes, ct => ({ value: ct._id, label: ct.name }));
     const { getFieldDecorator, getFieldValue } = this.props.form;
+
+    return (
+      <div>
+        <Form.Item>
+          {getFieldDecorator('required', { valuePropName: 'checked' })(<Switch />)}
+          <span style={{ marginLeft: 15 }}>This is required field.</span>
+        </Form.Item>
+        <Form.Item>
+          {getFieldDecorator('toggle-linkContentType', { valuePropName: 'checked' })(<Switch />)}
+          <span style={{ marginLeft: 15 }}>Accept only specified entry type</span>
+        </Form.Item>
+        {
+          getFieldValue('toggle-linkContentType') &&
+            <Form.Item>
+              {getFieldDecorator('linkContentType', {})(<CheckboxGroup options={contentTypeOptions} />)}
+            </Form.Item>
+        }
+      </div>
+    );
+  }
+
+  renderValidation = (fieldType) => {
     switch (fieldType) {
-
-      case 'Link': {
-        return (
-          <div>
-            <Form.Item>
-              {getFieldDecorator('required', {
-                valuePropName: 'checked',
-              })(
-                <Switch />
-              )}
-              <span style={{ marginLeft: 15 }}>This is required field.</span>
-            </Form.Item>
-            <Form.Item>
-              {getFieldDecorator('toggle-linkContentType', {
-                valuePropName: 'checked',
-              })(
-                <Switch />
-              )}
-              <span style={{ marginLeft: 15 }}>Accept only specified entry type</span>
-            </Form.Item>
-            {
-              getFieldValue('toggle-linkContentType') &&
-                <Form.Item>
-                  {getFieldDecorator('linkContentType', {
-                  })(
-                    <CheckboxGroup options={contentTypeOptions} />
-                  )}
-                </Form.Item>
-            }
-          </div>
-        );
-      }
+      case 'Link':
+        return this.renderValidationFieldTypeLink();
       case 'Text':
-      default: {
-        return (
-          <div>
-            <Form.Item>
-              {getFieldDecorator('required', {
-                valuePropName: 'checked',
-              })(
-                <Switch />
-              )}
-              <span style={{ marginLeft: 15 }}>This is required field.</span>
-            </Form.Item>
-            <Row>
-              <Col span="12">
-                <Form.Item>
-                  {getFieldDecorator('validations-limit', {
-                    valuePropName: 'checked',
-                  })(
-                    <Switch />
-                  )}
-                  <span style={{ marginLeft: 15 }}>Limit Character Count</span>
-                </Form.Item>
-              </Col>
-              {
-                getFieldValue('validations-limit') &&
-                <span>
-                  <Col span="4">
-                    <Form.Item>
-                      {getFieldDecorator('validations-limit-min', {
-                      })(
-                        <Input placeholder="Min" />
-                      )}
-                    </Form.Item>
-                  </Col>
-                  <Col span="1">
-                    <p className="ant-form-split">-</p>
-                  </Col>
-                  <Col span="4">
-                    <Form.Item>
-                      {getFieldDecorator('validations-limit-max', {
-                      })(
-                        <Input placeholder="Max" />
-                      )}
-                    </Form.Item>
-                  </Col>
-                </span>
-              }
-            </Row>
-            <Row>
-              <Col span="12">
-                <Form.Item>
-                  {getFieldDecorator('validations-match-pattern', {
-                    valuePropName: 'checked',
-                  })(
-                    <Switch />
-                  )}
-                  <span style={{ marginLeft: 15 }}>Match specific pattern</span>
-                </Form.Item>
-              </Col>
-              {
-                getFieldValue('validations-match-pattern') &&
-                <span>
-                  <Col span="4">
-                    <Form.Item>
-                      {getFieldDecorator('validations-pattern-template', {
-                        initialValue: 'custom',
-                        onChange: this.handleValidationPatternTemplateChange,
-                      })(
-                        <Select>
-                          <Select.Option value="custom">Custom</Select.Option>
-                          <Select.Option value={Pattern.email.toString()}>Email</Select.Option>
-                          <Select.Option value={Pattern.url.toString()}>URL</Select.Option>
-                        </Select>
-                      )}
-                    </Form.Item>
-                  </Col>
-                  <Col span="8">
-                    <Form.Item>
-                      {getFieldDecorator('validations-pattern', {
-                      })(
-                        <Input placeholder="Pattern..." />
-                      )}
-                    </Form.Item>
-                  </Col>
-                </span>
-              }
-            </Row>
-            <Row>
-              <Col span="12">
-                <Form.Item>
-                  {getFieldDecorator('validations-show-options', {
-                    valuePropName: 'checked',
-                  })(
-                    <Switch />
-                  )}
-                  <span style={{ marginLeft: 15 }}>Accept only specified value</span>
-                </Form.Item>
-              </Col>
-              {
-                getFieldValue('validations-show-options') &&
-                <span>
-                  <Col span="12">
-                    <Form.Item>
-                      {getFieldDecorator('validations-options', {
-
-                      })(
-                        <EditableTagGroup />
-                      )}
-                    </Form.Item>
-                  </Col>
-                </span>
-              }
-            </Row>
-          </div>
-        )
-      }
+      default:
+        return this.renderValidationFieldTypeText();
     }
   }
 
   render() {
     const { visible, onCancel, form, fieldValues, field, contentTypes } = this.props;
     const { getFieldDecorator, getFieldValue } = form;
-    console.log('FieldCreateForm', contentTypes);
     const fieldType = _.get(field, 'type', 'Text');
-
     return (
       <Modal
         visible={visible}
@@ -321,15 +308,9 @@ class FieldCreateForm extends Component {
                 valuePropName: 'selectedKeys',
                 initialValue: [fieldType],
                 trigger: 'onSelect',
-                getValueFromEvent: ({ value, key, selectedKeys }) => {
-                  console.log('getValueFromEvent', value, key, selectedKeys);
-                  return selectedKeys;
-                },
+                getValueFromEvent: ({ selectedKeys }) => selectedKeys,
               })(
-                <Menu
-                  mode="inline"
-                  style={{ width: 200 }}
-                >
+                <Menu mode="inline" style={{ width: 200 }}>
                   <Menu.Item key="Text"><Icon type="edit" /> Text</Menu.Item>
                   <Menu.Item key="LongText"><Icon type="file-text" /> LongText</Menu.Item>
                   <Menu.Item key="Number"><Icon type="calculator" />Number</Menu.Item>
@@ -346,9 +327,7 @@ class FieldCreateForm extends Component {
           <Col span={16}>
             <Form layout="vertical">
               <Form.Item>
-                {getFieldDecorator('_id', {})(
-                  <Input type="hidden" />
-                )}
+                {getFieldDecorator('_id', {})(<Input type="hidden" />)}
               </Form.Item>
               <Form.Item label="Name">
                 {getFieldDecorator('name', {
@@ -361,23 +340,17 @@ class FieldCreateForm extends Component {
               <Form.Item label="API Identifier">
                 {getFieldDecorator('identifier', {
                   rules: [{ required: true, message: 'required' }],
-                })(
-                  <Input />
-                )}
+                })(<Input />)}
               </Form.Item>
               <Form.Item>
                 {getFieldDecorator('isDisplayField', {
                   valuePropName: 'checked',
-                })(
-                  <Checkbox>This field represent as title.</Checkbox>
-                )}
+                })(<Checkbox>This field represent as title.</Checkbox>)}
               </Form.Item>
               <Form.Item>
                 {getFieldDecorator('isMultiple', {
                   valuePropName: 'checked',
-                })(
-                  <Checkbox>List.</Checkbox>
-                )}
+                })(<Checkbox>This field has multiple items.</Checkbox>)}
               </Form.Item>
               <Collapse>
                 <Collapse.Panel header="Validation" key="1">
@@ -399,7 +372,6 @@ class FieldCreateForm extends Component {
                   </div>
                 </Collapse.Panel>
               </Collapse>
-
             </Form>
           </Col>
         </Row>

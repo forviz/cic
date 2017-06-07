@@ -8,7 +8,9 @@ import { bindActionCreators } from 'redux';
 import { Button, Table, Icon, Col, Row, Menu, Dropdown, Popconfirm, Tag } from 'antd';
 
 import * as Actions from './actions';
-import { getActiveSpace, getSpaceEntries } from '../../../selectors';
+import * as EntryActions from '../../../actions/entries';
+
+import { getSpaceId, getActiveSpace, getSpaceEntries } from '../../../selectors';
 
 const API_PATH = process.env.REACT_APP_API_PATH;
 
@@ -19,6 +21,7 @@ const getContentType = (contentTypes, contentTypeId) => {
 class EntryList extends Component {
 
   static propTypes = {
+    spaceId: T.string.isRequired,
     space: T.shape({
       _id: T.string,
     }).isRequired,
@@ -26,7 +29,7 @@ class EntryList extends Component {
       _id: T.string,
     })),
     actions: T.shape({
-      getEntryInSpace: T.func,
+      getEntriesInSpace: T.func,
       createEmptyEntry: T.func,
       deleteEntry: T.func,
     }).isRequired,
@@ -37,19 +40,20 @@ class EntryList extends Component {
   }
 
   componentDidMount = () => {
-    if (!this.props.entries) {
-      const { space } = this.props;
-      const { getEntryInSpace } = this.props.actions;
-      getEntryInSpace(space._id);
-    }
+    // if (!this.props.entries) {
+    const { spaceId } = this.props;
+    const { getEntriesInSpace } = this.props.actions;
+    console.log('entryListDidMount', spaceId);
+    getEntriesInSpace(spaceId, {});
+    // }
   }
 
   handleClickAddEntry = (a) => {
     const contentTypeId = a.item.props.contentTypeId;
-    const { space } = this.props;
+    const { spaceId } = this.props;
     const { createEmptyEntry } = this.props.actions;
 
-    createEmptyEntry(space._id, contentTypeId);
+    createEmptyEntry(spaceId, contentTypeId);
   }
 
   confirmDeleteEntry = (entryId) => {
@@ -188,13 +192,14 @@ class EntryList extends Component {
 }
 const mapStateToProps = (state, ownProps) => {
   return {
+    spaceId: getSpaceId(ownProps),
     space: getActiveSpace(state, ownProps),
     entries: getSpaceEntries(state, ownProps),
   };
 };
 
 const actions = {
-  getEntryInSpace: Actions.getEntryInSpace,
+  getEntriesInSpace: EntryActions.getEntryInSpace,
   createEmptyEntry: Actions.createEmptyEntry,
   deleteEntry: Actions.deleteEntry,
 };

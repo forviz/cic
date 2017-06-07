@@ -2,20 +2,41 @@ import { fetchSpace, fetchCreateSpace, fetchUpdateSpace } from '../api/cic/space
 import { fetchCreateContentType } from '../api/cic/contentTypes';
 import { openNotification } from './notification';
 
+import { getSpaceFetchStatus } from '../selectors/spaces';
 // Fetch Space Info
+// export const getSpace = (spaceId) => {
+//   return (dispatch) => {
+//     fetchSpace(spaceId)
+//     .then((space) => {
+//       dispatch({
+//         type: 'SPACE/UPDATE/RECEIVED',
+//         spaceId,
+//         space,
+//       });
+//     });
+//   };
+// };
+
+
 export const getSpace = (spaceId) => {
-  return (dispatch) => {
-    fetchSpace(spaceId)
-    .then((space) => {
-      dispatch({
-        type: 'SPACE/UPDATE/RECEIVED',
-        spaceId,
-        space,
+  return (dispatch, getState) => {
+    const fetchStatus = getSpaceFetchStatus(getState(), spaceId);
+
+    // If haven't loaded, do load it from server
+    if (fetchStatus !== 'loaded') {
+      openNotification('info', { message: 'fetching space' });
+      fetchSpace(spaceId)
+      .then((space) => {
+        dispatch({
+          type: 'SPACE/UPDATE/RECEIVED',
+          spaceId,
+          space,
+        });
+        openNotification('success', { message: `fetching space ${spaceId} done` });
       });
-    });
+    }
   };
 };
-
 
 export const createNewSpace = (name, { organizationId, defaultLocale }) => {
   return () => {

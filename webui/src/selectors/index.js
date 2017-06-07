@@ -76,12 +76,13 @@ export const getActiveApiKey = (state, props) => {
 };
 
 export const getSpaceEntriesFromSpaceId = (state, spaceId) => {
+  console.log('getSpaceEntriesFromSpaceId', state, spaceId);
   return _.filter(_.get(state, 'entities.entries.entities'), entry => entry._spaceId === spaceId);
 };
 
 export const getSpaceEntries = (state, ownProps) => {
-  const space = getActiveSpace(state, ownProps);
-  return getSpaceEntriesFromSpaceId(state, space._id);
+  const spaceId = getSpaceId(ownProps);
+  return getSpaceEntriesFromSpaceId(state, spaceId);
 };
 
 export const getSpaceAssets = (state, ownProps) => {

@@ -9,7 +9,7 @@ import {
   Link,
 } from 'react-router-dom';
 
-import { Layout, Breadcrumb } from 'antd';
+import { Layout, Breadcrumb, Spin } from 'antd';
 import SpaceSidebar from './Sidebar';
 
 import ContentTypeListContainer from './ContentType/list';
@@ -23,12 +23,14 @@ import SpaceApiKeySingleContainer from './ApiKeys/single';
 import SpaceSettingContainer from './Settings';
 
 import * as Actions from './actions';
-import { getActiveSpace } from '../../selectors';
+import * as SpaceActions from '../../actions/spaces';
+import { getSpaceId, getActiveSpace } from '../../selectors';
 
 const { Content, Sider } = Layout;
 
 const mapStateToProps = (state, ownProps) => {
   return {
+    spaceId: getSpaceId(ownProps),
     space: getActiveSpace(state, ownProps),
   };
 };
@@ -37,6 +39,7 @@ const mapDispatchToProps = (dispatch) => {
   return {
     actions: bindActionCreators({
       initWithSpaceId: Actions.initWithSpaceId,
+      getSpace: SpaceActions.getSpace,
     }, dispatch),
   };
 };
@@ -44,18 +47,29 @@ const mapDispatchToProps = (dispatch) => {
 class Space extends Component {
 
   static propTypes = {
+    spaceId: T.string.isRequired,
     space: T.shape({
-      _id: T.string,
-    }),
+      name: T.string,
+    }).isRequired,
+    actions: T.shape({
+      getSpace: T.func,
+    }).isRequired,
   }
 
   static defaultProps = {
     space: {},
   }
 
+  constructor(props) {
+    super(props);
+    const { spaceId, actions } = props;
+    const { getSpace } = actions;
+    getSpace(spaceId);
+  }
+
   render() {
     const { space } = this.props;
-    if (!space) return (<div />);
+    if (!space) return (<Spin />);
 
     const routes = [
       {

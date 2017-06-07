@@ -12,6 +12,7 @@ export const fetchEntryInSpace = (spaceId) => {
 };
 
 export const fetchGetSingleEntry = (spaceId, entryId) => {
+  console.info('fetchGetSingleEntry', spaceId, entryId);
   return fetchWithResponse(`${BASE_URL}/spaces/${spaceId}/entries/${entryId}`, {
     method: 'GET',
   })

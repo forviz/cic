@@ -10,15 +10,20 @@ import { Button, Row, Col, Icon, Table, Popconfirm } from 'antd';
 import * as Actions from './actions';
 import { getActiveSpace } from '../../../selectors';
 
-class ContentTypeList extends Component {
+class ApiKeyList extends Component {
 
   static propTypes = {
-    space: T.object,
+    space: T.shape({
+      _id: T.string,
+      name: T.string,
+    }).isRequired,
     actions: T.shape({
       createApiKey: T.func,
       deleteApiKey: T.func,
     }).isRequired,
   }
+
+  static defaultProps = {}
 
   displayName = 'ApiKeys';
 
@@ -63,7 +68,7 @@ class ContentTypeList extends Component {
           <span>
             <Popconfirm
               title="Are you sure delete this key?"
-              onConfirm={e => this.confirmDeleteApiKey(record._id)}
+              onConfirm={e => this.confirmDeleteApiKey(record._id, e)}
               onCancel={this.cancel}
               okText="Yes"
               cancelText="No"
@@ -72,14 +77,10 @@ class ContentTypeList extends Component {
             </Popconfirm>
           </span>
         ),
-      }
+      },
     ];
 
-    const data = _.map(apiKeys, (apiKey, i) => ({
-      _id: apiKey._id,
-      name: apiKey.name,
-    }));
-
+    const data = _.map(apiKeys, apiKey => ({ _id: apiKey._id, name: apiKey.name }));
 
     return (
       <div>
@@ -98,23 +99,19 @@ class ContentTypeList extends Component {
   }
 }
 
-ContentTypeList.propTypes = {
-  items: T.array,
-};
-
 const mapStateToProps = (state, ownProps) => {
   return {
     space: getActiveSpace(state, ownProps),
-  }
-}
+  };
+};
 
 const actions = {
   createApiKey: Actions.createApiKey,
   deleteApiKey: Actions.deleteApiKey,
-}
+};
 
 const mapDispatchToProps = (dispatch) => {
   return { actions: bindActionCreators(actions, dispatch) };
-}
+};
 
-export default connect(mapStateToProps, mapDispatchToProps)(ContentTypeList);
+export default connect(mapStateToProps, mapDispatchToProps)(ApiKeyList);

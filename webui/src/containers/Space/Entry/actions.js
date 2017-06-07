@@ -18,7 +18,7 @@ export const getEntryInSpace = (spaceId) => {
       });
       return res;
     });
-  }
+  };
 };
 
 export const getSingleEntry = (spaceId, entryId) => {
@@ -31,25 +31,24 @@ export const getSingleEntry = (spaceId, entryId) => {
       });
       return res;
     });
-  }
+  };
 };
 
 export const createEmptyEntry = (spaceId, contentTypeId) => {
-  return (dispatch) => {
+  return () => {
     return fetchCreateEntry(spaceId, contentTypeId, {})
     .then((res) => {
       const entryId = _.get(res, 'entry._id');
       window.location = `/spaces/${spaceId}/entries/${entryId}`;
       return res;
     });
-  }
+  };
 };
 
 export const updateEntry = (spaceId, entryId, contentType, fields, status) => {
-  return (dispatch) => {
+  return () => {
     return fetchUpdateEntry(spaceId, entryId, contentType._id, fields, status)
     .then((updateResponse) => {
-
       const btnClick = () => {
         window.location = `/spaces/${spaceId}/entries/`;
       };
@@ -72,14 +71,14 @@ export const updateEntry = (spaceId, entryId, contentType, fields, status) => {
         description: err.message,
         duration: 0,
       });
-    })
+    });
   };
 };
 
 export const deleteEntry = (spaceId, entryId) => {
   return (dispatch) => {
     return fetchDeleteEntry(spaceId, entryId)
-    .then((deleteResponse) => {
+    .then(() => {
       dispatch(getSpace(spaceId));
       openNotification('success', { message: 'Entry Deleted' });
     });

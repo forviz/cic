@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import T from 'prop-types';
 import _ from 'lodash';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -12,8 +12,14 @@ import { getActiveSpace, getActiveApiKey } from '../../../selectors';
 class ApiKeySingle extends Component {
 
   static propTypes = {
-    space: PropTypes.object,
-    contentType: PropTypes.object,
+    form: T.instanceOf(Form).isRequired,
+    apiKey: T.object.isRequired,
+    space: T.shape({
+      _id: T.string,
+    }).isRequired,
+    actions: T.shape({
+      updateApiKey: T.func,
+    }).isRequired,
   }
 
   handleSubmit = (e) => {
@@ -41,7 +47,7 @@ class ApiKeySingle extends Component {
       spaceId: space._id,
       deliveryKey: apiKey.deliveryKey,
       previewKey: apiKey.previewKey,
-    }
+    };
 
     if (!space) return (<div />);
 
@@ -58,38 +64,32 @@ class ApiKeySingle extends Component {
               <Form.Item>
                 {getFieldDecorator('_id', {
                   initialValue: _.get(fieldValues, '_id', ''),
-                })(
-                  <Input type="hidden" />
-                )}
+                })(<Input type="hidden" />)}
               </Form.Item>
               <Form.Item label="Name">
                 {getFieldDecorator('name', {
                   initialValue: _.get(fieldValues, 'name', ''),
                   rules: [{ required: true, message: 'Please input the name of key.' }],
                 })(
-                  <Input />
-                )}
+                  <Input />)}
               </Form.Item>
               <Form.Item label="SpaceId">
                 {getFieldDecorator('spaceId', {
                   initialValue: _.get(fieldValues, 'spaceId', ''),
                 })(
-                  <Input disabled />
-                )}
+                  <Input disabled />)}
               </Form.Item>
               <Form.Item label="Content Delivery API - access token">
                 {getFieldDecorator('deliveryKey', {
                   initialValue: _.get(fieldValues, 'deliveryKey', ''),
                 })(
-                  <Input disabled />
-                )}
+                  <Input disabled />)}
               </Form.Item>
               <Form.Item label="Content Preview API - access token">
                 {getFieldDecorator('previewKey', {
                   initialValue: _.get(fieldValues, 'previewKey', ''),
                 })(
-                  <Input disabled />
-                )}
+                  <Input disabled />)}
               </Form.Item>
               <Button type="primary" htmlType="submit">
                 Save
@@ -106,15 +106,15 @@ const mapStateToProps = (state, ownProps) => {
   return {
     space: getActiveSpace(state, ownProps),
     apiKey: getActiveApiKey(state, ownProps),
-  }
-}
+  };
+};
 
 const actions = {
   updateApiKey: Actions.updateApiKey,
-}
+};
 
 const mapDispatchToProps = (dispatch) => {
   return { actions: bindActionCreators(actions, dispatch) };
-}
+};
 
-export default connect(mapStateToProps, mapDispatchToProps)( Form.create()(ApiKeySingle));
+export default connect(mapStateToProps, mapDispatchToProps)(Form.create()(ApiKeySingle));

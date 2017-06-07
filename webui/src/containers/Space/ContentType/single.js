@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import T from 'prop-types';
 import _ from 'lodash';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -12,16 +12,29 @@ import * as Actions from './actions';
 import FieldCreateForm from '../../../components/FieldCreateForm';
 
 const getFieldFromContentType = (contentType, fieldId) => {
-  const field = _.find(_.get(contentType, 'fields'), field => field._id === fieldId);
-  if (contentType.displayField === field.identifier) field.isDisplayField = true;
-  return field;
+  const _field = _.find(_.get(contentType, 'fields'), field => field._id === fieldId);
+  if (contentType.displayField === _field.identifier) _field.isDisplayField = true;
+  return _field;
 };
 
 class ContentTypeSingle extends Component {
 
   static propTypes = {
-    space: PropTypes.object,
-    contentType: PropTypes.object,
+    params: T.shape({
+      contentTypeId: T.string,
+    }).isRequired,
+    space: T.shape({
+      _id: T.string,
+    }).isRequired,
+    contentType: T.shape({
+      _id: T.string,
+    }).isRequired,
+    actions: T.shape({
+      addField: T.func,
+      updateField: T.func,
+      deleteField: T.func,
+      deleteContentType: T.func,
+    }).isRequired,
   }
 
   state = {
@@ -55,13 +68,12 @@ class ContentTypeSingle extends Component {
       form.resetFields();
       this.setState({
         modalVisible: false,
-        fieldValues: undefined
+        fieldValues: undefined,
       });
     });
   }
 
   handleDeleteField = (fieldId) => {
-
     const { space, contentType } = this.props;
     const { deleteField } = this.props.actions;
 
@@ -98,7 +110,7 @@ class ContentTypeSingle extends Component {
         title: 'Name',
         dataIndex: 'name',
         key: 'name',
-        render: (text, record) => <h4>{text}</h4>
+        render: text => <h4>{text}</h4>,
       },
       {
         title: 'Type',
@@ -110,13 +122,13 @@ class ContentTypeSingle extends Component {
         key: 'action',
         render: (text, record) => (
           <span>
-            <a href="#" onClick={e => this.handleEditField(record._id)}>
+            <a href="#" onClick={e => this.handleEditField(record._id, e)}>
               Edit
             </a>
             <span className="ant-divider" />
             <Popconfirm
               title="Are you sure delete this field?"
-              onConfirm={e => this.handleDeleteField(record._id)}
+              onConfirm={e => this.handleDeleteField(record._id, e)}
               onCancel={this.cancel}
               okText="Yes"
               cancelText="No"
@@ -125,7 +137,7 @@ class ContentTypeSingle extends Component {
             </Popconfirm>
           </span>
         ),
-      }
+      },
     ];
     const data = _.map(_.get(contentType, 'fields'), (field, i) => ({
       _id: field._id,
@@ -146,7 +158,7 @@ class ContentTypeSingle extends Component {
               columns={columns}
               dataSource={data}
               locale={{
-                emptyText: 'No fields yet, click add field to start'
+                emptyText: 'No fields yet, click add field to start',
               }}
             />
           </Col>
@@ -169,18 +181,18 @@ const mapStateToProps = (state, ownProps) => {
   return {
     space: getActiveSpace(state, ownProps),
     contentType: getActiveContentType(state, ownProps),
-  }
-}
+  };
+};
 
 const actions = {
   deleteContentType: Actions.deleteContentType,
   addField: Actions.addField,
   updateField: Actions.updateField,
   deleteField: Actions.deleteField,
-}
+};
 
 const mapDispatchToProps = (dispatch) => {
   return { actions: bindActionCreators(actions, dispatch) };
-}
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(ContentTypeSingle);

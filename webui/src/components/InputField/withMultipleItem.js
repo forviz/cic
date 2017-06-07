@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
+import T from 'prop-types';
 import _ from 'lodash';
-import { Button, Icon, Row, Col, Form } from 'antd';
+import { Button, Icon, Row, Col } from 'antd';
 
 const iconStyle = {
   position: 'relative',
@@ -13,17 +14,27 @@ const iconStyle = {
 
 export default (InputComponent) => {
   return class extends Component {
+
+    static propTypes = {
+      value: T.any,
+      onChange: T.func,
+    }
+
+    static defaultProps = {
+      value: '',
+      onChange: undefined,
+    }
+
     state = {
       values: [],
     }
-    
+
     add = () => {
       const newValues = [...this.state.values, ''];
       this.handleChange(newValues);
     }
 
     edit = (inputValue, i) => {
-
       const newValues = _.map(this.state.values, (val, inputIndex) => {
         if (i === inputIndex) return inputValue;
         return val;
@@ -72,7 +83,7 @@ export default (InputComponent) => {
             </Col>
           </Row>
         </div>
-      )
+      );
     }
-  }
-}
+  };
+};

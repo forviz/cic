@@ -14,14 +14,21 @@ class EntrySingle extends Component {
 
   static propTypes = {
     space: T.instanceOf(Space).isRequired,
+    entryId: T.string.isRequired,
     entry: T.shape({
       _id: T.string,
     }).isRequired,
-    fields: T.array,
+    contentType: T.shape({
+      _id: T.string,
+    }).isRequired,
     actions: T.shape({
       getSingleEntry: T.func,
       updateEntry: T.func,
     }).isRequired,
+  }
+
+  static defaultProps = {
+    fields: [],
   }
 
   componentDidMount = () => {
@@ -43,7 +50,6 @@ class EntrySingle extends Component {
   }
 
   render() {
-
     const { space, contentType, entry } = this.props;
     if (!space || !contentType || !entry) return (<div />);
 
@@ -56,7 +62,8 @@ class EntrySingle extends Component {
             spaceId={space._id}
             contentType={contentType}
             entry={entry}
-            onSubmit={this.handleSubmitForm} />
+            onSubmit={this.handleSubmitForm}
+          />
         </Col>
       </Row>
     );
@@ -66,26 +73,26 @@ class EntrySingle extends Component {
 const getEntryContentType = (entry, space) => {
   if (!entry || !space) return undefined;
   return _.find(space.contentTypes, ct => ct._id === entry.contentTypeId);
-}
+};
 
 const mapStateToProps = (state, ownProps) => {
   const space = getActiveSpace(state, ownProps);
   const entry = getActiveEntry(state, ownProps);
   return {
-    space: space,
+    space,
+    entry,
     contentType: getEntryContentType(entry, space),
     entryId: getEntryId(ownProps),
-    entry: entry,
-  }
-}
+  };
+};
 
 const actions = {
   getSingleEntry: Actions.getSingleEntry,
   updateEntry: Actions.updateEntry,
-}
+};
 
 const mapDispatchToProps = (dispatch) => {
   return { actions: bindActionCreators(actions, dispatch) };
-}
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(EntrySingle);

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import T from 'prop-types';
 import _ from 'lodash';
 import { Modal, Form, Input, Radio, Row, Col, Select, Tabs, Card } from 'antd';
 
@@ -10,7 +10,15 @@ const TabPane = Tabs.TabPane;
 class CreateNewSpaceModal extends Component {
 
   static propTypes = {
-    userOrganizations: PropTypes.array,
+    form: T.instanceOf(Form).isRequired,
+    userOrganizations: T.array,
+    visible: T.bool.isRequired,
+    onSubmit: T.func.isRequired,
+    onCancel: T.func.isRequired,
+  }
+
+  static defaultProps = {
+    userOrganizations: [],
   }
 
   state = {
@@ -24,7 +32,6 @@ class CreateNewSpaceModal extends Component {
   }
 
   render() {
-
     const radioStyle = {
       display: 'block',
       height: '30px',
@@ -51,21 +58,17 @@ class CreateNewSpaceModal extends Component {
                 })(
                   <Select>
                     {
-                      _.map(userOrganizations, (org) =>
-                        <Option key={org._id} value={org._id}>{org.name}</Option>
-                      )
+                      _.map(userOrganizations, org =>
+                        <Option key={org._id} value={org._id}>{org.name}</Option>)
                     }
-                  </Select>
-                )}
+                  </Select>)}
               </Form.Item>
             </Col>
             <Col span={8}>
               <Form.Item label="Name">
                 {getFieldDecorator('name', {
                   rules: [{ required: true, message: 'Please input the name of space!' }],
-                })(
-                  <Input placeholder="Project Name, client name, Store name, etc." />
-                )}
+                })(<Input placeholder="Project Name, client name, Store name, etc." />)}
               </Form.Item>
             </Col>
             <Col span={8}>
@@ -76,8 +79,7 @@ class CreateNewSpaceModal extends Component {
                   <Select>
                     <Option value="en">English</Option>
                     <Option value="th">Thai</Option>
-                  </Select>
-                )}
+                  </Select>)}
               </Form.Item>
             </Col>
           </Row>
@@ -127,8 +129,7 @@ class CreateNewSpaceModal extends Component {
                             </Col>
                           </Row>
                         </TabPane>
-                      </Tabs>
-                    )}
+                      </Tabs>)}
                   </Form.Item>
                 </Row>
               </Card>

@@ -1,32 +1,30 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import React from 'react';
+import T from 'prop-types';
 import { Row, Col, Card } from 'antd';
 
 import MediumEditor from './Medium';
 
-class LongText extends Component {
+const LongText = (props) => {
+  const { value, onChange } = props;
+  return (
+    <Card>
+      <Row type="flex" justify="center">
+        <Col span={16}>
+          <MediumEditor value={value} onChange={onChange} />
+        </Col>
+      </Row>
+    </Card>
+  );
+};
 
-  render () {
-    const { value, onChange } = this.props;
+LongText.propTypes = {
+  value: T.string,
+  onChange: T.func,
+};
 
-    return (
-      <Card>
-        <Row type="flex" justify="center">
-          <Col span={16}>
-            <MediumEditor value={value} onChange={onChange} />
-          </Col>
-        </Row>
-      </Card>
-    );
-    // return (
-    //   <WYSIWYG value={value} onChange={onChange} />
-    // )
-    // return (
-    //   <div>
-    //     <Input type="textarea" rows={8} value={value} onChange={onChange} />
-    //   </div>
-    // )
-  }
-}
+LongText.defaultProps = {
+  value: '',
+  onChange: undefined,
+};
 
 export default LongText;

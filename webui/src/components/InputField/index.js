@@ -16,8 +16,16 @@ const MultiInputText = withMultipleItem(InputText);
 class InputField extends Component {
 
   static propTypes = {
+    spaceId: T.string.isRequired,
+    field: T.object,
     value: T.string,
     onChange: T.func,
+  }
+
+  static defaultProps = {
+    value: '',
+    field: {},
+    onChange: undefined,
   }
 
   renderInput() {

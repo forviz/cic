@@ -70,12 +70,10 @@ const mapStateToProps = (state, ownProps) => {
       value: ct._id,
       label: ct.name,
       disabled: !ctIsEisabled,
-      children: _.map(_.filter(allEntries, entry => entry.contentTypeId === ct._id), (entry) => {
-        return {
-          value: entry._id,
-          label: _.get(entry, `fields.${ct.displayField}`),
-        };
-      }),
+      children: _.map(_.filter(allEntries, entry => entry.contentTypeId === ct._id), entry => ({
+        value: entry._id,
+        label: _.get(entry, `fields.${ct.displayField}`),
+      })),
     };
   });
 

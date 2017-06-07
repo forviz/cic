@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import T from 'prop-types';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { Layout, LocaleProvider } from 'antd';
@@ -34,21 +34,28 @@ const AUTH0_CLIENT_ID = process.env.REACT_APP_AUTH0_CLIENT_ID;
 const AUTH0_DOMAIN = process.env.REACT_APP_AUTH0_DOMAIN;
 const auth = new AuthService(AUTH0_CLIENT_ID, AUTH0_DOMAIN);
 
-const PrivateRoute = ({ component: Component, ...rest }) => {
-
+const PrivateRoute = ({ component: RouteComponent, ...rest }) => {
   return (
     <Route
       {...rest}
       render={
         props => (
         auth.loggedIn() ? (
-          <Component {...props} />
+          <RouteComponent {...props} />
         ) : (
-          <Redirect to={{ pathname: '/', state: { from: props.location } }} />
+          <Redirect to={{ pathname: '/', state: { from: _.get(props, 'location') } }} />
         )
       )}
     />
   );
+};
+
+PrivateRoute.propTypes = {
+  component: T.instanceOf(Component),
+};
+
+PrivateRoute.defaultProps = {
+  component: undefined,
 };
 
 const mapStateToProps = (state) => {
@@ -58,25 +65,32 @@ const mapStateToProps = (state) => {
   };
 };
 
-const actions = {
+const appActions = {
   initWithUser: Actions.initWithUser,
 };
 
-const mapDispatchToProps = (dispatch) => {
-  return { actions: bindActionCreators(actions, dispatch) };
-}
+const mapDispatchToProps = dispatch => ({
+  actions: bindActionCreators(appActions, dispatch),
+});
 
 class App extends Component {
 
   static propTypes = {
-    userOrganizations: PropTypes.array,
+    userOrganizations: T.array,
+    actions: T.shape({
+      initWithUser: T.func.isRequired,
+    }).isRequired,
+  }
+
+  static defaultProps = {
+    userOrganizations: [],
   }
 
   constructor(props) {
     super(props);
     this.state = {
       userProfile: auth.getProfile(),
-    }
+    };
 
     // On Login Success
     auth.on('login_success', (authResult) => {
@@ -95,7 +109,6 @@ class App extends Component {
     auth.on('logout_success', () => {
       this.setState({ userProfile: undefined });
     });
-
   }
 
   componentDidMount() {

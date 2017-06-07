@@ -1,3 +1,4 @@
+/* eslint-disable */
 import fetch from 'isomorphic-fetch';
 const jwtDecode = require('jwt-decode');
 

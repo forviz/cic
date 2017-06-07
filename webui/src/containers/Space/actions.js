@@ -5,7 +5,6 @@ export const initWithSpaceId = (spaceId) => {
   return (dispatch) => {
     fetchSpace(spaceId)
     .then((space) => {
-      
       return fetchSpaceEntries(space._id)
       .then((entries) => {
         dispatch({

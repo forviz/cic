@@ -60,7 +60,7 @@ class Home extends Component {
               <Step
                 title="Edit Content"
                 description="After you've define content model. It's time to start add / edit them."
-                />
+              />
               <Step
                 title="Export"
                 description="Exporting the content."
@@ -89,8 +89,7 @@ class Home extends Component {
           <Link to={`spaces/${space._id}/content_types`}>
             {this.renderTooltip(space.name, space.description)}
           </Link>
-        </Col>)
-      );
+        </Col>));
 
       return (
         <Row gutter={16} key={org._id}>

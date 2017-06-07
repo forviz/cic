@@ -18,7 +18,7 @@ export const fetchGetSingleAsset = (spaceId, assetId) => {
     console.log('fetchGetAsset', response);
     return response;
   });
-}
+};
 
 export const fetchCreateAsset = (spaceId, contentTypeId, data = {}) => {
   return fetchWithResponse(`${BASE_URL}/spaces/${spaceId}/assets/`, {
@@ -26,7 +26,7 @@ export const fetchCreateAsset = (spaceId, contentTypeId, data = {}) => {
     headers: {
       'X-CIC-Content-Type': contentTypeId,
     },
-    body: JSON.stringify(data)
+    body: JSON.stringify(data),
   })
   .then((response) => {
     console.log('fetchCreateAsset', response);
@@ -39,7 +39,7 @@ export const fetchUpdateAsset = (spaceId, assetId, fields) => {
   return fetchWithResponse(`${BASE_URL}/spaces/${spaceId}/assets/${assetId}`, {
     method: 'PUT',
     body: JSON.stringify({
-      fields: fields,
+      fields,
     }),
   })
   .then((response) => {
@@ -49,8 +49,8 @@ export const fetchUpdateAsset = (spaceId, assetId, fields) => {
 };
 
 
-export const fetchDeleteAsset = (spaceId, entryId, contentTypeId, fields) => {
-  return fetchWithResponse(`${BASE_URL}/spaces/${spaceId}/assets/${entryId}`, {
+export const fetchDeleteAsset = (spaceId, assetId) => {
+  return fetchWithResponse(`${BASE_URL}/spaces/${spaceId}/assets/${assetId}`, {
     method: 'DELETE',
   })
   .then((response) => {

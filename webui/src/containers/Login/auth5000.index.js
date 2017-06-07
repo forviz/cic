@@ -1,16 +1,13 @@
+/* eslint-disable */
 import React, { Component } from 'react';
-import _ from 'lodash';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-
 import { Form, Input, Icon, Card, Checkbox, Button, Row, Col } from 'antd';
-const FormItem = Form.Item;
-
 import * as Actions from './actions';
 
-const mapStateToProps = (state) => {
-  return {}
-};
+const FormItem = Form.Item;
+
+const mapStateToProps = state => ({});
 
 const mapDispatchToProps = (dispatch) => {
   return {
@@ -20,7 +17,7 @@ const mapDispatchToProps = (dispatch) => {
       loginWithFacebook: Actions.loginWithFacebook,
     }, dispatch),
   };
-}
+};
 
 class Login extends Component {
 
@@ -40,7 +37,7 @@ class Login extends Component {
       loginWithGoogle,
       loginWithFacebook,
     } = this.props.actions;
-    
+
     const { auth } = this.props;
     const { getFieldDecorator } = this.props.form;
     return (

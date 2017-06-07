@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import T from 'prop-types';
 import _ from 'lodash';
 import { Upload, Icon, Modal, message } from 'antd';
 
-const parseFileInfo = (file) => ({
+const parseFileInfo = file => ({
   uid: file.uid,
   publicId: file.publicId,
   name: file.fileName,
@@ -11,52 +11,55 @@ const parseFileInfo = (file) => ({
   url: file.url,
 });
 
-const mapFilelistToData = (file) => {
-  return {
-    uid: _.get(file, 'uid'),
-    publicId: _.get(file, 'response.public_id'),
-    fileName: _.get(file, 'name'),
-    contentType: _.get(file, 'type'),
-    url: _.get(file, 'response.url'),
-    details: {
-      image: {
-        width: _.get(file, 'response.width'),
-        height: _.get(file, 'response.height'),
-      },
-      size: _.get(file, 'size'),
-    }
-  }
-}
+const mapFilelistToData = file => ({
+  uid: _.get(file, 'uid'),
+  publicId: _.get(file, 'response.public_id'),
+  fileName: _.get(file, 'name'),
+  contentType: _.get(file, 'type'),
+  url: _.get(file, 'response.url'),
+  details: {
+    image: {
+      width: _.get(file, 'response.width'),
+      height: _.get(file, 'response.height'),
+    },
+    size: _.get(file, 'size'),
+  },
+});
 
 class PicturesWall extends Component {
 
   static propTypes = {
-    multiple: PropTypes.bool,
-    file: PropTypes.object,
-    fileList: PropTypes.array,
+    multiple: T.bool,
+    action: T.string,
+    file: T.object,
+    fileList: T.array,
+    onChange: T.func,
   }
 
   static defaultProps = {
     multiple: false,
+    file: {
+      uid: 'thisIsDefault',
+    },
+    fileList: [],
     action: process.env.REACT_APP_MEDIA_ENDPOINT,
+    onChange: undefined,
   }
 
   constructor(props) {
     super(props);
-    console.log('PictureWall', props);
     const fileList = _.compact(props.fileList || [props.file]);
 
     this.state = {
       previewVisible: false,
       previewImage: '',
       fileList: fileList ? _.map(fileList, file => parseFileInfo(file)) : [],
-    }
+    };
   }
 
   componentWillReceiveProps = (nextProps) => {
     const fileList = _.compact(nextProps.fileList || [nextProps.file]);
     if (fileList) {
-
       const fileListState = _.map(fileList, file => parseFileInfo(file));
       this.setState({
         fileList: fileListState,
@@ -74,7 +77,6 @@ class PicturesWall extends Component {
   }
 
   handleChange = (event) => {
-    console.log('PicturesWall::handleChange', event);
     const status = event.file.status;
     if (status !== 'uploading') {
       console.log(event.file, event.fileList);
@@ -108,7 +110,7 @@ class PicturesWall extends Component {
           onPreview={this.handlePreview}
           onChange={this.handleChange}
         >
-          {multiple || !multiple && fileList.length === 0 ? uploadButton : null}
+          {multiple || (!multiple && fileList.length === 0) ? uploadButton : null}
         </Upload>
         <Modal visible={previewVisible} footer={null} onCancel={this.handleCancel}>
           <img alt="example" style={{ width: '100%' }} src={previewImage} />

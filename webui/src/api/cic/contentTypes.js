@@ -9,7 +9,7 @@ export const fetchCreateContentType = (spaceId, { name, identifier, description,
       description,
       displayField,
       fields,
-    })
+    }),
   })
   .then((response) => {
     return response;
@@ -25,7 +25,7 @@ export const fetchUpdateContentType = (spaceId, contentTypeId, { name, identifie
       description,
       displayField,
       fields,
-    })
+    }),
   })
   .then((response) => {
     return response;

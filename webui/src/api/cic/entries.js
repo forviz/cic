@@ -19,7 +19,7 @@ export const fetchGetSingleEntry = (spaceId, entryId) => {
     console.log('fetchGetEntry', response);
     return response;
   });
-}
+};
 
 export const fetchCreateEntry = (spaceId, contentTypeId, data = {}) => {
   return fetchWithResponse(`${BASE_URL}/spaces/${spaceId}/entries/`, {
@@ -27,7 +27,7 @@ export const fetchCreateEntry = (spaceId, contentTypeId, data = {}) => {
     headers: {
       'X-CIC-Content-Type': contentTypeId,
     },
-    body: JSON.stringify(data)
+    body: JSON.stringify(data),
   })
   .then((response) => {
     console.log('fetchCreateEntry', response);
@@ -59,7 +59,7 @@ export const fetchUpdateEntry = (spaceId, entryId, contentTypeId, fields, status
 };
 
 
-export const fetchDeleteEntry = (spaceId, entryId, contentTypeId) => {
+export const fetchDeleteEntry = (spaceId, entryId) => {
   return fetchWithResponse(`${BASE_URL}/spaces/${spaceId}/entries/${entryId}`, {
     method: 'DELETE',
   })

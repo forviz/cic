@@ -11,9 +11,9 @@ export const fetchInitWithUser = (userId) => {
       appMessage: 'Cannot find spaces',
     });
   });
-}
-export const fetchUserOrganizations = () => {
+};
 
+export const fetchUserOrganizations = () => {
   return fetchWithResponse(`${BASE_URL}/organizations`)
   .then((response) => {
     // console.log('space', response);
@@ -30,7 +30,6 @@ export const fetchUserOrganizations = () => {
 
 
 export const fetchUserSpaces = () => {
-
   return fetchWithResponse(`${BASE_URL}/spaces`)
   .then((response) => {
     // console.log('space', response);
@@ -47,7 +46,6 @@ export const fetchUserSpaces = () => {
 
 export const fetchSpaceEntries = (spaceId) => {
   const urlParam = convertToURLParam({});
-
   return fetchWithResponse(`${BASE_URL}/spaces/${spaceId}/entries/${urlParam}`)
   .then((response) => {
     // console.log('fetchSpaceEntries', response);
@@ -63,9 +61,7 @@ export const fetchSpaceEntries = (spaceId) => {
 };
 
 export const fetchSpace = (spaceId) => {
-
   const urlParam = convertToURLParam({});
-
   return fetchWithResponse(`${BASE_URL}/spaces/${spaceId}${urlParam}`)
   .then((response) => {
     const space = _.get(response, 'space');
@@ -86,12 +82,12 @@ export const fetchCreateSpace = (name, { organizationId, defaultLocale }) => {
       name,
       defaultLocale,
       organizationId,
-    })
+    }),
   })
   .then((response) => {
     return response;
   });
-}
+};
 
 export const fetchUpdateSpace = (spaceId, { name, defaultLocale }) => {
   return fetchWithResponse(`${BASE_URL}/spaces/${spaceId}`, {
@@ -99,9 +95,9 @@ export const fetchUpdateSpace = (spaceId, { name, defaultLocale }) => {
     body: JSON.stringify({
       name,
       defaultLocale,
-    })
+    }),
   })
   .then((response) => {
     return response;
   });
-}
+};

@@ -1,13 +1,20 @@
 import React, { Component } from 'react';
+import T from 'prop-types';
 import { Upload, Icon, message, Modal } from 'antd';
+
 const Dragger = Upload.Dragger;
 
 class Uploader extends Component {
 
-  defaultProps = {
+  static propTypes = {
+    onChange: T.func,
+  }
+
+  static defaultProps = {
     name: 'file',
     multiple: false,
     showUploadList: true,
+    onChange: undefined,
   }
 
   state = {
@@ -35,11 +42,10 @@ class Uploader extends Component {
       message.error(`${info.file.name} file upload failed.`);
       this.props.onChange(info, 'fail');
     }
-
   }
 
   render() {
-    const { previewVisible, previewImage, fileList } = this.state;
+    const { previewVisible, previewImage } = this.state;
 
     return (
       <div className="clearfix">

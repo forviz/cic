@@ -1,3 +1,4 @@
+/* eslint-disable class-methods-use-this */
 import { EventEmitter } from 'events';
 import Auth0Lock from 'auth0-lock';
 // import jwtDecode from 'jwt-decode';
@@ -91,8 +92,6 @@ export default class AuthService extends EventEmitter {
     // Clear user token and profile data from localStorage
     localStorage.removeItem('access_token');
     localStorage.removeItem('profile');
-
     this.emit('logout_success');
-
   }
 }

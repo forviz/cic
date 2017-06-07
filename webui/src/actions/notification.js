@@ -1,4 +1,5 @@
 import { notification } from 'antd';
+
 const MINWIDTH = 300;
 
 export const openNotification = (type, { message, description, duration, placement, key, btn }) => {

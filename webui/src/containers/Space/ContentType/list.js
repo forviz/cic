@@ -26,6 +26,12 @@ class ContentTypeList extends Component {
     }).isRequired,
   }
 
+  static defaultProps = {
+    space: {
+      _id: '',
+    },
+  }
+
   displayName = 'ContentTypeList';
 
   state = {

@@ -5,53 +5,54 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { Row, Col } from 'antd';
 import * as Actions from './actions';
-import Space from '../../../proptypes/Space';
-import { getActiveSpace, getEntryId, getActiveEntry } from '../../../selectors';
+import * as EntryActions from '../../../actions/entries';
+import { getSpaceId, getEntryId, getActiveSpace, getActiveEntry } from '../../../selectors';
 
 import EntryEditorForm from '../../../components/EntryEditorForm';
 
 class EntrySingle extends Component {
 
   static propTypes = {
-    space: T.instanceOf(Space).isRequired,
+    spaceId: T.string.isRequired,
     entryId: T.string.isRequired,
     entry: T.shape({
       _id: T.string,
-    }).isRequired,
+      fields: T.array,
+    }),
     contentType: T.shape({
       _id: T.string,
-    }).isRequired,
+    }),
     actions: T.shape({
-      getSingleEntry: T.func,
+      getEntry: T.func,
       updateEntry: T.func,
     }).isRequired,
   }
 
   static defaultProps = {
     fields: [],
+    entry: {
+      _id: '',
+      fields: [],
+    },
+    contentType: undefined,
   }
 
   componentDidMount = () => {
-    if (!this.props.entry) {
-      const { space } = this.props;
-      const { getSingleEntry } = this.props.actions;
-      getSingleEntry(space._id, this.props.entryId);
-    }
+    const { spaceId } = this.props;
+    const { getEntry } = this.props.actions;
+    getEntry(spaceId, this.props.entryId);
   }
 
   handleSubmitForm = (values, saveStatus) => {
-    const { space, entry, contentType } = this.props;
-    const spaceId = space._id;
-    const entryId = entry._id;
-
+    const { spaceId, entryId, contentType } = this.props;
     const { updateEntry } = this.props.actions;
     updateEntry(spaceId, entryId, contentType, values, saveStatus);
     return false;
   }
 
   render() {
-    const { space, contentType, entry } = this.props;
-    if (!space || !contentType || !entry) return (<div />);
+    const { spaceId, contentType, entry } = this.props;
+    if (!spaceId || !contentType || !entry) return (<div />);
 
     const entryTitle = _.get(entry, `fields.${contentType.displayField}`, 'No title');
     return (
@@ -59,7 +60,7 @@ class EntrySingle extends Component {
         <Col>
           <h3>{entryTitle}</h3>
           <EntryEditorForm
-            spaceId={space._id}
+            spaceId={spaceId}
             contentType={contentType}
             entry={entry}
             onSubmit={this.handleSubmitForm}
@@ -78,16 +79,17 @@ const getEntryContentType = (entry, space) => {
 const mapStateToProps = (state, ownProps) => {
   const space = getActiveSpace(state, ownProps);
   const entry = getActiveEntry(state, ownProps);
+  const contentType = getEntryContentType(entry, space);
   return {
-    space,
-    entry,
-    contentType: getEntryContentType(entry, space),
+    spaceId: getSpaceId(ownProps),
     entryId: getEntryId(ownProps),
+    entry,
+    contentType,
   };
 };
 
 const actions = {
-  getSingleEntry: Actions.getSingleEntry,
+  getEntry: EntryActions.getSingleEntryEntity,
   updateEntry: Actions.updateEntry,
 };
 

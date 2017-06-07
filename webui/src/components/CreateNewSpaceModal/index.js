@@ -10,7 +10,7 @@ const TabPane = Tabs.TabPane;
 class CreateNewSpaceModal extends Component {
 
   static propTypes = {
-    form: T.instanceOf(Form).isRequired,
+    form: T.object.isRequired,
     userOrganizations: T.array,
     visible: T.bool.isRequired,
     onSubmit: T.func.isRequired,

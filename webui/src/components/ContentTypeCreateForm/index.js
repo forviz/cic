@@ -7,7 +7,7 @@ import { Modal, Form, Input } from 'antd';
 class ContentTypeCreateForm extends Component {
 
   static propTypes = {
-    form: T.instanceOf(Form).isRequired,
+    form: T.object.isRequired,
     visible: T.bool.isRequired,
     onCreate: T.func.isRequired,
     onCancel: T.func.isRequired,

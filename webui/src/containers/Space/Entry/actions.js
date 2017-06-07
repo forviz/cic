@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import React from 'react';
 import { Button } from 'antd';
-import { fetchGetSingleEntry, fetchEntryInSpace, fetchCreateEntry, fetchUpdateEntry, fetchDeleteEntry } from '../../../api/cic/entries';
+import { fetchEntryInSpace, fetchCreateEntry, fetchUpdateEntry, fetchDeleteEntry } from '../../../api/cic/entries';
 import { getSpace } from '../../../actions/spaces';
 import { openNotification } from '../../../actions/notification';
 
@@ -15,19 +15,6 @@ export const getEntryInSpace = (spaceId) => {
           type: 'ENTITIES/ENTRY/RECEIVED',
           item: entry,
         });
-      });
-      return res;
-    });
-  };
-};
-
-export const getSingleEntry = (spaceId, entryId) => {
-  return (dispatch) => {
-    return fetchGetSingleEntry(spaceId, entryId)
-    .then((res) => {
-      dispatch({
-        type: 'ENTITIES/ENTRY/RECEIVED',
-        item: res.item,
       });
       return res;
     });

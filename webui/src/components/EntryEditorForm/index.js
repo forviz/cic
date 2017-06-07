@@ -28,7 +28,7 @@ const mapValidationToRules = (field) => {
 class EntryEditorForm extends Component {
 
   static propTypes = {
-    form: T.instanceOf(Form).isRequired,
+    form: T.object.isRequired,
     onSubmit: T.func.isRequired,
     spaceId: T.string.isRequired,
     contentType: T.object.isRequired,
@@ -113,6 +113,7 @@ class EntryEditorForm extends Component {
 
   render() {
     const { spaceId, contentType, entry } = this.props;
+    console.log('EntryEditorForm', entry);
     const fields = _.mapValues(arrayToObject(contentType.fields, 'identifier'), (field) => {
       const _isMultple = _.get(field, 'type') === 'Array';
       return {

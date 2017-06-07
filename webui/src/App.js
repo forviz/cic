@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import T from 'prop-types';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { Layout, LocaleProvider } from 'antd';
+import { Layout, LocaleProvider, Spin } from 'antd';
 
 import _ from 'lodash';
 
@@ -51,11 +51,11 @@ const PrivateRoute = ({ component: RouteComponent, ...rest }) => {
 };
 
 PrivateRoute.propTypes = {
-  component: T.instanceOf(Component),
+  component: T.node,
 };
 
 PrivateRoute.defaultProps = {
-  component: undefined,
+  component: Spin,
 };
 
 const mapStateToProps = (state) => {

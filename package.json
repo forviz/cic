@@ -8,6 +8,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "install:webui": "ce webui && npm install",
     "lint": "node_modules/.bin/eslint *.js server/app webui/src --ignore-pattern **/*.test.js",
     "test": "MONGODB_URI=mongodb://localhost:27017/cic_test PORT=7654 mocha --reporter spec server/**/*.test.js",
     "test:watch": "npm run test -- --watch",

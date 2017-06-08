@@ -11,7 +11,9 @@ const validateField = (value, contentTypeField) => {
 
   // Check 'in'
   if (!_.isEmpty(_.get(contentTypeField, 'validations.in'))) {
-    if (!_.includes(contentTypeField.validations.in, value)) return `${contentTypeField.name} must be one of ${_.join(contentTypeField.validations.in, ',')}`;
+    if (!_.includes(contentTypeField.validations.in, value)) {
+      return `${contentTypeField.name} must be one of ${_.join(contentTypeField.validations.in, ',')}`;
+    }
   }
 
   // Check MIME

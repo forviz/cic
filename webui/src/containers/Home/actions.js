@@ -31,9 +31,9 @@ export const createSpace = (name) => {
 };
 
 export const uploadImage = (file) => {
-  return (dispatch) => {
+  return () => {
     upload(file)
-    .then(response => {
+    .then((response) => {
       console.log('uploadImage', response);
     });
   };

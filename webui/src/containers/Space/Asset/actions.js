@@ -1,3 +1,4 @@
+/* eslint-disable */
 import _ from 'lodash';
 import { fetchAssetInSpace, fetchGetSingleAsset, fetchCreateAsset, fetchUpdateAsset, fetchDeleteAsset } from '../../../api/cic/assets';
 import { getSpace } from '../../../actions/spaces';
@@ -7,7 +8,6 @@ export const getAssetInSpace = (spaceId) => {
   return (dispatch) => {
     return fetchAssetInSpace(spaceId)
     .then((res) => {
-
       const entries = res.items;
       _.forEach(entries, entry => {
         dispatch({

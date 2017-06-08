@@ -1,22 +1,32 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import T from 'prop-types';
+import _ from 'lodash';
 import { Link } from 'react-router-dom';
 
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import { Button, Row, Col, Icon, Table, Popconfirm } from 'antd';
 
 import * as Actions from './actions';
-import _ from 'lodash';
-
-import { Button, Row, Col, Icon, Table, Popconfirm, message } from 'antd';
-
 import { getActiveSpace } from '../../../selectors';
 
-class ContentTypeList extends Component {
+class ApiKeyList extends Component {
 
   static propTypes = {
-    space: PropTypes.object,
+    history: T.shape({
+      push: T.func,
+    }).isRequired,
+    space: T.shape({
+      _id: T.string,
+      name: T.string,
+    }).isRequired,
+    actions: T.shape({
+      createApiKey: T.func,
+      deleteApiKey: T.func,
+    }).isRequired,
   }
+
+  static defaultProps = {}
 
   displayName = 'ApiKeys';
 
@@ -25,18 +35,15 @@ class ContentTypeList extends Component {
   }
 
   handleClickAdd = () => {
-    const { space } = this.props;
+    const { space, history } = this.props;
     const { createApiKey } = this.props.actions;
-    createApiKey(space._id);
+    createApiKey(space._id, history);
   }
 
   confirmDeleteApiKey = (keyId) => {
     const { deleteApiKey } = this.props.actions;
     const { space } = this.props;
-    deleteApiKey(space._id, keyId)
-    .then(response => {
-      message.success('ApiKey deleted');
-    });
+    deleteApiKey(space._id, keyId);
   }
 
 
@@ -64,7 +71,7 @@ class ContentTypeList extends Component {
           <span>
             <Popconfirm
               title="Are you sure delete this key?"
-              onConfirm={e => this.confirmDeleteApiKey(record._id)}
+              onConfirm={e => this.confirmDeleteApiKey(record._id, e)}
               onCancel={this.cancel}
               okText="Yes"
               cancelText="No"
@@ -73,14 +80,10 @@ class ContentTypeList extends Component {
             </Popconfirm>
           </span>
         ),
-      }
+      },
     ];
 
-    const data = _.map(apiKeys, (apiKey, i) => ({
-      _id: apiKey._id,
-      name: apiKey.name,
-    }));
-
+    const data = _.map(apiKeys, apiKey => ({ _id: apiKey._id, name: apiKey.name }));
 
     return (
       <div>
@@ -99,23 +102,19 @@ class ContentTypeList extends Component {
   }
 }
 
-ContentTypeList.propTypes = {
-  items: PropTypes.array,
-};
-
 const mapStateToProps = (state, ownProps) => {
   return {
     space: getActiveSpace(state, ownProps),
-  }
-}
+  };
+};
 
 const actions = {
   createApiKey: Actions.createApiKey,
   deleteApiKey: Actions.deleteApiKey,
-}
+};
 
 const mapDispatchToProps = (dispatch) => {
   return { actions: bindActionCreators(actions, dispatch) };
-}
+};
 
-export default connect(mapStateToProps, mapDispatchToProps)(ContentTypeList);
+export default connect(mapStateToProps, mapDispatchToProps)(ApiKeyList);

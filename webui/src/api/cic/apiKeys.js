@@ -7,19 +7,19 @@ export const fetchGenerateSpaceKey = (spaceId) => {
   .then((response) => {
     return response;
   });
-}
+};
 
 export const fetchUpdateSpaceKey = (spaceId, keyId, { name }) => {
   return fetchWithResponse(`${BASE_URL}/spaces/${spaceId}/api_keys/${keyId}`, {
     method: 'PUT',
     body: JSON.stringify({
       name,
-    })
+    }),
   })
   .then((response) => {
     return response;
   });
-}
+};
 
 export const fetchDeleteSpaceKey = (spaceId, keyId) => {
   return fetchWithResponse(`${BASE_URL}/spaces/${spaceId}/api_keys/${keyId}`, {
@@ -28,4 +28,4 @@ export const fetchDeleteSpaceKey = (spaceId, keyId) => {
   .then((response) => {
     return response;
   });
-}
+};

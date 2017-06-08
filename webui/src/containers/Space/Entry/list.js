@@ -1,16 +1,16 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import T from 'prop-types';
 import moment from 'moment';
 import { Link } from 'react-router-dom';
-
+import _ from 'lodash';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import { Button, Table, Icon, Col, Row, Menu, Dropdown, Popconfirm, Tag } from 'antd';
 
 import * as Actions from './actions';
-import _ from 'lodash';
+import * as EntryActions from '../../../actions/entries';
 
-import { Button, Table, Icon, Col, Row, Menu, Dropdown, Popconfirm, Tag } from 'antd';
-import { getActiveSpace, getSpaceEntries } from '../../../selectors';
+import { getSpaceId, getActiveSpace, getSpaceEntries } from '../../../selectors';
 
 const API_PATH = process.env.REACT_APP_API_PATH;
 
@@ -21,23 +21,42 @@ const getContentType = (contentTypes, contentTypeId) => {
 class EntryList extends Component {
 
   static propTypes = {
-    space: PropTypes.object,
+    history: T.shape({
+      push: T.func,
+    }).isRequired,
+    spaceId: T.string.isRequired,
+    space: T.shape({
+      _id: T.string,
+    }).isRequired,
+    entries: T.arrayOf(T.shape({
+      _id: T.string,
+    })),
+    actions: T.shape({
+      getEntriesInSpace: T.func,
+      createEmptyEntry: T.func,
+      deleteEntry: T.func,
+    }).isRequired,
+  }
+
+  static defaultProps = {
+    entries: [],
   }
 
   componentDidMount = () => {
-    if (!this.props.entry) {
-      const { space } = this.props;
-      const { getEntryInSpace } = this.props.actions;
-      getEntryInSpace(space._id);
-    }
+    // if (!this.props.entries) {
+    const { spaceId } = this.props;
+    const { getEntriesInSpace } = this.props.actions;
+    console.log('entryListDidMount', spaceId);
+    getEntriesInSpace(spaceId, {});
+    // }
   }
 
   handleClickAddEntry = (a) => {
     const contentTypeId = a.item.props.contentTypeId;
-    const { space } = this.props;
+    const { spaceId, history } = this.props;
     const { createEmptyEntry } = this.props.actions;
 
-    createEmptyEntry(space._id, contentTypeId);
+    createEmptyEntry(spaceId, contentTypeId, history);
   }
 
   confirmDeleteEntry = (entryId) => {
@@ -72,7 +91,7 @@ class EntryList extends Component {
         title: 'Updated',
         dataIndex: 'updated',
         key: 'updated',
-        render: (text) => moment(text).fromNow(),
+        render: text => moment(text).fromNow(),
       },
       {
         title: 'Author',
@@ -83,14 +102,14 @@ class EntryList extends Component {
         title: 'Status',
         dataIndex: 'status',
         key: 'status',
-        render: (text, record) => {
+        render: (text) => {
           switch (text) {
             case 'publish': return (<Tag color="green">Publish</Tag>);
             case 'draft': return (<Tag color="yellow">Draft</Tag>);
             case 'archive': return (<Tag>Archive</Tag>);
             default: return (<Tag>{text}</Tag>);
           }
-        }
+        },
       },
       {
         title: 'Action',
@@ -99,7 +118,7 @@ class EntryList extends Component {
           <span>
             <Popconfirm
               title="Are you sure delete this entry?"
-              onConfirm={e => this.confirmDeleteEntry(record._id)}
+              onConfirm={e => this.confirmDeleteEntry(record._id, e)}
               onCancel={this.cancel}
               okText="Yes"
               cancelText="No"
@@ -108,7 +127,7 @@ class EntryList extends Component {
             </Popconfirm>
           </span>
         ),
-      }
+      },
     ];
 
     const data = _.map(entries, (entry, i) => {
@@ -121,16 +140,14 @@ class EntryList extends Component {
         updated: entry.updatedAt,
         by: '',
         status: entry.status,
-      }
+      };
     });
 
     const addEntryMenu = (
       <Menu onClick={this.handleClickAddEntry}>
-      {
-        _.map(contentTypes, (ct) =>
-          <Menu.Item key={ct._id} contentTypeId={ct._id}>{ct.name}</Menu.Item>
-        )
-      }
+        {
+          _.map(contentTypes, ct => <Menu.Item key={ct._id} contentTypeId={ct._id}>{ct.name}</Menu.Item>)
+        }
       </Menu>
     );
 
@@ -138,7 +155,11 @@ class EntryList extends Component {
     const actionMenus = (
       <Menu>
         <Menu.Item key="export">
-          <a href={`${API_PATH}/spaces/${space._id}/entries?access_token=${deliveryKey}`} target="_blank">Preview JSON</a>
+          <a
+            href={`${API_PATH}/spaces/${space._id}/entries?access_token=${deliveryKey}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >Preview JSON</a>
         </Menu.Item>
       </Menu>
     );
@@ -174,19 +195,28 @@ class EntryList extends Component {
 }
 const mapStateToProps = (state, ownProps) => {
   return {
+    spaceId: getSpaceId(ownProps),
     space: getActiveSpace(state, ownProps),
     entries: getSpaceEntries(state, ownProps),
-  }
-}
+  };
+};
 
 const actions = {
-  getEntryInSpace: Actions.getEntryInSpace,
-  createEmptyEntry: Actions.createEmptyEntry,
+  getEntriesInSpace: EntryActions.getEntryInSpace,
+  createEmptyEntry: (spaceId, contentTypeId, his) => {
+    return (dispatch) => {
+      dispatch(Actions.createEmptyEntry(spaceId, contentTypeId))
+      .then((res) => {
+        const entryId = _.get(res, 'entry._id');
+        his.push(`/spaces/${spaceId}/entries/${entryId}`);
+      });
+    };
+  },
   deleteEntry: Actions.deleteEntry,
-}
+};
 
 const mapDispatchToProps = (dispatch) => {
   return { actions: bindActionCreators(actions, dispatch) };
-}
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(EntryList);

@@ -1,30 +1,43 @@
 import React, { Component } from 'react';
+import T from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import { Form, Input, Button } from 'antd';
 
 import { getActiveSpace } from '../../../selectors';
 import { updateSpace } from '../../../actions/spaces';
-
-import { Form, Input, Button, message } from 'antd';
 
 const mapStateToProps = (state, ownProps) => {
   return {
     space: getActiveSpace(state, ownProps),
   };
-}
+};
 
 const mapDispatchToProps = (dispatch) => {
   return {
     actions: bindActionCreators({
       updateSpace,
     }, dispatch),
-  }
-}
+  };
+};
 
 class Setting extends Component {
 
   static propTypes = {
+    form: T.shape({
+      validateFieldsAndScroll: T.func,
+    }).isRequired,
+    actions: T.shape({
+      updateSpace: T.func,
+    }).isRequired,
+    space: T.shape({
+      _id: T.string,
+      name: T.string,
+    }),
+  }
 
+  static defaultProps = {
+    space: {},
   }
 
   handleSubmit = (e) => {
@@ -39,13 +52,10 @@ class Setting extends Component {
         name: values.name,
         defaultLocale: 'en',
       });
-
-      message.success('Space updated');
     });
   }
 
   render() {
-
     const { form, space } = this.props;
     if (!space) return (<div />);
 
@@ -69,24 +79,18 @@ class Setting extends Component {
           <Form.Item label="Space ID" {...formItemLayout}>
             {getFieldDecorator('_id', {
               initialValue: space._id,
-            })(
-              <Input disabled />
-            )}
+            })(<Input disabled />)}
           </Form.Item>
           <Form.Item label="Space Name" {...formItemLayout}>
             {getFieldDecorator('name', {
               initialValue: space.name,
               rules: [{ required: true, message: 'Please input the name of collection!' }],
-            })(
-              <Input placeholder="Product, Blog, Post, etc..." />
-            )}
+            })(<Input placeholder="Product, Blog, Post, etc..." />)}
           </Form.Item>
           <Form.Item label="Locale" {...formItemLayout}>
             {getFieldDecorator('defaultLocale', {
               initialValue: space.defaultLocale,
-            })(
-              <Input />
-            )}
+            })(<Input />)}
           </Form.Item>
           <Form.Item>
             <Button type="primary" htmlType="submit" size="large">Save</Button>

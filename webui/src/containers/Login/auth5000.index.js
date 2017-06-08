@@ -1,34 +1,25 @@
+/* eslint-disable */
 import React, { Component } from 'react';
-import _ from 'lodash';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-
 import { Form, Input, Icon, Card, Checkbox, Button, Row, Col } from 'antd';
+
 const FormItem = Form.Item;
 
-import * as Actions from './actions';
-
-const mapStateToProps = (state, ownProps) => {
-  return {}
-};
+const mapStateToProps = state => ({});
 
 const mapDispatchToProps = (dispatch) => {
   return {
     actions: bindActionCreators({
-      loginUser: Actions.loginUser,
-      loginWithGoogle: Actions.loginWithGoogle,
-      loginWithFacebook: Actions.loginWithFacebook,
     }, dispatch),
   };
-}
+};
 
 class Login extends Component {
 
   handleSubmit = (e) => {
-
-    const { loginUser } = this.props.actions;
-
     e.preventDefault();
+    const { loginUser } = this.props.actions;
     this.props.form.validateFields((err, values) => {
       if (!err) {
         console.log('Received values of form: ', values);
@@ -42,9 +33,10 @@ class Login extends Component {
       loginWithGoogle,
       loginWithFacebook,
     } = this.props.actions;
+
     const { auth } = this.props;
     const { getFieldDecorator } = this.props.form;
-    /return (
+    return (
       <div style={{ padding: 80 }}>
         <Button type="primary" onClick={auth.login.bind(this)}>Login</Button>
         <Row type="flex" justify="center">

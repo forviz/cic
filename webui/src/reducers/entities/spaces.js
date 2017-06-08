@@ -6,7 +6,7 @@ const initialState = {
   entities: {},
   fetchStatus: {},
   errors: {},
-}
+};
 
 const spaces = (state = initialState, action) => {
   switch (action.type) {
@@ -16,7 +16,7 @@ const spaces = (state = initialState, action) => {
       return {
         ...state,
         entities: _.assign({}, state.entities, convertArrayToEntities(action.spaces, '_id')),
-      }
+      };
     }
 
     case 'SPACE/UPDATE/RECEIVED': {
@@ -25,10 +25,10 @@ const spaces = (state = initialState, action) => {
         entities: _.assign({}, state.entities, {
           [action.spaceId]: action.space,
         }),
-      }
+      };
     }
     default: return state;
   }
-}
+};
 
 export default spaces;

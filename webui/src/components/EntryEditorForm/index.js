@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import T from 'prop-types';
 import { Menu, Dropdown, Form } from 'antd';
 import _ from 'lodash';
 
@@ -26,6 +27,17 @@ const mapValidationToRules = (field) => {
 
 class EntryEditorForm extends Component {
 
+  static propTypes = {
+    form: T.object.isRequired,
+    onSubmit: T.func.isRequired,
+    spaceId: T.string.isRequired,
+    contentType: T.object.isRequired,
+    entry: T.shape({
+      _id: T.string,
+      fields: T.object,
+    }).isRequired,
+  }
+
   state = {
     prestine: true,
   }
@@ -35,6 +47,7 @@ class EntryEditorForm extends Component {
     this.props.form.validateFields();
   }
 
+  /* eslint-disable no-unused-vars */
   handleFieldChange = (e) => {
     if (this.state.prestine) {
       this.setState({
@@ -42,12 +55,13 @@ class EntryEditorForm extends Component {
       });
     }
   }
+  /* eslint-enable no-unused-vars */
 
   handleSubmit = (saveStatus = 'publish') => {
-    console.log('status', saveStatus);
     this.props.form.validateFields((err, values) => {
-      // if (err) console.log(err);
-      if (true || !err) {
+      if (err) {
+        console.log(err);
+      } else {
         // const valuesWithStatus = { ...values, status : saveStatus }
         const { onSubmit } = this.props;
         onSubmit(values, saveStatus);
@@ -111,7 +125,7 @@ class EntryEditorForm extends Component {
         appearance: field.appearance,
         helpText: field.helpText,
         src: field,
-      }
+      };
     });
 
     const { getFieldDecorator } = this.props.form;
@@ -128,11 +142,8 @@ class EntryEditorForm extends Component {
                 initialValue: field.value,
                 rules: field.rules,
                 onChange: this.handleFieldChange,
-              })(
-                <InputField field={field} spaceId={spaceId} />
-              )}
-            </Form.Item>)
-          )
+              })(<InputField field={field} spaceId={spaceId} />)}
+            </Form.Item>))
         }
         <Form.Item>
           <p>status: {entry.status}</p>

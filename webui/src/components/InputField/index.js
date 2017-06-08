@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import T from 'prop-types';
 import moment from 'moment';
 import _ from 'lodash';
 import { InputNumber, DatePicker, Switch } from 'antd';
@@ -14,6 +14,19 @@ import withMultipleItem from './withMultipleItem';
 const MultiInputText = withMultipleItem(InputText);
 
 class InputField extends Component {
+
+  static propTypes = {
+    spaceId: T.string.isRequired,
+    field: T.object,
+    value: T.string,
+    onChange: T.func,
+  }
+
+  static defaultProps = {
+    value: '',
+    field: {},
+    onChange: undefined,
+  }
 
   renderInput() {
     const { spaceId, field, value, onChange } = this.props;

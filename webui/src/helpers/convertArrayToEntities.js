@@ -6,8 +6,8 @@ const convertArrayToEntities = (arr, key) => {
     return {
       ...total,
       [itemKey]: item,
-    }
+    };
   }, {});
-}
+};
 
 export default convertArrayToEntities;

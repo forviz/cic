@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 require('babel-register');
 require('babel-polyfill');
 
@@ -123,10 +124,13 @@ const contentManagementAuthentication = process.env.NODE_ENV !== 'test' ? jwt({
   algorithms: ['RS256'],
 }) : jwt({ secret: 'testing' });
 
+// Short Name
+const cma = contentManagementAuthentication;
+
 const contentDeliveryAuthentication = (req, res, next) => {
   const token = _.replace(req.get('Authorization'), 'Bearer ', '');
   if (token !== '') {
-    contentManagementAuthentication(req, res, next);
+    cma(req, res, next);
     return;
   }
 
@@ -172,46 +176,49 @@ app.get(`${apiPrefix}/spaces/:space_id/content_types/:content_type_id`, contentD
 app.get(`${apiPrefix}/spaces/:space_id/entries`, contentDeliveryAuthentication, entryController.getAllEntries);
 app.get(`${apiPrefix}/spaces/:space_id/entries/:entry_id`, contentDeliveryAuthentication, entryController.getSingleEntry);
 
-app.get(`${apiPrefix}/organizations`, contentManagementAuthentication, organizationController.getAll);
-app.get(`${apiPrefix}/organizations/:organization_id`, contentManagementAuthentication, organizationController.getSingle);
-app.post(`${apiPrefix}/organizations`, contentManagementAuthentication, organizationController.createOrganization);
-app.get(`${apiPrefix}/organizations/:organization_id/members`, contentManagementAuthentication, organizationController.getAllMemberOrganization); // get all member in organization
-app.post(`${apiPrefix}/organizations/:organization_id/members`, contentManagementAuthentication, organizationController.createMemberOrganization);// add member in organization
-app.delete(`${apiPrefix}/organizations/:organization_id/members/:user_id`, contentManagementAuthentication, organizationController.delMemberOrganization);// delete member in organization
+app.get(`${apiPrefix}/organizations`, cma, organizationController.getAll);
+app.get(`${apiPrefix}/organizations/:organization_id`, cma, organizationController.getSingle);
+app.post(`${apiPrefix}/organizations`, cma, organizationController.createOrganization);
+// get all member in organization
+app.get(`${apiPrefix}/organizations/:organization_id/members`, cma, organizationController.getAllMemberOrganization);
+// add member in organization
+app.post(`${apiPrefix}/organizations/:organization_id/members`, cma, organizationController.createMemberOrganization);
+// delete member in organization
+app.delete(`${apiPrefix}/organizations/:organization_id/members/:user_id`, cma, organizationController.delMemberOrganization);
 
 // TODO QUERY entries
 
 /**
  * CIC App codebase: MANAGEMENT
  */
-app.get(`${apiPrefix}/spaces/`, contentManagementAuthentication, spaceController.getAll);
-app.post(`${apiPrefix}/spaces`, contentManagementAuthentication, spaceController.createSpace);
-app.put(`${apiPrefix}/spaces/:space_id`, contentManagementAuthentication, spaceController.updateSpace);
-app.delete(`${apiPrefix}/spaces/:space_id`, contentManagementAuthentication, spaceController.deleteSpace);
+app.get(`${apiPrefix}/spaces/`, cma, spaceController.getAll);
+app.post(`${apiPrefix}/spaces`, cma, spaceController.createSpace);
+app.put(`${apiPrefix}/spaces/:space_id`, cma, spaceController.updateSpace);
+app.delete(`${apiPrefix}/spaces/:space_id`, cma, spaceController.deleteSpace);
 
-app.post(`${apiPrefix}/spaces/:space_id/content_types/`, contentManagementAuthentication, contentTypeController.createContentType);
-app.put(`${apiPrefix}/spaces/:space_id/content_types/:content_type_id`, contentManagementAuthentication, contentTypeController.updateContentType);
-app.delete(`${apiPrefix}/spaces/:space_id/content_types/:content_type_id`, contentManagementAuthentication, contentTypeController.deleteContentType);
+app.post(`${apiPrefix}/spaces/:space_id/content_types/`, cma, contentTypeController.createContentType);
+app.put(`${apiPrefix}/spaces/:space_id/content_types/:content_type_id`, cma, contentTypeController.updateContentType);
+app.delete(`${apiPrefix}/spaces/:space_id/content_types/:content_type_id`, cma, contentTypeController.deleteContentType);
 
 // CREATE entry
-app.post(`${apiPrefix}/spaces/:space_id/entries/`, contentManagementAuthentication, entryController.createEntry);
-app.put(`${apiPrefix}/spaces/:space_id/entries/:entry_id`, contentManagementAuthentication, entryController.updateEntry);
-app.delete(`${apiPrefix}/spaces/:space_id/entries/:entry_id`, contentManagementAuthentication, entryController.deleteEntry);
-app.delete(`${apiPrefix}/spaces/:space_id/entries_truncate/`, contentManagementAuthentication, entryController.truncateEntry);
+app.post(`${apiPrefix}/spaces/:space_id/entries/`, cma, entryController.createEntry);
+app.put(`${apiPrefix}/spaces/:space_id/entries/:entry_id`, cma, entryController.updateEntry);
+app.delete(`${apiPrefix}/spaces/:space_id/entries/:entry_id`, cma, entryController.deleteEntry);
+app.delete(`${apiPrefix}/spaces/:space_id/entries_truncate/`, cma, entryController.truncateEntry);
 
 // API Keys
-app.get(`${apiPrefix}/spaces/:space_id/api_keys`, contentManagementAuthentication, apiKeyController.getAllKey);
-app.post(`${apiPrefix}/spaces/:space_id/api_keys`, contentManagementAuthentication, apiKeyController.createKey);
-app.put(`${apiPrefix}/spaces/:space_id/api_keys/:key_id`, contentManagementAuthentication, apiKeyController.updateKey);
-app.delete(`${apiPrefix}/spaces/:space_id/api_keys`, contentManagementAuthentication, apiKeyController.clearAllKey);
-app.delete(`${apiPrefix}/spaces/:space_id/api_keys/:key_id`, contentManagementAuthentication, apiKeyController.deleteKey);
+app.get(`${apiPrefix}/spaces/:space_id/api_keys`, cma, apiKeyController.getAllKey);
+app.post(`${apiPrefix}/spaces/:space_id/api_keys`, cma, apiKeyController.createKey);
+app.put(`${apiPrefix}/spaces/:space_id/api_keys/:key_id`, cma, apiKeyController.updateKey);
+app.delete(`${apiPrefix}/spaces/:space_id/api_keys`, cma, apiKeyController.clearAllKey);
+app.delete(`${apiPrefix}/spaces/:space_id/api_keys/:key_id`, cma, apiKeyController.deleteKey);
 
 // Assets
-app.get(`${apiPrefix}/spaces/:space_id/assets/:asset_id`, contentManagementAuthentication, assetController.getSingleAsset);
-app.post(`${apiPrefix}/spaces/:space_id/assets/`, contentManagementAuthentication, assetController.createAsset);
-app.put(`${apiPrefix}/spaces/:space_id/assets/:asset_id`, contentManagementAuthentication, assetController.updateAsset);
-app.delete(`${apiPrefix}/spaces/:space_id/assets/:asset_id`, contentManagementAuthentication, assetController.deleteAsset);
-app.delete(`${apiPrefix}/spaces/:space_id/assets_truncate/`, contentManagementAuthentication, assetController.truncateAsset);
+app.get(`${apiPrefix}/spaces/:space_id/assets/:asset_id`, cma, assetController.getSingleAsset);
+app.post(`${apiPrefix}/spaces/:space_id/assets/`, cma, assetController.createAsset);
+app.put(`${apiPrefix}/spaces/:space_id/assets/:asset_id`, cma, assetController.updateAsset);
+app.delete(`${apiPrefix}/spaces/:space_id/assets/:asset_id`, cma, assetController.deleteAsset);
+app.delete(`${apiPrefix}/spaces/:space_id/assets_truncate/`, cma, assetController.truncateAsset);
 
 // Upload Media (cloudinary)
 app.post(`${apiPrefix}/media/upload`, upload.single('file'), cloudinaryController.upload);

@@ -5,7 +5,7 @@ const arrayToObject = (array, key) => {
     return {
       ...sum,
       [item[key]]: item,
-    }
+    };
   }, {});
 };
 

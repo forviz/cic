@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import T from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 
 import {
   Link,
-} from 'react-router-dom'
+} from 'react-router-dom';
 
 import { Layout, Col, Row, Menu, Icon } from 'antd';
 
@@ -29,9 +29,17 @@ const mapDispatchToProps = (dispatch) => {
 class AppHeader extends Component {
 
   static propTypes = {
-    userOrganizations: PropTypes.array,
-    onLogin: PropTypes.func,
-    onLogout: PropTypes.func,
+    userProfile: T.object,
+    userOrganizations: T.array,
+    onLogin: T.func.isRequired,
+    onLogout: T.func.isRequired,
+    createNewSpace: T.func.isRequired,
+    populateSpaceWithTemplate: T.func.isRequired,
+  }
+
+  static defaultProps = {
+    userProfile: {},
+    userOrganizations: [],
   }
 
   state = {
@@ -42,35 +50,33 @@ class AppHeader extends Component {
     this.form = form;
   }
 
-  handleCreateNewSpace = (e) => {
+  handleCreateNewSpace = () => {
     const form = this.form;
     form.validateFields((err, values) => {
       if (err) {
         return;
       }
       const { createNewSpace } = this.props;
-      debugger;
-      createNewSpace(values.name, { organizationId: values.organization, defaultLocale: values.defaultLocale })
-      .then(response => {
+      createNewSpace(values.name, {
+        organizationId: values.organization,
+        defaultLocale: values.defaultLocale,
+      })
+      .then((response) => {
         form.resetFields();
         this.setState({ showCreateSpaceModal: false });
 
-        console.log('createNewSpace', response);
         const spaceId = response.space._id;
         if (!_.isEmpty(values.template)) {
           // Create with template
           const { populateSpaceWithTemplate } = this.props;
           populateSpaceWithTemplate(spaceId, values.template);
-
         }
       });
-
     });
   }
 
   handleClickMenu = ({ key }) => {
     switch (key) {
-
       case 'add-new-space':
         this.setState({
           showCreateSpaceModal: true,
@@ -78,7 +84,6 @@ class AppHeader extends Component {
         break;
       default: break;
     }
-
   }
 
   closeCreateNewSpaceModal = () => {
@@ -87,10 +92,25 @@ class AppHeader extends Component {
     });
   }
 
-
   renderLeftMenu = () => {
-
     const { userOrganizations } = this.props;
+
+    const organizations = userOrganizations.map((org) => {
+      return (
+        <MenuItemGroup key={org._id} title={org.name}>
+          {
+            _.map(_.compact(org.spaces), (space) => {
+              return (
+                <Menu.Item key={space._id}>
+                  <Link to={`/spaces/${space._id}/content_types`}>{space.name || 'No name'}</Link>
+                </Menu.Item>
+              );
+            })
+          }
+        </MenuItemGroup>
+      );
+    });
+
     return (
       <Menu
         theme="dark"
@@ -99,19 +119,7 @@ class AppHeader extends Component {
         onClick={this.handleClickMenu}
       >
         <SubMenu title={'Spaces'}>
-          {
-            userOrganizations.map(org =>
-              <MenuItemGroup key={org._id} title={org.name}>
-                {
-                  _.map(_.compact(org.spaces), space =>
-                    <Menu.Item key={space._id}>
-                      <Link to={`/spaces/${space._id}/content_types`}>{space.name || 'No name'}</Link>
-                    </Menu.Item>
-                  )
-                }
-              </MenuItemGroup>
-            )
-          }
+          {organizations}
           <Menu.Item key="add-new-space">
             <Icon type="plus" /> Add new Space
           </Menu.Item>
@@ -121,6 +129,12 @@ class AppHeader extends Component {
   }
 
   renderUserMenu = (userProfile) => {
+    const imgStyle = { position: 'relative', top: 4, marginBottom: -8, left: -4 };
+    const userTitle = (
+      <span>
+        <img src={userProfile.picture} alt="Profile" width="32" height="32" style={imgStyle} /> {userProfile.email}
+      </span>);
+
     return (
       <Menu
         theme="dark"
@@ -129,7 +143,7 @@ class AppHeader extends Component {
         style={{ lineHeight: '64px' }}
         onClick={this.props.onLogout}
       >
-        <SubMenu title={<span><img src={userProfile.picture} alt="Profile" width="32" height="32" style={{ position: 'relative', top: 4, marginBottom: -8, left: -4 }} /> {userProfile.email}</span>}>
+        <SubMenu title={userTitle}>
           <Menu.Item key="logout">Logout</Menu.Item>
         </SubMenu>
       </Menu>
@@ -150,8 +164,7 @@ class AppHeader extends Component {
     );
   }
 
-  render () {
-
+  render() {
     const { userProfile, userOrganizations } = this.props;
     return (
       <Header className="header">

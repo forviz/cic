@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import T from 'prop-types';
 import _ from 'lodash';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -6,10 +7,9 @@ import { bindActionCreators } from 'redux';
 import {
   Route,
   Link,
-} from 'react-router-dom'
+} from 'react-router-dom';
 
-
-import { Layout, Breadcrumb } from 'antd';
+import { Layout, Breadcrumb, Spin } from 'antd';
 import SpaceSidebar from './Sidebar';
 
 import ContentTypeListContainer from './ContentType/list';
@@ -23,35 +23,58 @@ import SpaceApiKeySingleContainer from './ApiKeys/single';
 import SpaceSettingContainer from './Settings';
 
 import * as Actions from './actions';
-import { getActiveSpace } from '../../selectors';
+import * as SpaceActions from '../../actions/spaces';
+import { getSpaceId, getActiveSpace } from '../../selectors';
 
 const { Content, Sider } = Layout;
 
 const mapStateToProps = (state, ownProps) => {
-
   return {
+    spaceId: getSpaceId(ownProps),
     space: getActiveSpace(state, ownProps),
-  }
+  };
 };
 
 const mapDispatchToProps = (dispatch) => {
   return {
     actions: bindActionCreators({
       initWithSpaceId: Actions.initWithSpaceId,
+      getSpace: SpaceActions.getSpace,
     }, dispatch),
   };
-}
+};
 
 class Space extends Component {
 
+  static propTypes = {
+    spaceId: T.string.isRequired,
+    space: T.shape({
+      name: T.string,
+    }).isRequired,
+    actions: T.shape({
+      getSpace: T.func,
+    }).isRequired,
+  }
+
+  static defaultProps = {
+    space: {},
+  }
+
+  constructor(props) {
+    super(props);
+    const { spaceId, actions } = props;
+    const { getSpace } = actions;
+    getSpace(spaceId);
+  }
+
   render() {
     const { space } = this.props;
-    if (!space) return (<div />);
+    if (!space) return (<Spin />);
 
     const routes = [
       {
         path: '/spaces/:spaceId/content_types',
-        exact: true ,
+        exact: true,
         main: ContentTypeListContainer,
       },
       {
@@ -61,28 +84,28 @@ class Space extends Component {
       },
       {
         path: '/spaces/:spaceId/entries',
-        exact: true ,
-        main: EntryListContainer
+        exact: true,
+        main: EntryListContainer,
       },
       {
         path: '/spaces/:spaceId/entries/:entryId',
-        exact: true ,
-        main: EntrySingleContainer
+        exact: true,
+        main: EntrySingleContainer,
       },
       {
         path: '/spaces/:spaceId/assets',
-        exact: true ,
-        main: AssetListContainer
+        exact: true,
+        main: AssetListContainer,
       },
       {
         path: '/spaces/:spaceId/assets/:assetId',
-        exact: true ,
-        main: AssetSingleContainer
+        exact: true,
+        main: AssetSingleContainer,
       },
       {
         path: '/spaces/:spaceId/api/keys',
-        exact: true ,
-        main: SpaceApiKeyContainer
+        exact: true,
+        main: SpaceApiKeyContainer,
       },
       {
         path: '/spaces/:spaceId/api/keys/:keyId',
@@ -91,8 +114,8 @@ class Space extends Component {
       },
       {
         path: '/spaces/:spaceId/settings',
-        exact: true ,
-        main: SpaceSettingContainer
+        exact: true,
+        main: SpaceSettingContainer,
       },
     ];
 
@@ -118,28 +141,29 @@ class Space extends Component {
                 <Route path="/spaces/:spaceId/settings" render={() => <Link to={`/spaces/${space._id}/settings`}>Settings</Link>} />
               </Breadcrumb.Item>
               <Breadcrumb.Item>
-                <Route path="/spaces/:spaceId/content_types/:contentTypeId" render={({ match }) => <span>{_.get(_.find(space.contentTypes, ct => ct._id === match.params.contentTypeId), 'name')}</span>} />
+                <Route
+                  path="/spaces/:spaceId/content_types/:contentTypeId"
+                  render={({ match }) => <span>{_.get(_.find(space.contentTypes, ct => ct._id === match.params.contentTypeId), 'name')}</span>}
+                />
                 <Route path="/spaces/:spaceId/entries/:entryId" render={({ match }) => <span>{match.params.entryId}</span>} />
               </Breadcrumb.Item>
             </Breadcrumb>
             <Content style={{ background: '#fff', padding: 24, margin: 0, minHeight: 280 }}>
               {
-                routes.map((route) =>
-                  <Route
+                routes.map(route =>
+                  (<Route
                     key={route.path}
                     path={route.path}
                     exact={route.exact}
                     component={route.main}
-                  />)
+                  />))
               }
             </Content>
           </Layout>
         </Layout>
       </div>
-    )
+    );
   }
 }
-
-
 
 export default connect(mapStateToProps, mapDispatchToProps)(Space);

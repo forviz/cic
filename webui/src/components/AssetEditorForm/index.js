@@ -1,15 +1,22 @@
 import React, { Component } from 'react';
+import T from 'prop-types';
 import _ from 'lodash';
 
 import { Form, Input, Button } from 'antd';
 
 import PicturesWall from '../Uploader/PicturesWall';
 
-const hasErrors = (fieldsError) => {
-  return Object.keys(fieldsError).some(field => fieldsError[field]);
-}
+const hasErrors = fieldsError => Object.keys(fieldsError).some(field => fieldsError[field]);
 
 class AssetEditorForm extends Component {
+
+  static propTypes = {
+    form: T.object.isRequired,
+    onSubmit: T.func.isRequired,
+  }
+
+  static defaultProps = {
+  }
 
   componentDidMount() {
     // To disabled submit button at the beginning.
@@ -28,7 +35,6 @@ class AssetEditorForm extends Component {
   }
 
   render() {
-
     const { getFieldDecorator, getFieldsError } = this.props.form;
 
     return (
@@ -36,22 +42,16 @@ class AssetEditorForm extends Component {
         <Form.Item label="Title">
           {getFieldDecorator('title', {
             rules: [{ required: true, message: 'Required' }],
-          })(
-            <Input />
-          )}
+          })(<Input />)}
         </Form.Item>
         <Form.Item label="Description">
           {getFieldDecorator('description', {
-          })(
-            <Input />
-          )}
+          })(<Input />)}
         </Form.Item>
         <Form.Item label="File">
           {getFieldDecorator('file', {
             valuePropName: 'file',
-          })(
-            <PicturesWall multiple={false} />
-          )}
+          })(<PicturesWall multiple={false} />)}
         </Form.Item>
 
         <Form.Item>
@@ -81,9 +81,9 @@ const mapPropsToFields = (props) => {
     file: {
       value: _.get(asset, 'fields.file'),
     },
-  }
-}
+  };
+};
 
 export default Form.create({
-  mapPropsToFields
+  mapPropsToFields,
 })(AssetEditorForm);

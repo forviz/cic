@@ -8,13 +8,11 @@ import {
 } from '../../constants';
 
 const initialState = {
-  // access_token: 'ciylb9lc80000t5xzerjd5a9q',
-  // bearer_token: 'fbPcSrbF5Cfc3BjhIyJ9R75JU9ABimOx8iyecOg0UFMtBazuXOzHMbG60FaVWFdHCO0Y69x7JrmkgkBr60YoFWfkReS0DKnYZB9AZPHzgAmiMl3lLpHCF5qPbP8uz5lFIlGI7WhRLE3kOS2t0ILLnjrZOAhZNvNxxyNYTwKyDXAaNTwF1XJDnqS0ApTOXf7ED6iR1QxXWzo0HirrnEh65jrovKeJlBLmJ00VfDMq3P3IAX5iUK6RB7rFfkCcFnX0',
   isFetching: false,
-  isAuthenticated: localStorage.getItem('id_token') ? true : false,
+  isAuthenticated: localStorage.getItem('id_token'),
   token: localStorage.getItem('id_token'),
   spaces: [],
-}
+};
 
 const user = (state = initialState, action) => {
   switch (action.type) {
@@ -22,24 +20,24 @@ const user = (state = initialState, action) => {
       return Object.assign({}, state, {
         isFetching: true,
         isAuthenticated: false,
-        user: action.creds
+        user: action.creds,
       });
     case LOGIN_SUCCESS:
       return Object.assign({}, state, {
         isFetching: false,
         isAuthenticated: true,
-        errorMessage: ''
+        errorMessage: '',
       });
     case LOGIN_FAILURE:
       return Object.assign({}, state, {
         isFetching: false,
         isAuthenticated: false,
-        errorMessage: action.message
+        errorMessage: action.message,
       });
     case LOGOUT_SUCCESS:
       return Object.assign({}, state, {
         isFetching: true,
-        isAuthenticated: false
+        isAuthenticated: false,
       });
 
     case 'USER/SPACES/RECEIVED': {
@@ -52,9 +50,8 @@ const user = (state = initialState, action) => {
       return { ...state, organizations: ids };
     }
 
-    default:
-      return state
-    }
-}
+    default: return state;
+  }
+};
 
 export default user;

@@ -1,25 +1,27 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import T from 'prop-types';
 import { Tag, Input, Tooltip, Button } from 'antd';
 
 class EditableTagGroup extends Component {
 
   static propTypes = {
-    value: PropTypes.arrayOf(PropTypes.string),
-    onChange: PropTypes.func,
+    value: T.arrayOf(T.string),
+    onChange: T.func,
   }
 
-  state = {
-    tags: [],
-    inputVisible: false,
-    inputValue: '',
+  static defaultProps = {
+    value: [],
+    onChange: undefined,
   }
 
-  /* Handle init tags from props.value componentDidMount & componentWillReceiveProps */
-  componentDidMount() {
-    this.setState({
+  constructor(props) {
+    super(props);
+
+    this.state = {
       tags: this.props.value,
-    });
+      inputVisible: false,
+      inputValue: '',
+    };
   }
 
   componentWillReceiveProps = (nextProps) => {
@@ -30,7 +32,6 @@ class EditableTagGroup extends Component {
 
   handleClose = (removedTag) => {
     const tags = this.state.tags.filter(tag => tag !== removedTag);
-    console.log(tags);
     this.setState({ tags });
 
     const { onChange } = this.props;
@@ -52,7 +53,6 @@ class EditableTagGroup extends Component {
     if (inputValue && tags.indexOf(inputValue) === -1) {
       tags = [...tags, inputValue];
     }
-    console.log(tags);
     this.setState({
       tags,
       inputVisible: false,
@@ -61,16 +61,17 @@ class EditableTagGroup extends Component {
 
     const { onChange } = this.props;
     onChange(tags);
-
   }
 
-  saveInputRef = input => this.input = input
+  saveInputRef = (input) => {
+    this.input = input;
+  }
 
   render() {
     const { tags, inputVisible, inputValue } = this.state;
     return (
       <div>
-        {tags.map((tag, index) => {
+        {tags.map((tag) => {
           const isLongTag = tag.length > 20;
           const tagElem = (
             <Tag key={tag} closable afterClose={() => this.handleClose(tag)}>
@@ -82,7 +83,8 @@ class EditableTagGroup extends Component {
         {inputVisible && (
           <Input
             ref={this.saveInputRef}
-            type="text" size="small"
+            type="text"
+            size="small"
             style={{ width: 78 }}
             value={inputValue}
             onChange={this.handleInputChange}

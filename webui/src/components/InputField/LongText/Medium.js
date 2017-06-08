@@ -11,7 +11,7 @@ class Medium extends Component {
     super(props);
 
     this.state = {
-      editorState: createEditorState(), // for empty content
+      editorState: createEditorState(),
     };
 
     this.onChange = (editorState) => {
@@ -20,18 +20,21 @@ class Medium extends Component {
   }
 
   componentDidMount() {
-    this.refs.editor.focus();
+    this.editor.focus();
   }
 
+  /* eslint-disable no-return-assign */
   render() {
     const { editorState } = this.state;
     return (
       <Editor
-        ref="editor"
+        ref={c => this.editor = c}
         editorState={editorState}
-        onChange={this.onChange} />
+        onChange={this.onChange}
+      />
     );
   }
+  /* eslint-enable no-return-assign */
 }
 
 export default Medium;

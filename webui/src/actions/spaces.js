@@ -2,24 +2,44 @@ import { fetchSpace, fetchCreateSpace, fetchUpdateSpace } from '../api/cic/space
 import { fetchCreateContentType } from '../api/cic/contentTypes';
 import { openNotification } from './notification';
 
+import { getSpaceFetchStatus } from '../selectors/spaces';
 // Fetch Space Info
+// export const getSpace = (spaceId) => {
+//   return (dispatch) => {
+//     fetchSpace(spaceId)
+//     .then((space) => {
+//       dispatch({
+//         type: 'SPACE/UPDATE/RECEIVED',
+//         spaceId,
+//         space,
+//       });
+//     });
+//   };
+// };
+
+
 export const getSpace = (spaceId) => {
-  return (dispatch) => {
-    fetchSpace(spaceId)
-    .then((space) => {
-      dispatch({
-        type: 'SPACE/UPDATE/RECEIVED',
-        spaceId,
-        space,
+  return (dispatch, getState) => {
+    const fetchStatus = getSpaceFetchStatus(getState(), spaceId);
+
+    // If haven't loaded, do load it from server
+    if (fetchStatus !== 'loaded') {
+      openNotification('info', { message: 'fetching space' });
+      fetchSpace(spaceId)
+      .then((space) => {
+        dispatch({
+          type: 'SPACE/UPDATE/RECEIVED',
+          spaceId,
+          space,
+        });
+        openNotification('success', { message: `fetching space ${spaceId} done` });
       });
-    });
+    }
   };
 };
 
-
 export const createNewSpace = (name, { organizationId, defaultLocale }) => {
-
-  return (dispatch) => {
+  return () => {
     return fetchCreateSpace(name, { organizationId, defaultLocale })
     .then((res) => {
       openNotification('success', { message: 'Space created' });
@@ -29,7 +49,7 @@ export const createNewSpace = (name, { organizationId, defaultLocale }) => {
 };
 
 export const updateSpace = (spaceId, { name, defaultLocale }) => {
-  return (dispatch) => {
+  return () => {
     fetchUpdateSpace(spaceId, { name, defaultLocale })
     .then((res) => {
       openNotification('success', { message: `Space ${name} Updated` });
@@ -44,8 +64,7 @@ export const populateSpaceWithTemplate = (spaceId, template) => {
     switch (template) {
       case 'website':
         /* Create Pages, Category, Posts */
-
-        return Promise.all([
+        Promise.all([
           fetchCreateContentType(spaceId, {
             name: 'Pages',
             identifier: 'pages',
@@ -53,7 +72,7 @@ export const populateSpaceWithTemplate = (spaceId, template) => {
             displayField: 'title',
             fields: [
               { name: 'Title', identifier: 'title', type: 'Text', required: true },
-              { name: 'Detail', identifier: 'detail', type: 'LongText', required: false, localized: true }
+              { name: 'Detail', identifier: 'detail', type: 'LongText', required: false, localized: true },
             ],
           }),
           fetchCreateContentType(spaceId, {
@@ -63,7 +82,7 @@ export const populateSpaceWithTemplate = (spaceId, template) => {
             displayField: 'title',
             fields: [
               { name: 'Title', identifier: 'title', type: 'Text', required: true },
-              { name: 'Detail', identifier: 'detail', type: 'LongText', required: false }
+              { name: 'Detail', identifier: 'detail', type: 'LongText', required: false },
             ],
           }),
           fetchCreateContentType(spaceId, {
@@ -75,7 +94,7 @@ export const populateSpaceWithTemplate = (spaceId, template) => {
               { name: 'Title', identifier: 'title', type: 'Text', required: true },
               { name: 'Detail', identifier: 'detail', type: 'LongText', required: false },
               {
-                name: 'Category', identifier: 'category', type: 'Link', required: false, validations:{ linkContentType: ['category'] }
+                name: 'Category', identifier: 'category', type: 'Link', required: false, validations: { linkContentType: ['category'] },
               },
               {
                 name: 'Tag',
@@ -84,27 +103,22 @@ export const populateSpaceWithTemplate = (spaceId, template) => {
                 items: {
                   type: 'Link',
                   linkType: 'Entry',
-                  validations: [
-                    {
-                      linkContentType: [
-                        'category'
-                      ]
-                    }
-                  ]
+                  validations: [{ linkContentType: ['category'] }],
                 },
               },
             ],
           }),
-        ], (response) => {
+        ], () => {
           dispatch({
             type: 'CREATE/TEMPLATE/COMPLETE',
           });
           openNotification('success', { message: 'Create space with template completed' });
         });
+        break;
       case 'condo':
         /* Create UnitType, Unit, Floor */
 
-        return Promise.all([
+        Promise.all([
           fetchCreateContentType(spaceId, {
             name: 'Unit Type',
             identifier: 'unit-type',
@@ -118,10 +132,10 @@ export const populateSpaceWithTemplate = (spaceId, template) => {
                 type: 'Array',
                 items: {
                   type: 'Link',
-                  linkType: 'Asset'
+                  linkType: 'Asset',
                 },
-                required: false
-              }
+                required: false,
+              },
             ],
           }),
           fetchCreateContentType(spaceId, {
@@ -134,15 +148,8 @@ export const populateSpaceWithTemplate = (spaceId, template) => {
               { name: 'Size', identifier: 'size', type: 'Number' },
               { name: 'Floor', identifier: 'floor', type: 'Number' },
               { name: 'Price', identifier: 'price', type: 'Number' },
-              {
-                name: 'Tag',
-                identifier: 'tag',
-                type: 'Array',
-                items: {
-                  type: 'Symbol',
-                }
-              },
-              { name: 'Type', identifier: 'type', type: 'Link', validations:{ linkContentType: ['unit-type'] } },
+              { name: 'Tag', identifier: 'tag', type: 'Array', items: { type: 'Symbol' } },
+              { name: 'Type', identifier: 'type', type: 'Link', validations: { linkContentType: ['unit-type'] } },
             ],
           }),
           fetchCreateContentType(spaceId, {
@@ -156,17 +163,17 @@ export const populateSpaceWithTemplate = (spaceId, template) => {
               { name: 'Category', identifier: 'category', type: 'Link', required: false, validations: { linkContentType: ['category'] } },
             ],
           }),
-        ], (response) => {
+        ], () => {
           dispatch({
             type: 'CREATE/TEMPLATE/COMPLETE',
           });
           openNotification('success', { message: 'Create space with template completed' });
-
         });
+        break;
       case 'directory':
         /* Create Shop, , Category, Floor, Facilities */
 
-        return Promise.all([
+        Promise.all([
           fetchCreateContentType(spaceId, {
             name: 'Shop',
             identifier: 'shop',
@@ -174,8 +181,8 @@ export const populateSpaceWithTemplate = (spaceId, template) => {
             displayField: 'title',
             fields: [
               { name: 'Title', identifier: 'title', type: 'Text', required: true },
-              { name: 'Category', identifier: 'type', type: 'Link', validations:{ linkContentType: ['category'] } },
-              { name: 'Floor', identifier: 'type', type: 'Link', validations:{ linkContentType: ['floor'] } },
+              { name: 'Category', identifier: 'type', type: 'Link', validations: { linkContentType: ['category'] } },
+              { name: 'Floor', identifier: 'type', type: 'Link', validations: { linkContentType: ['floor'] } },
               {
                 name: 'Logo',
                 identifier: 'logo',
@@ -187,8 +194,9 @@ export const populateSpaceWithTemplate = (spaceId, template) => {
                 type: 'Array',
                 items: {
                   type: 'Media',
-                }, required: false
-              }
+                },
+                required: false,
+              },
             ],
           }),
           fetchCreateContentType(spaceId, {
@@ -198,7 +206,7 @@ export const populateSpaceWithTemplate = (spaceId, template) => {
             displayField: 'title',
             fields: [
               { name: 'Title', identifier: 'title', type: 'Text', required: true },
-              { name: 'Detail', identifier: 'detail', type: 'LongText', required: false }
+              { name: 'Detail', identifier: 'detail', type: 'LongText', required: false },
             ],
           }),
           fetchCreateContentType(spaceId, {
@@ -210,13 +218,14 @@ export const populateSpaceWithTemplate = (spaceId, template) => {
               { name: 'Title', identifier: 'title', type: 'Text', required: true },
             ],
           }),
-        ], (response) => {
+        ], () => {
           dispatch({
             type: 'CREATE/TEMPLATE/COMPLETE',
           });
           openNotification('success', { message: 'Create space with template completed' });
         });
+        break;
       default: break;
     }
-  }
-}
+  };
+};

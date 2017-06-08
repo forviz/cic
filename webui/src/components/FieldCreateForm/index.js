@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import T from 'prop-types';
 import _ from 'lodash';
 
-import { Modal, Form, Select, Checkbox, Input, Switch, Row, Col, Menu, Icon, Collapse, Radio, Tabs } from 'antd';
+import { Modal, Form, Select, Checkbox, Input, Switch, Row, Col, Menu, Icon, Radio, Tabs } from 'antd';
 import EditableTagGroup from '../EditableTagGroup';
 import Pattern from '../../helpers/regex-pattern';
 
@@ -134,6 +134,7 @@ class FieldCreateForm extends Component {
       getFieldValue: T.func,
       setFieldsValue: T.func,
     }).isRequired,
+    field: T.object.isRequired,
     onCancel: T.func.isRequired,
     onSubmit: T.func.isRequired,
     contentTypes: T.arrayOf(T.shape({ _id: T.string, name: T.string })),
@@ -163,7 +164,8 @@ class FieldCreateForm extends Component {
     const { form, onSubmit } = this.props;
     form.validateFields((err, values) => {
       if (!err) {
-        const fieldValues = mapFieldsToProps(form.getFieldsValue())
+        const fieldValues = mapFieldsToProps(form.getFieldsValue());
+        console.log('handleSubmit', values, fieldValues);
         onSubmit(fieldValues);
       }
     });
@@ -229,8 +231,7 @@ class FieldCreateForm extends Component {
                       <Select.Option value="custom">Custom</Select.Option>
                       <Select.Option value={Pattern.email.toString()}>Email</Select.Option>
                       <Select.Option value={Pattern.url.toString()}>URL</Select.Option>
-                    </Select>
-                  )}
+                    </Select>)}
                 </Form.Item>
               </Col>
               <Col span="8">
@@ -312,8 +313,7 @@ class FieldCreateForm extends Component {
                   <RadioButton value="single-line">Single Line</RadioButton>
                   <RadioButton value="dropdown">Dropdown</RadioButton>
                   <RadioButton value="radio">Radio</RadioButton>
-                </RadioGroup>
-              )}
+                </RadioGroup>)}
             </Form.Item>
             <Form.Item label="Help Text">
               {getFieldDecorator('helpText', {
@@ -327,7 +327,7 @@ class FieldCreateForm extends Component {
   }
 
   render() {
-    const { visible, onCancel, form, fieldValues, field, contentTypes } = this.props;
+    const { visible, onCancel, form, field } = this.props;
     const { getFieldDecorator, getFieldValue } = form;
     // const fieldType = _.get(field, 'type', 'Text');
     const fieldType = _.head(getFieldValue('type'));
@@ -361,8 +361,7 @@ class FieldCreateForm extends Component {
                   <Menu.Item key="Boolean"><Icon type="flag" />Boolean</Menu.Item>
                   <Menu.Item key="Object"><Icon type="database" />JSON Object</Menu.Item>
                   <Menu.Item key="Link"><Icon type="link" />Reference</Menu.Item>
-                </Menu>
-              )}
+                </Menu>)}
             </Form.Item>
           </Col>
           <Col span={16}>
@@ -375,10 +374,8 @@ class FieldCreateForm extends Component {
                   <Form.Item label="Name">
                     {getFieldDecorator('name', {
                       rules: [{ required: true, message: 'Please input the name of collection!' }],
-                      onChange: e => this.handleInputNameChange(e.target.value)
-                    })(
-                      <Input placeholder="Product, Blog, Post, etc..." size="large" />
-                    )}
+                      onChange: e => this.handleInputNameChange(e.target.value),
+                    })(<Input placeholder="Product, Blog, Post, etc..." size="large" />)}
                   </Form.Item>
                   <Form.Item label="API Identifier">
                     {getFieldDecorator('identifier', {

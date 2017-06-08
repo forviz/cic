@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import T from 'prop-types';
 import { Link } from 'react-router-dom';
 import _ from 'lodash';
 import { Popconfirm, Button, Table, Icon, Col, Row, Dropdown, Menu } from 'antd';
@@ -17,11 +17,19 @@ const API_PATH = process.env.REACT_APP_API_PATH;
 class ContentTypeList extends Component {
 
   static propTypes = {
-    space: PropTypes.object,
-    actions: PropTypes.shape({
-      deleteContentType: PropTypes.func,
-      createContentType: PropTypes.func,
+    space: T.shape({
+      _id: T.string,
     }).isRequired,
+    actions: T.shape({
+      deleteContentType: T.func,
+      createContentType: T.func,
+    }).isRequired,
+  }
+
+  static defaultProps = {
+    space: {
+      _id: '',
+    },
   }
 
   displayName = 'ContentTypeList';
@@ -75,11 +83,9 @@ class ContentTypeList extends Component {
 
   render() {
     const { space } = this.props;
-
     if (!space) return (<div />);
 
     const { contentTypes } = space;
-
     const columns = [
       {
         title: 'Name',
@@ -114,7 +120,7 @@ class ContentTypeList extends Component {
           <span>
             <Popconfirm
               title="Are you sure delete this content Type?"
-              onConfirm={e => this.confirmDeleteContentType(record._id)}
+              onConfirm={e => this.confirmDeleteContentType(record._id, e)}
               onCancel={this.cancel}
               okText="Yes"
               cancelText="No"
@@ -123,7 +129,7 @@ class ContentTypeList extends Component {
             </Popconfirm>
           </span>
         ),
-      }
+      },
     ];
 
     const data = _.map(contentTypes, (type, i) => ({
@@ -176,10 +182,6 @@ class ContentTypeList extends Component {
     );
   }
 }
-
-ContentTypeList.propTypes = {
-  items: PropTypes.array,
-};
 
 const mapStateToProps = (state, ownProps) => {
   return {

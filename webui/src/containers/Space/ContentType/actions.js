@@ -17,7 +17,7 @@ export const createContentType = (spaceId, values) => {
 export const deleteContentType = (spaceId, contentTypeId) => {
   return (dispatch) => {
     return fetchDeleteContentType(spaceId, contentTypeId)
-    .then((updateResponse) => {
+    .then(() => {
       dispatch(getSpace(spaceId));
       openNotification('success', { message: 'ContentType Deleted' });
     });
@@ -28,11 +28,11 @@ export const addField = (spaceId, contentTypeId, contentType, values) => {
   return (dispatch) => {
     const _contentTypeToUpdate = _.assign({}, contentType, {
       displayField: (values.isDisplayField === true) ? values.identifier : contentType.displayField,
-      fields: [...contentType.fields, values]
+      fields: [...contentType.fields, values],
     });
 
     return fetchUpdateContentType(spaceId, contentTypeId, _contentTypeToUpdate)
-    .then((createResponse) => {
+    .then(() => {
       dispatch(getSpace(spaceId));
       openNotification('success', { message: `Field ${values.name} Created` });
     });
@@ -53,7 +53,7 @@ export const updateField = (spaceId, contentTypeId, contentType, values) => {
     });
 
     return fetchUpdateContentType(spaceId, contentTypeId, _contentTypeToUpdate)
-    .then((res) => {
+    .then(() => {
       dispatch(getSpace(spaceId));
       openNotification('success', { message: 'Field Updated' });
     });
@@ -63,11 +63,11 @@ export const updateField = (spaceId, contentTypeId, contentType, values) => {
 export const deleteField = (spaceId, contentTypeId, contentType, fieldId) => {
   return (dispatch) => {
     const _contentTypeToUpdate = _.assign({}, contentType, {
-      fields: _.filter(contentType.fields, field => field._id !== fieldId)
+      fields: _.filter(contentType.fields, field => field._id !== fieldId),
     });
 
     return fetchUpdateContentType(spaceId, contentTypeId, _contentTypeToUpdate)
-    .then((deleteResponse) => {
+    .then(() => {
       dispatch(getSpace(spaceId));
       openNotification('success', { message: 'Field Deleted' });
     });

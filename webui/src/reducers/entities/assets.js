@@ -4,7 +4,7 @@ const initialState = {
   entities: {},
   fetchStatus: {},
   errors: {},
-}
+};
 
 const entries = (state = initialState, action) => {
   switch (action.type) {
@@ -15,11 +15,11 @@ const entries = (state = initialState, action) => {
         entities: _.assign({}, state.entities, {
           [action.item._id]: action.item,
         }),
-      }
+      };
     }
 
     default: return state;
   }
-}
+};
 
 export default entries;

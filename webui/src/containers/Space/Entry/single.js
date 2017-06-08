@@ -13,6 +13,9 @@ import EntryEditorForm from '../../../components/EntryEditorForm';
 class EntrySingle extends Component {
 
   static propTypes = {
+    history: T.shape({
+      push: T.func,
+    }).isRequired,
     spaceId: T.string.isRequired,
     entryId: T.string.isRequired,
     entry: T.shape({
@@ -24,7 +27,7 @@ class EntrySingle extends Component {
     }),
     actions: T.shape({
       getEntry: T.func,
-      updateEntry: T.func,
+      save: T.func,
     }).isRequired,
   }
 
@@ -44,9 +47,9 @@ class EntrySingle extends Component {
   }
 
   handleSubmitForm = (values, saveStatus) => {
-    const { spaceId, entryId, contentType } = this.props;
-    const { updateEntry } = this.props.actions;
-    updateEntry(spaceId, entryId, contentType, values, saveStatus);
+    const { spaceId, entryId, contentType, history } = this.props;
+    const { save } = this.props.actions;
+    save(spaceId, entryId, contentType, values, saveStatus, history);
     return false;
   }
 
@@ -90,7 +93,15 @@ const mapStateToProps = (state, ownProps) => {
 
 const actions = {
   getEntry: EntryActions.getSingleEntryEntity,
-  updateEntry: Actions.updateEntry,
+  save: (spaceId, entryId, contentType, values, saveStatus, h) => {
+    return (dispatch) => {
+      dispatch(Actions.updateEntry(spaceId, entryId, contentType, values, saveStatus))
+      .then(() => {
+        // Go back to entry list
+        h.push(`/spaces/${spaceId}/entries`);
+      });
+    };
+  },
 };
 
 const mapDispatchToProps = (dispatch) => {

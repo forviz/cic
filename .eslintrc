@@ -18,7 +18,7 @@
     "no-restricted-syntax": "warn",
     "react/jsx-filename-extension": "off",
     "jsx-a11y/href-no-hash": "off",
-    "arrow-body-style": "warn",
+    "arrow-body-style": "off",
     "react/forbid-prop-types": "warn",
     "import/prefer-default-export": "warn",
     "max-len": ["error", 150]

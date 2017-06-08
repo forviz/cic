@@ -1,6 +1,4 @@
 import _ from 'lodash';
-import React from 'react';
-import { Button } from 'antd';
 import { fetchEntryInSpace, fetchCreateEntry, fetchUpdateEntry, fetchDeleteEntry } from '../../../api/cic/entries';
 import { getSpace } from '../../../actions/spaces';
 import { openNotification } from '../../../actions/notification';
@@ -24,11 +22,7 @@ export const getEntryInSpace = (spaceId) => {
 export const createEmptyEntry = (spaceId, contentTypeId) => {
   return () => {
     return fetchCreateEntry(spaceId, contentTypeId, {})
-    .then((res) => {
-      const entryId = _.get(res, 'entry._id');
-      window.location = `/spaces/${spaceId}/entries/${entryId}`;
-      return res;
-    });
+    .then(res => res);
   };
 };
 
@@ -36,18 +30,9 @@ export const updateEntry = (spaceId, entryId, contentType, fields, status) => {
   return () => {
     return fetchUpdateEntry(spaceId, entryId, contentType._id, fields, status)
     .then((updateResponse) => {
-      const btnClick = () => {
-        window.location = `/spaces/${spaceId}/entries/`;
-      };
-      const btn = (
-        <Button type="primary" size="small" onClick={btnClick}>
-          Back to List
-        </Button>
-      );
       openNotification('success', {
         message: 'Entry Updated',
         duration: 5,
-        btn,
       });
 
       return updateResponse;

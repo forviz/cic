@@ -113,7 +113,6 @@ class EntryEditorForm extends Component {
 
   render() {
     const { spaceId, contentType, entry } = this.props;
-    console.log('EntryEditorForm', entry);
     const fields = _.mapValues(arrayToObject(contentType.fields, 'identifier'), (field) => {
       const _isMultple = _.get(field, 'type') === 'Array';
       return {

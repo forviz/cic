@@ -76,7 +76,6 @@ export const getActiveApiKey = (state, props) => {
 };
 
 export const getSpaceEntriesFromSpaceId = (state, spaceId) => {
-  console.log('getSpaceEntriesFromSpaceId', state, spaceId);
   return _.filter(_.get(state, 'entities.entries.entities'), entry => entry._spaceId === spaceId);
 };
 

@@ -1,7 +1,6 @@
 import _ from 'lodash';
 import { fetchEntryInSpace, fetchGetSingleEntry } from '../api/cic/entries';
 import { openNotification } from './notification';
-import { getActiveSpaceFromId } from '../selectors';
 import { getEntryFetchStatus, getUnFetchedEntryIds } from '../selectors/entities';
 
 export const getEntryInSpace = (spaceId) => {

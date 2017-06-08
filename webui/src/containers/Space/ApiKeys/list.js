@@ -13,6 +13,9 @@ import { getActiveSpace } from '../../../selectors';
 class ApiKeyList extends Component {
 
   static propTypes = {
+    history: T.shape({
+      push: T.func,
+    }).isRequired,
     space: T.shape({
       _id: T.string,
       name: T.string,
@@ -32,9 +35,9 @@ class ApiKeyList extends Component {
   }
 
   handleClickAdd = () => {
-    const { space } = this.props;
+    const { space, history } = this.props;
     const { createApiKey } = this.props.actions;
-    createApiKey(space._id);
+    createApiKey(space._id, history);
   }
 
   confirmDeleteApiKey = (keyId) => {

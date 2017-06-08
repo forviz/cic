@@ -21,6 +21,9 @@ const getContentType = (contentTypes, contentTypeId) => {
 class EntryList extends Component {
 
   static propTypes = {
+    history: T.shape({
+      push: T.func,
+    }).isRequired,
     spaceId: T.string.isRequired,
     space: T.shape({
       _id: T.string,
@@ -50,10 +53,10 @@ class EntryList extends Component {
 
   handleClickAddEntry = (a) => {
     const contentTypeId = a.item.props.contentTypeId;
-    const { spaceId } = this.props;
+    const { spaceId, history } = this.props;
     const { createEmptyEntry } = this.props.actions;
 
-    createEmptyEntry(spaceId, contentTypeId);
+    createEmptyEntry(spaceId, contentTypeId, history);
   }
 
   confirmDeleteEntry = (entryId) => {
@@ -200,7 +203,15 @@ const mapStateToProps = (state, ownProps) => {
 
 const actions = {
   getEntriesInSpace: EntryActions.getEntryInSpace,
-  createEmptyEntry: Actions.createEmptyEntry,
+  createEmptyEntry: (spaceId, contentTypeId, his) => {
+    return (dispatch) => {
+      dispatch(Actions.createEmptyEntry(spaceId, contentTypeId))
+      .then((res) => {
+        const entryId = _.get(res, 'entry._id');
+        his.push(`/spaces/${spaceId}/entries/${entryId}`);
+      });
+    };
+  },
   deleteEntry: Actions.deleteEntry,
 };
 

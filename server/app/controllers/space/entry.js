@@ -170,7 +170,7 @@ const updateEntry = async (req, res, next) => {
     });
 
     // Add to space.entires if not exists
-    space.entries = _.uniq([...space.entries, entry._id]);
+    if (!isExistingEntry) space.entries = [...space.entries, entry._id];
     await space.save();
 
     res.json({

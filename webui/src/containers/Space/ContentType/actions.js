@@ -17,8 +17,7 @@ export const createContentType = (spaceId, values) => {
 export const deleteContentType = (spaceId, contentTypeId) => {
   return (dispatch) => {
     return fetchDeleteContentType(spaceId, contentTypeId)
-    .then((updateResponse) => {
-      console.log('updateResponse', updateResponse);
+    .then(() => {
       dispatch(getSpace(spaceId));
       openNotification('success', { message: 'ContentType Deleted' });
     });
@@ -33,8 +32,7 @@ export const addField = (spaceId, contentTypeId, contentType, values) => {
     });
 
     return fetchUpdateContentType(spaceId, contentTypeId, _contentTypeToUpdate)
-    .then((createResponse) => {
-      console.log('createResponse', createResponse);
+    .then(() => {
       dispatch(getSpace(spaceId));
       openNotification('success', { message: `Field ${values.name} Created` });
     });
@@ -55,8 +53,7 @@ export const updateField = (spaceId, contentTypeId, contentType, values) => {
     });
 
     return fetchUpdateContentType(spaceId, contentTypeId, _contentTypeToUpdate)
-    .then((updateResponse) => {
-      console.log('updateResponse', updateResponse);
+    .then(() => {
       dispatch(getSpace(spaceId));
       openNotification('success', { message: 'Field Updated' });
     });
@@ -70,8 +67,7 @@ export const deleteField = (spaceId, contentTypeId, contentType, fieldId) => {
     });
 
     return fetchUpdateContentType(spaceId, contentTypeId, _contentTypeToUpdate)
-    .then((deleteResponse) => {
-      console.log('deleteResponse', deleteResponse);
+    .then(() => {
       dispatch(getSpace(spaceId));
       openNotification('success', { message: 'Field Deleted' });
     });

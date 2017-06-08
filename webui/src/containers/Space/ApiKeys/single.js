@@ -12,6 +12,9 @@ import { getActiveSpace, getActiveApiKey } from '../../../selectors';
 class ApiKeySingle extends Component {
 
   static propTypes = {
+    history: T.shape({
+      push: T.func,
+    }).isRequired,
     form: T.instanceOf(Form).isRequired,
     apiKey: T.object.isRequired,
     space: T.shape({
@@ -24,12 +27,11 @@ class ApiKeySingle extends Component {
 
   handleSubmit = (e) => {
     e.preventDefault();
-    const { form } = this.props;
+    const { form, history } = this.props;
     form.validateFields((err, values) => {
       if (!err) {
-        console.log('Received values of form: ', values);
         const { updateApiKey } = this.props.actions;
-        updateApiKey(values.spaceId, values._id, { name: values.name });
+        updateApiKey(values.spaceId, values._id, { name: values.name }, history);
       }
     });
   }

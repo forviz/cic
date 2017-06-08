@@ -3,7 +3,6 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { Form, Input, Icon, Card, Checkbox, Button, Row, Col } from 'antd';
-import * as Actions from './actions';
 
 const FormItem = Form.Item;
 
@@ -12,9 +11,6 @@ const mapStateToProps = state => ({});
 const mapDispatchToProps = (dispatch) => {
   return {
     actions: bindActionCreators({
-      loginUser: Actions.loginUser,
-      loginWithGoogle: Actions.loginWithGoogle,
-      loginWithFacebook: Actions.loginWithFacebook,
     }, dispatch),
   };
 };

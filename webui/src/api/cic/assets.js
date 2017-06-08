@@ -5,7 +5,6 @@ export const fetchAssetInSpace = (spaceId) => {
     method: 'GET',
   })
   .then((response) => {
-    console.log('fetchGetAssetInSpace', response);
     return response;
   });
 };
@@ -15,7 +14,6 @@ export const fetchGetSingleAsset = (spaceId, assetId) => {
     method: 'GET',
   })
   .then((response) => {
-    console.log('fetchGetAsset', response);
     return response;
   });
 };
@@ -29,7 +27,6 @@ export const fetchCreateAsset = (spaceId, contentTypeId, data = {}) => {
     body: JSON.stringify(data),
   })
   .then((response) => {
-    console.log('fetchCreateAsset', response);
     return response;
   });
 };
@@ -43,7 +40,6 @@ export const fetchUpdateAsset = (spaceId, assetId, fields) => {
     }),
   })
   .then((response) => {
-    console.log('fetchUpdateAsset', response);
     return response;
   });
 };
@@ -54,7 +50,6 @@ export const fetchDeleteAsset = (spaceId, assetId) => {
     method: 'DELETE',
   })
   .then((response) => {
-    console.log('fetchDeleteAsset', response);
     return response;
   });
 };

@@ -81,3 +81,9 @@ export const getSpaceAssets = (state, ownProps) => {
   const space = getActiveSpace(state, ownProps);
   return _.filter(_.get(state, 'entities.assets.entities', []), asset => asset._spaceId === space._id);
 }
+
+export const getEntryVisibleList = (state, ownProps) => {
+  const visibleList = _.get(state, 'domain.entryList.visibleList');
+  const space = getActiveSpace(state, ownProps);
+  return _.filter(_.get(state, 'entities.entries.entities'), (entry, key) => entry._spaceId === space._id && visibleList.indexOf(key) != -1);
+}

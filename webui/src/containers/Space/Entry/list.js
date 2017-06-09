@@ -8,8 +8,12 @@ import { bindActionCreators } from 'redux';
 import * as Actions from './actions';
 import _ from 'lodash';
 
-import { Button, Table, Icon, Col, Row, Menu, Dropdown, message, Popconfirm, Tag } from 'antd';
-import { getActiveSpace, getSpaceEntries } from '../../../selectors';
+import { Button, Table, Icon, Col, Row, Menu, Dropdown, message, Popconfirm, Tag, Select, Switch, Input } from 'antd';
+
+const Option = Select.Option;
+const Search = Input.Search;
+
+import { getActiveSpace, getEntryVisibleList } from '../../../selectors';
 
 const API_PATH = process.env.REACT_APP_API_PATH;
 
@@ -23,11 +27,16 @@ class EntryList extends Component {
     space: PropTypes.object,
   }
 
+  state = {
+    filter: {},
+  }
+
   componentDidMount = () => {
     if (!this.props.entry) {
       const { space } = this.props;
-      const { getEntryInSpace } = this.props.actions;
+      const { getEntryInSpace, filterEntry } = this.props.actions;
       getEntryInSpace(space._id);
+      filterEntry(space._id);
     }
   }
 
@@ -52,8 +61,43 @@ class EntryList extends Component {
     console.log(e);
   }
 
+  handleFilterContentTypes = (value) => {
+    const filter = this.state.filter;
+    filter.content_type = value;
+    this.setState({filter: filter});
+  }
+
+  handleFilterStatus = (value) => {
+    const filter = this.state.filter;
+    filter.status = value;
+    this.setState({filter: filter});
+  }
+
+  handleFilterInput = (e) => {
+    const input = e.target.value;
+    const filter = this.state.filter;
+    filter.input = input;
+    this.setState({filter: filter});
+  }
+
+  handleFilter = (e) => {
+    if ( this.state.filter.content_type === 'all' ) {
+      delete this.state.filter.content_type;
+    }
+    if ( this.state.filter.status === 'all' ) {
+      delete this.state.filter.status;
+    }
+    if ( this.state.filter.input == '' ) {
+      delete this.state.filter.input;
+    }
+    const { space } = this.props;
+    const { filterEntry } = this.props.actions;
+    filterEntry(space._id, this.state.filter);
+  }
+
   render() {
     const { space, entries } = this.props;
+
     if (!space) return (<div />);
 
     const { contentTypes } = space;
@@ -145,8 +189,44 @@ class EntryList extends Component {
       </Menu>
     );
 
+    const contentTypesList = contentTypes.map(value => <Option value={value._id}>{value.name}</Option>);
+
     return (
       <div>
+        <Row>
+          <Col span={24}>
+            <div style={{ marginBottom: 20, background: '#f7f7f7', padding: 20, }}>
+              <Row gutter={8}>
+                <Col span={6}>
+                  <span>Content Type </span>
+                  <Select defaultValue="all" style={{ width: 120 }} onChange={this.handleFilterContentTypes}>
+                    <Option value="all">All</Option>
+                    {contentTypesList}
+                  </Select>
+                </Col>
+                <Col span={6}>
+                  <span>Status </span>
+                  <Select defaultValue="all" style={{ width: 120 }} onChange={this.handleFilterStatus}>
+                    <Option value="all">All</Option>
+                    <Option value="draft">Draft</Option>
+                    <Option value="publish">Publish</Option>
+                  </Select>
+                </Col>
+                <Col span={6}>
+                  <span>Search </span>
+                  <Search
+                    placeholder="Filter entries"
+                    style={{ width: 200 }}
+                    onKeyUp={this.handleFilterInput}
+                  />
+                </Col>
+                <Col span={6}>
+                  <Button type="primary" icon="search" onClick={this.handleFilter}>Search</Button>
+                </Col>
+              </Row>
+            </div>
+          </Col>
+        </Row>
         <Row>
           <Col span={12}>
             <div style={{ marginBottom: 20 }}>
@@ -177,7 +257,7 @@ class EntryList extends Component {
 const mapStateToProps = (state, ownProps) => {
   return {
     space: getActiveSpace(state, ownProps),
-    entries: getSpaceEntries(state, ownProps),
+    entries: getEntryVisibleList(state, ownProps),
   }
 }
 
@@ -185,6 +265,7 @@ const actions = {
   getEntryInSpace: Actions.getEntryInSpace,
   createEmptyEntry: Actions.createEmptyEntry,
   deleteEntry: Actions.deleteEntry,
+  filterEntry: Actions.filterEntry,
 }
 
 const mapDispatchToProps = (dispatch) => {

@@ -1,8 +1,21 @@
 import _ from 'lodash';
 import { BASE_URL, fetchWithResponse } from './helper';
 
-export const fetchEntryInSpace = (spaceId) => {
-  return fetchWithResponse(`${BASE_URL}/spaces/${spaceId}/entries/`, {
+/*
+param = {
+  content_type: String,
+  status: String,
+  query: value
+}
+*/
+
+const convertToURLParam = (paramObj) => {
+  if (_.isEmpty(paramObj)) return '';
+  return `?${_.join(_.map(paramObj, (value, key) => `${key}=${encodeURI(value)}`), '&')}`;
+};
+
+export const fetchEntryInSpace = (spaceId, params = {}) => {
+  return fetchWithResponse(`${BASE_URL}/spaces/${spaceId}/entries/${convertToURLParam(params)}`, {
     method: 'GET',
   })
   .then((response) => {

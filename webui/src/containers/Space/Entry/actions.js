@@ -6,7 +6,6 @@ export const getEntryInSpace = (spaceId) => {
   return (dispatch) => {
     return fetchEntryInSpace(spaceId)
     .then((res) => {
-
       const entries = res.items;
       _.forEach(entries, entry => {
         dispatch({
@@ -61,4 +60,19 @@ export const deleteEntry = (spaceId, entryId) => {
       dispatch(getSpace(spaceId));
     })
   };
+};
+
+
+export const filterEntry = (spaceId, params = '') => {
+  return (dispatch) => {
+    return fetchEntryInSpace(spaceId, params)
+    .then((res) => {
+      const entries = res.items;
+      dispatch({
+        type: 'ENTRYLIST/UPDATE/VISIBLELIST',
+        list: _.map(entries, entry => entry._id),
+      });
+      return res;
+    });
+  }
 };

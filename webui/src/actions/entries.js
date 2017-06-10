@@ -1,12 +1,15 @@
 import _ from 'lodash';
+import { cic } from '../App';
 import { fetchEntryInSpace, fetchGetSingleEntry } from '../api/cic/entries';
 import { openNotification } from './notification';
 import { getEntryFetchStatus, getUnFetchedEntryIds } from '../selectors/entities';
 
 export const getEntryInSpace = (spaceId) => {
   return (dispatch) => {
-    return fetchEntryInSpace(spaceId)
+    // return fetchEntryInSpace(spaceId)
+    return cic.getEntries(spaceId)
     .then((res) => {
+      console.log('getEntryInSpace', res);
       const entries = res.items;
       _.forEach(entries, (entry) => {
         dispatch({
@@ -38,8 +41,8 @@ export const getSingleEntryEntity = (spaceId, entryId) => {
   };
 };
 
-export const getEntries = (spaceId, params) => {
-  console.info('getEntries', spaceId, params);
+export const getEntries = (spaceId, query) => {
+  console.info('getEntries', spaceId, query);
   return (dispatch, getState) => {
     const entryIds = getUnFetchedEntryIds(getState(), spaceId);
     console.log('getUnFetchedEntryIds', entryIds);

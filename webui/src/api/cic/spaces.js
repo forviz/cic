@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import { cic } from '../../App';
 import { BASE_URL, fetchWithResponse, convertToURLParam, responseError } from './helper';
 
 export const fetchInitWithUser = (userId) => {
@@ -61,9 +62,10 @@ export const fetchSpaceEntries = (spaceId) => {
 };
 
 export const fetchSpace = (spaceId) => {
-  const urlParam = convertToURLParam({});
-  return fetchWithResponse(`${BASE_URL}/spaces/${spaceId}${urlParam}`)
+  // return fetchWithResponse(`${BASE_URL}/spaces/${spaceId}${urlParam}`)
+  return cic.getSpace(spaceId)
   .then((response) => {
+    console.log('fetchSpace', response);
     const space = _.get(response, 'space');
     // console.log('space', space);
     if (space) {

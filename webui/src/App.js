@@ -28,11 +28,23 @@ import { getUserOrganizationsWithSpaces } from './selectors';
 
 import AuthService from './modules/auth/AuthService';
 
+import CICJS from './modules/cic';
+
 const { Content } = Layout;
 
 const AUTH0_CLIENT_ID = process.env.REACT_APP_AUTH0_CLIENT_ID;
 const AUTH0_DOMAIN = process.env.REACT_APP_AUTH0_DOMAIN;
 const auth = new AuthService(AUTH0_CLIENT_ID, AUTH0_DOMAIN);
+
+
+const accessToken = localStorage.getItem('access_token');
+export const cic = new CICJS();
+cic.createClient({
+  secure: false,
+  host: 'localhost:4000/v1',
+  accessToken,
+});
+cic.getSpace('59253f8b2e3e702664a7306c');
 
 const PrivateRoute = ({ component: RouteComponent, ...rest }) => {
   return (

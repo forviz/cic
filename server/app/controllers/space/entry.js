@@ -107,6 +107,12 @@ exports.getAllEntries = async (req, res) => {
     const reqQuery = req.query;
     const result = await getEntry(reqQuery, spaceId);
     res.json({
+      sys: {
+        type: 'Array',
+      },
+      total: _.size(result),
+      skip: req.query.skip || 0,
+      limit: req.query.limit || 100,
       items: result,
     });
   } catch (e) {

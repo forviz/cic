@@ -30,7 +30,6 @@ const Space = require('./models/Space');
 
 const upload = multer({ dest: path.join(__dirname, 'uploads') });
 
-
 dotenv.load({ path: '.env' });
 
 
@@ -134,35 +133,40 @@ const contentDeliveryAuthentication = (req, res, next) => {
     return;
   }
 
-  const spaceId = req.params.space_id;
-  const accessToken = req.query.access_token;
+  try {
+    const spaceId = req.params.space_id;
+    const accessToken = req.query.access_token;
 
-  Space.findOne({ _id: spaceId }, (err, space) => {
-    if (err) {
-      res.status(401).send({
-        code: 401,
-        message: 'This space id is invalid',
-      });
-    }
+    Space.findOne({ _id: spaceId }, (err, space) => {
+      if (err) {
+        res.status(401).send({
+          code: 401,
+          message: 'This space id is invalid',
+        });
+      }
 
-    const apiKeysActive = _.filter(space.apiKeys, item => item.active === true);
-    if (apiKeysActive.length > 0) {
-      const theKey = apiKeysActive.find(item => item.deliveryKey === accessToken);
-      if (theKey && moment().isBefore(theKey.expireDate)) {
-        next();
+      const apiKeysActive = _.filter(space.apiKeys, item => item.active === true);
+      if (apiKeysActive.length > 0) {
+        const theKey = apiKeysActive.find(item => item.deliveryKey === accessToken);
+        if (theKey && moment().isBefore(theKey.expireDate)) {
+          next();
+        } else {
+          res.status(401).send({
+            sys: { type: 'Error', id: 'AccessTokenInvalid' },
+            message: 'The access token you sent could not be found or is invalid.',
+            requestId: 'NONE',
+          });
+        }
       } else {
         res.status(401).send({
           code: 401,
-          message: 'This token has expired',
+          message: 'This space does not have api key',
         });
       }
-    } else {
-      res.status(401).send({
-        code: 401,
-        message: 'This space does not have api key',
-      });
-    }
-  });
+    });
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 const apiPrefix = '/v1';

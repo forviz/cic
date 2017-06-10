@@ -5,12 +5,14 @@ import { Link } from 'react-router-dom';
 import _ from 'lodash';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { Button, Table, Icon, Col, Row, Menu, Dropdown, Popconfirm, Tag } from 'antd';
+import { Button, Table, Icon, Col, Row, Menu, Input, Select, Dropdown, Popconfirm, Tag } from 'antd';
 
+import EntryFilterBar from './EntryFilterBar';
 import * as Actions from './actions';
 import * as EntryActions from '../../../actions/entries';
 
 import { getSpaceId, getActiveSpace, getSpaceEntries } from '../../../selectors';
+import { cic } from '../../../App';
 
 const API_PATH = process.env.REACT_APP_API_PATH;
 
@@ -31,8 +33,11 @@ class EntryList extends Component {
     entries: T.arrayOf(T.shape({
       _id: T.string,
     })),
+    contentTypes: T.arrayOf(T.shape({
+      _id: T.string,
+    })),
     actions: T.shape({
-      getEntriesInSpace: T.func,
+      getEntries: T.func,
       createEmptyEntry: T.func,
       deleteEntry: T.func,
     }).isRequired,
@@ -40,15 +45,19 @@ class EntryList extends Component {
 
   static defaultProps = {
     entries: [],
+    contentTypes: [],
   }
 
   componentDidMount = () => {
-    // if (!this.props.entries) {
     const { spaceId } = this.props;
-    const { getEntriesInSpace } = this.props.actions;
-    console.log('entryListDidMount', spaceId);
-    getEntriesInSpace(spaceId, {});
-    // }
+    const { getEntries } = this.props.actions;
+    getEntries(spaceId);
+  }
+
+  handleSearch = ({ content_type, status, search }) => {
+    const { spaceId } = this.props;
+    const { getEntries } = this.props.actions;
+    getEntries(spaceId, content_type, status, search);
   }
 
   handleClickAddEntry = (a) => {
@@ -70,6 +79,7 @@ class EntryList extends Component {
   }
 
   render() {
+    console.log('list:render', this.props);
     const { space, entries } = this.props;
     if (!space) return (<div />);
 
@@ -166,6 +176,7 @@ class EntryList extends Component {
 
     return (
       <div>
+        <EntryFilterBar contentTypes={contentTypes} onSearch={this.handleSearch} />
         <Row>
           <Col span={12}>
             <div style={{ marginBottom: 20 }}>
@@ -186,7 +197,14 @@ class EntryList extends Component {
         </Row>
         <Row>
           <Col>
-            <Table columns={columns} dataSource={data} />
+            <Table
+              columns={columns}
+              dataSource={data}
+              pagination={{
+                simple: true,
+                showSizeChanger: true,
+              }}
+            />
           </Col>
         </Row>
       </div>
@@ -194,15 +212,47 @@ class EntryList extends Component {
   }
 }
 const mapStateToProps = (state, ownProps) => {
+  console.log('list', state);
+  const ids = _.get(state, 'domain.entryList.items');
+  const space = getActiveSpace(state, ownProps);
   return {
     spaceId: getSpaceId(ownProps),
     space: getActiveSpace(state, ownProps),
-    entries: getSpaceEntries(state, ownProps),
+    contentTypes: _.get(space, 'contentTypes', []),
+    entries: _.map(ids, entryId => _.get(state, `entities.entries.entities.${entryId}`)),
+    // entries: getSpaceEntries(state, ownProps),
+    filters: '',
   };
 };
 
 const actions = {
-  getEntriesInSpace: EntryActions.getEntryInSpace,
+  getEntries: (spaceId, contentTypeId, status, search) => {
+    return (dispatch) => {
+      const query = {
+        content_type: contentTypeId,
+        status,
+        'fields.title': search,
+      };
+      cic.getEntries(spaceId, query)
+      .then((response) => {
+        const entries = response.items;
+        // Save Entries to entities/entries
+        // TODO
+        _.forEach(entries, (entry) => {
+          dispatch({
+            type: 'ENTITIES/ENTRY/RECEIVED',
+            item: entry,
+          });
+        });
+
+        // Save IDs to /domain/entryList
+        dispatch({
+          type: 'ENTRYLIST/ENTRIES/RECEIVED',
+          entryIds: _.map(entries, item => item._id),
+        });
+      });
+    };
+  },
   createEmptyEntry: (spaceId, contentTypeId, his) => {
     return (dispatch) => {
       dispatch(Actions.createEmptyEntry(spaceId, contentTypeId))

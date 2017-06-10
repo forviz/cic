@@ -1,0 +1,102 @@
+import { EventEmitter } from 'events';
+import _ from 'lodash';
+
+export default class CIC extends EventEmitter {
+
+  constructor() {
+    super();
+    this.spaceId = '';
+    this.accessToken = '';
+    this.secure = true;
+    this.host = 'cic.forviz.com/v1';
+    this.resolveLinks = true;
+    this.agent = '';
+  }
+
+  createClient({ space, accessToken, secure = true, host, resolveLinks = true, agent }) {
+    if (space) this.spaceId = space;
+    if (accessToken) this.accessToken = accessToken;
+    if (host) this.host = host;
+    if (agent) this.agent = agent;
+    this.secure = secure;
+    this.resolveLinks = resolveLinks;
+  }
+
+  prepareRequest(request) {
+    return {
+      method: _.get(request, 'method', 'GET'),
+      credentials: 'same-origin',
+      headers: {
+        Authorization: `Bearer ${this.accessToken}`,
+        'Content-Type': 'application/json',
+        ..._.get(request, 'headers'),
+      },
+      body: _.get(request, 'body'),
+    };
+  }
+
+  fetch(endPoint, params) {
+    return fetch(`${this.secure ? 'https' : 'http'}://${this.host}/${endPoint}`, this.prepareRequest(params))
+    .then((response) => {
+      return response;
+    });
+  }
+
+  /* Spaces */
+  getSpace(spaceId = this.spaceId) {
+    return this.fetch(`spaces/${spaceId}`)
+    .then(response => ({
+      sys: response.sys,
+      name: response.name,
+      locales: response.locales,
+      item: response.item,
+    }));
+  }
+
+  createSpace(data, organizationId) {
+    return this.fetch('spaces', { method: 'POST' })
+    .then((response) => ({
+      ...response.item
+    }));
+  }
+
+  getEntries(spaceId, query) {
+
+    // convert query to url param
+    // Content Type:    {'content_type': '<id>'}  &content_type={content_type}
+    // Select                                           &select=sys.id,fields.productName
+    // Equal            {'fields.sku': '<sku_value>'},  &{attribute}={value}
+    // InEqual          {'sys.id[ne]': '<entry_id>'}    &{attribute}[ne]={value}
+    // Array equality/inequality                        &fields.{field_id}[all]={values}
+    // Inclusion                                        &'fields.<field_name>[in]': 'accessories,flowers'
+    // Exclusion                                        &'fields.<field_name>[nin]': 'accessories,flowers'
+    // Exists                                           &'fields.<field_name>[exists]': true
+    // skip: 100,                                       skip={value}
+    // limit: 200,                                      limit={value}
+    // order: 'sys.createdAt'
+    /*
+      query = {
+        select:
+        [field][all|ne|in|nin|exists]: value,
+        skip,
+        limit,
+        order,
+      }
+     */
+    console.log('getEntries', query);
+
+    // Remove undefined,
+    const cleanQuery = _.omitBy(query, _.isEmpty);
+    console.log('getEntries:cleanQuery', cleanQuery);
+    const urlParams = `?${_.join(_.map(cleanQuery, (value, key) => `${key}=${value}`), '&')}`;
+    console.log('getEntries:urlParams', urlParams);
+    return this.fetch(`spaces/${spaceId}/entries/${urlParams}`)
+    .then(response => response.json())
+    .then(response => response);
+  }
+
+  // getEntries(params) {
+  //   // output the author name
+  //   console.log(response.items[0].fields.author.fields.name)
+  // }
+}

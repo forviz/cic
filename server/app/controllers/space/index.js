@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import { getIdentityFromToken } from '../../utils/jwtUtils';
+import handleError from '../../utils/errors';
 
 const Space = require('../../models/Space');
 const User = require('../../models/User');
@@ -80,21 +81,19 @@ exports.getSingle = async (req, res) => {
 
   try {
     const space = await Space.findOne({ _id: spaceId });
-    if (space !== null) {
-      res.json({
-        status: 'SUCCESS',
-        title: 'find space',
-        space,
-      });
-    }
-  } catch (e) {
-    res.status(404).json({
-      message: 'The resource could not be found.',
-      sys: {
-        type: 'Error',
-        id: 'NotFound',
-      },
+    if (space === null) throw new Error('NotFound');
+
+    // Success
+    res.json({
+      status: 'SUCCESS',
+      space,
+      sys: space.sys(),
+      name: space.name,
+      locales: space.locales,
     });
+  } catch (e) {
+    console.log('getSpaceError', e.name, 'm: ', e.message);
+    handleError(res, e.name);
   }
 };
 
@@ -156,9 +155,11 @@ exports.createSpace = async (req, res) => {
   res.json({
     status: 'SUCCESS',
     detail: 'Create space successfully',
-    space,
     user,
     organization: organizationToUse,
+    space,
+    name: spaceName,
+    locales: [],
   });
 };
 

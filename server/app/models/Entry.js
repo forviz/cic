@@ -3,7 +3,6 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const entrySchema = new Schema({
-  // contentType: String,
   contentTypeId: Schema.Types.ObjectId,
   _spaceId: Schema.Types.ObjectId,
   fields: Object,

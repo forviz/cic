@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import _ from 'lodash';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { Button, Table, Icon, Col, Row, Menu, Input, Select, Dropdown, Popconfirm, Tag } from 'antd';
+import { Layout, Button, Table, Icon, Col, Row, Menu, Dropdown, Popconfirm, Tag } from 'antd';
 
 import EntryFilterBar from './EntryFilterBar';
 import * as Actions from './actions';
@@ -13,6 +13,9 @@ import * as EntryActions from '../../../actions/entries';
 
 import { getSpaceId, getActiveSpace, getSpaceEntries } from '../../../selectors';
 import { cic } from '../../../App';
+
+const { Content, Sider } = Layout;
+const { SubMenu } = Menu;
 
 const API_PATH = process.env.REACT_APP_API_PATH;
 
@@ -79,7 +82,6 @@ class EntryList extends Component {
   }
 
   render() {
-    console.log('list:render', this.props);
     const { space, entries } = this.props;
     if (!space) return (<div />);
 
@@ -101,7 +103,9 @@ class EntryList extends Component {
         title: 'Updated',
         dataIndex: 'updated',
         key: 'updated',
-        render: text => moment(text).fromNow(),
+        render: (text) => {
+          return moment(text).fromNow();
+        },
       },
       {
         title: 'Author',
@@ -175,44 +179,45 @@ class EntryList extends Component {
     );
 
     return (
-      <div>
-        <EntryFilterBar contentTypes={contentTypes} onSearch={this.handleSearch} />
-        <Row>
-          <Col span={12}>
-            <div style={{ marginBottom: 20 }}>
-              <Dropdown overlay={addEntryMenu}>
-                <Button type="primary">
-                  <Icon type="plus" /> Add Entry
-                </Button>
+      <Layout style={{ background: '#fff' }}>
+        <Content>
+          <Row>
+            <Col span={8}>
+              <div style={{ marginBottom: 20 }}>
+                <Dropdown overlay={addEntryMenu}>
+                  <Button type="primary">
+                    <Icon type="plus" /> Add Entry
+                  </Button>
+                </Dropdown>
+              </div>
+            </Col>
+            <Col span={12}><EntryFilterBar contentTypes={contentTypes} onSearch={this.handleSearch} /></Col>
+            <Col span={4} style={{ textAlign: 'right' }}>
+              <Dropdown overlay={actionMenus}>
+                <a className="ant-dropdown-link" href="#">
+                  Actions <Icon type="down" />
+                </a>
               </Dropdown>
-            </div>
-          </Col>
-          <Col span={12} style={{ textAlign: 'right' }}>
-            <Dropdown overlay={actionMenus}>
-              <a className="ant-dropdown-link" href="#">
-                Actions <Icon type="down" />
-              </a>
-            </Dropdown>
-          </Col>
-        </Row>
-        <Row>
-          <Col>
-            <Table
-              columns={columns}
-              dataSource={data}
-              pagination={{
-                simple: true,
-                showSizeChanger: true,
-              }}
-            />
-          </Col>
-        </Row>
-      </div>
+            </Col>
+          </Row>
+          <Row>
+            <Col>
+              <Table
+                columns={columns}
+                dataSource={data}
+                pagination={{
+                  simple: true,
+                  showSizeChanger: true,
+                }}
+              />
+            </Col>
+          </Row>
+        </Content>
+      </Layout>
     );
   }
 }
 const mapStateToProps = (state, ownProps) => {
-  console.log('list', state);
   const ids = _.get(state, 'domain.entryList.items');
   const space = getActiveSpace(state, ownProps);
   return {

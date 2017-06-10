@@ -82,21 +82,12 @@ export default class CIC extends EventEmitter {
         limit,
         order,
       }
-     */
-    console.log('getEntries', query);
-
-    // Remove undefined,
+    */
     const cleanQuery = _.omitBy(query, _.isEmpty);
-    console.log('getEntries:cleanQuery', cleanQuery);
     const urlParams = `?${_.join(_.map(cleanQuery, (value, key) => `${key}=${value}`), '&')}`;
-    console.log('getEntries:urlParams', urlParams);
     return this.fetch(`spaces/${spaceId}/entries/${urlParams}`)
     .then(response => response.json())
     .then(response => response);
   }
 
-  // getEntries(params) {
-  //   // output the author name
-  //   console.log(response.items[0].fields.author.fields.name)
-  // }
 }

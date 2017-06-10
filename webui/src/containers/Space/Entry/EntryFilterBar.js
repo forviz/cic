@@ -1,8 +1,11 @@
 import React, { Component } from 'react';
 import T from 'prop-types';
 import _ from 'lodash';
-import { Input, Select, Row, Col, Button } from 'antd';
+import { Layout, Menu, Input, Select, Row, Col, Button, Icon } from 'antd';
 
+const { Sider } = Layout;
+const { SubMenu } = Menu;
+const InputGroup = Input.Group;
 const Search = Input.Search;
 const Option = Select.Option;
 
@@ -26,53 +29,49 @@ class EntryFilterBar extends Component {
     search: '',
   }
 
-  handleSubmit = () => {
-    const values = {
-      content_type: this.state.content_type,
-      status: this.state.status,
-      search: this.state.search,
+  handleChange = (name, value) => {
+
+    const newState = {
+      ...this.state,
+      [name]: value,
     };
+
+    this.setState({
+      [name]: value,
+    });
+    this.handleSubmit(newState);
+  }
+
+  handleKeyDown = (e) => {
+    if (e.keyCode === 13) {
+      this.handleSubmit(this.state);
+    }
+  }
+
+  handleSubmit = (values) => {
     this.props.onSearch(values);
   }
 
   render() {
     const { contentTypes } = this.props;
     return (
-      <Row>
-        <Col span={24}>
-          <div style={{ marginBottom: 20, background: '#f7f7f7', padding: 20 }}>
-            <Row gutter={8}>
-              <Col span={6}>
-                <div>Content Type </div>
-                <Select defaultValue="all" style={{ width: 120 }} onChange={value => this.setState({ content_type: value })}>
-                  <Option value="all">All</Option>
-                  {_.map(contentTypes, ct => <Option value={ct._id}>{ct.name}</Option>)}
-                </Select>
-              </Col>
-              <Col span={6}>
-                <div>Status </div>
-                <Select defaultValue="" style={{ width: 120 }} onChange={value => this.setState({ status: value })}>
-                  <Option value="">All</Option>
-                  <Option value="draft">Draft</Option>
-                  <Option value="publish">Publish</Option>
-                </Select>
-              </Col>
-              <Col span={6}>
-                <div>Search </div>
-                <Search
-                  placeholder="Filter entries"
-                  style={{ width: '100%' }}
-                  onChange={e => this.setState({ search: e.target.value })}
-                />
-              </Col>
-              <Col span={6}>
-                <div>&nbsp;</div>
-                <Button type="primary" icon="search" onClick={this.handleSubmit}>Search</Button>
-              </Col>
-            </Row>
-          </div>
-        </Col>
-      </Row>
+      <InputGroup compact>
+        <Select defaultValue="" style={{ width: '25%' }} onChange={value => this.handleChange('content_type', value)}>
+          <Option value="">All Type</Option>
+          {_.map(contentTypes, ct => <Option value={ct._id}>{ct.name}</Option>)}
+        </Select>
+        <Select defaultValue="" style={{ width: '25%' }} onChange={value => this.handleChange('status', value)}>
+          <Option value="">All Status</Option>
+          <Option value="draft">Draft</Option>
+          <Option value="publish">Publish</Option>
+        </Select>
+        <Search
+          placeholder="Filter entries"
+          style={{ width: '50%' }}
+          onKeyDown={this.handleKeyDown}
+          onChange={e => this.setState({ search: e.target.value })}
+        />
+      </InputGroup>
     );
   }
 }

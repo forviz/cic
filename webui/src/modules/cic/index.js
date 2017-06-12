@@ -42,7 +42,9 @@ export default class CIC extends EventEmitter {
     });
   }
 
-  /* Spaces */
+  /*
+   * (static) getSpace(id) → {Promise.<Space.Space>}
+   */
   getSpace(spaceId = this.spaceId) {
     return this.fetch(`spaces/${spaceId}`)
     .then(response => ({
@@ -53,10 +55,31 @@ export default class CIC extends EventEmitter {
     }));
   }
 
-  createSpace(data, organizationId) {
-    return this.fetch('spaces', { method: 'POST' })
-    .then((response) => ({
-      ...response.item
+  /*
+   * (static) getSpaces() → {Promise.<Space.SpaceCollection>}
+   */
+  getSpaces() {
+    return this.fetch('spaces')
+    .then(response => response);
+  }
+
+  /*
+   * (static) createSpace(data, organizationIdopt) → {Promise.<Space.Space>}
+   */
+  createSpace({ name, defaultLocale }, organizationId) {
+    return this.fetch('spaces', {
+      method: 'POST',
+      headers: {
+        'X-CIC-Organization': organizationId,
+      },
+      body: JSON.stringify({
+        name,
+        defaultLocale,
+      }),
+    })
+    .then(res => ({
+      sys: res.sys,
+      name: res.name,
     }));
   }
 

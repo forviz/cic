@@ -44,7 +44,7 @@ cic.createClient({
   host: 'localhost:4000/v1',
   accessToken,
 });
-cic.getSpace('59253f8b2e3e702664a7306c');
+// cic.getSpace('59253f8b2e3e702664a7306c');
 
 const PrivateRoute = ({ component: RouteComponent, ...rest }) => {
   return (

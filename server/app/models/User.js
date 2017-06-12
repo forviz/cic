@@ -39,6 +39,14 @@ const userSchema = new mongoose.Schema({
 
 }, { timestamps: true });
 
+userSchema.methods.sys = function sys() {
+  return {
+    type: 'Link',
+    linkType: 'User',
+    id: this._id,
+  };
+};
+
 /**
  * Password hash middleware.
  */

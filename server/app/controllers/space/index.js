@@ -70,6 +70,9 @@ exports.getAll = async (req, res, next) => {
     res.json({
       status: 'SUCCESS',
       items: result,
+      total: _.size(result),
+      skip: 0,
+      limit: 100,
     });
   } catch (e) {
     next(e);
@@ -92,8 +95,7 @@ exports.getSingle = async (req, res) => {
       locales: space.locales,
     });
   } catch (e) {
-    console.log('getSpaceError', e.name, 'm: ', e.message);
-    handleError(res, e.name);
+    handleError(res, e.message);
   }
 };
 
@@ -126,7 +128,7 @@ exports.updateSpace = async (req, res, next) => {
 exports.createSpace = async (req, res) => {
   const spaceName = req.body.name;
   const defaultLocale = req.body.defaultLocale;
-  const organizationId = req.body.organizationId;
+  const organizationId = req.headers['x-cic-organization'] || req.body.organizationId;
 
   const userOpenId = getIdentityFromToken(req);
   const user = await getUserFromIdentity(userOpenId);
@@ -155,9 +157,20 @@ exports.createSpace = async (req, res) => {
   res.json({
     status: 'SUCCESS',
     detail: 'Create space successfully',
-    user,
-    organization: organizationToUse,
     space,
+    sys: {
+      id: space._id,
+      type: 'Space',
+      version: 1,
+      createdAt: '',
+      createdBy: {
+        sys: user.sys(),
+      },
+      updatedAt: '',
+      updatedBy: {
+        sys: user.sys(),
+      },
+    },
     name: spaceName,
     locales: [],
   });

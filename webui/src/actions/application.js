@@ -19,6 +19,7 @@ export const initWithUser = (userId, auth) => {
     })
     .catch((e) => {
       console.log('initWithUser.error', e);
+      debugger;
       if (e.name === 'jwtTokenExpire') auth.login();
     });
   };

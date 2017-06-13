@@ -70,6 +70,8 @@ const getEntry = async (query, spaceId, entryId = null) => {
   let skip = 0;
   let limit = 0;
 
+  if (reqQuery.access_token) delete reqQuery.access_token;
+
   if (reqQuery.select) {
     select = reqQuery.select;
     delete reqQuery.select;
@@ -95,8 +97,9 @@ const getEntry = async (query, spaceId, entryId = null) => {
     checkObjectId(entryId);
     _query._id = { $eq: entryId };
   }
-
+  console.log('_query', _query);
   const result = await Entry.find(_query).select(select).limit(limit).skip(skip);
+  console.log('result', result);
   return result;
 };
 /* eslint-enable guard-for-in, no-restricted-syntax */

@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { fetchCreateSpace, fetchUpdateSpace } from '../api/cic/spaces';
 import { fetchCreateContentType } from '../api/cic/contentTypes';
 import { openNotification } from './notification';
@@ -18,7 +19,7 @@ export const getSpace = (spaceId) => {
           spaceId,
           space: res.space,
         });
-        openNotification('success', { message: `fetching space ${spaceId} done` });
+        openNotification('success', { message: `fetching space ${_.get(res, 'name')} done` });
       });
     }
   };

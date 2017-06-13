@@ -194,9 +194,9 @@ class EntryList extends Component {
             <Col span={12}><EntryFilterBar contentTypes={contentTypes} onSearch={this.handleSearch} /></Col>
             <Col span={4} style={{ textAlign: 'right' }}>
               <Dropdown overlay={actionMenus}>
-                <a className="ant-dropdown-link" href="#">
+                <Button className="ant-dropdown-link">
                   Actions <Icon type="down" />
-                </a>
+                </Button>
               </Dropdown>
             </Col>
           </Row>

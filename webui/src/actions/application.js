@@ -60,4 +60,3 @@ export const handleError = (error) => {
     description: error.message,
   });
 }
->>>>>>> breeze/orgsetting

@@ -4,6 +4,7 @@ import { fetchCreateContentType } from '../api/cic/contentTypes';
 import { openNotification } from './notification';
 import { cic } from '../App';
 import { getSpaceFetchStatus } from '../selectors/spaces';
+import { handleError } from './application';
 
 export const getSpace = (spaceId) => {
   return (dispatch, getState) => {
@@ -31,6 +32,8 @@ export const createNewSpace = (name, { organizationId, defaultLocale }) => {
     .then((res) => {
       openNotification('success', { message: 'Space created' });
       return res;
+    }).catch(error => {
+      handleError(error);
     });
   };
 };

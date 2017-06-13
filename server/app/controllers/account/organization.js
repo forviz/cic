@@ -8,13 +8,21 @@ const Organization = require('../../models/Organization');
 
 const mongooseObject = mongoose.Types.ObjectId;
 
-exports.getAll = async (req, res) => {
-  const organizations = await Organization.find({ });
+exports.getAll = async (req, res, next) => {
+  const userOpenId = getIdentityFromToken(req);
+  const user = await getUserFromIdentity(userOpenId);
 
-  res.json({
-    status: 'SUCCESS',
-    items: organizations,
-  });
+  try {
+    const organizations = await Organization.find({
+      $or: [{ 'users.Members': user._id }, { 'users.Owners': user._id }],
+    });
+
+    res.json({
+      items: organizations,
+    });
+  } catch (e) {
+    next(e);
+  }
 };
 
 exports.getSingle = async (req, res, next) => {

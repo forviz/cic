@@ -23,6 +23,7 @@ import AppHeader from './containers/AppHeader';
 import HomeContainer from './containers/Home';
 import WelcomeContainer from './containers/Welcome';
 import SpaceContainer from './containers/Space';
+import AccountContainer from './containers/account';
 
 import { getUserOrganizationsWithSpaces } from './selectors';
 
@@ -79,6 +80,7 @@ const mapStateToProps = (state) => {
 
 const appActions = {
   initWithUser: Actions.initWithUser,
+  updateUserProfile: Actions.updateUserProfile,
 };
 
 const mapDispatchToProps = dispatch => ({
@@ -100,13 +102,19 @@ class App extends Component {
 
   constructor(props) {
     super(props);
+    console.log('constructor', props);
+    const userProfile = auth.getProfile();
+
     this.state = {
-      userProfile: auth.getProfile(),
-    };
+      userProfile: userProfile,
+    }
+
+    const { updateUserProfile } = props.actions;
+    updateUserProfile(userProfile);
 
     // On Login Success
-    auth.on('login_success', (authResult) => {
-      console.log('Login success', authResult);
+    auth.on('login_success', (authResult, profile) => {
+      console.log('Login success', authResult, profile);
     });
 
     // On Receive Profile
@@ -158,6 +166,11 @@ class App extends Component {
                 key="space"
                 path="/spaces/:spaceId"
                 component={SpaceContainer}
+              />
+              <Route
+                key="account"
+                path="/account"
+                component={AccountContainer}
               />
             </Content>
           </Layout>

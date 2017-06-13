@@ -44,7 +44,7 @@ export default class AuthService extends EventEmitter {
         this.emit('login_error', error);
       } else {
         this.setProfile(profile);
-        this.emit('login_success', authResult);
+        this.emit('login_success', authResult, profile);
       }
     });
   }

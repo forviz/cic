@@ -1,14 +1,18 @@
 import _ from 'lodash';
-
 import convertArrayToEntities from '../../helpers/convertArrayToEntities';
 
 const initialState = {
-  entities: {},
+  entities: {
+    'forviz': {
+      name: 'Forviz',
+      users: []
+    },
+  },
   fetchStatus: {},
   errors: {},
 };
 
-const spaces = (state = initialState, action) => {
+const organizations = (state = initialState, action) => {
   switch (action.type) {
 
     case 'USER/ORGANIZATIONS/RECEIVED': {
@@ -18,8 +22,15 @@ const spaces = (state = initialState, action) => {
       };
     }
 
+    case 'CREATENEW/ORGANIZATION': {
+      return {
+        ...state,
+        entities: { ...state.entities, 'lego': { name: 'Lego', users: [] }},
+      }
+    }
+
     default: return state;
   }
 };
 
-export default spaces;
+export default organizations;

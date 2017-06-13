@@ -84,7 +84,6 @@ export default class CIC extends EventEmitter {
   }
 
   getEntries(spaceId, query) {
-
     // convert query to url param
     // Content Type:    {'content_type': '<id>'}  &content_type={content_type}
     // Select                                           &select=sys.id,fields.productName

@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { cic } from '../App';
-import { fetchEntryInSpace, fetchGetSingleEntry } from '../api/cic/entries';
+import { fetchGetSingleEntry } from '../api/cic/entries';
 import { openNotification } from './notification';
 import { getEntryFetchStatus, getUnFetchedEntryIds } from '../selectors/entities';
 

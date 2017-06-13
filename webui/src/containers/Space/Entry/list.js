@@ -9,13 +9,11 @@ import { Layout, Button, Table, Icon, Col, Row, Menu, Dropdown, Popconfirm, Tag 
 
 import EntryFilterBar from './EntryFilterBar';
 import * as Actions from './actions';
-import * as EntryActions from '../../../actions/entries';
 
-import { getSpaceId, getActiveSpace, getSpaceEntries } from '../../../selectors';
+import { getSpaceId, getActiveSpace } from '../../../selectors';
 import { cic } from '../../../App';
 
-const { Content, Sider } = Layout;
-const { SubMenu } = Menu;
+const { Content } = Layout;
 
 const API_PATH = process.env.REACT_APP_API_PATH;
 
@@ -82,11 +80,8 @@ class EntryList extends Component {
   }
 
   render() {
-    const { space, entries } = this.props;
+    const { space, entries, contentTypes } = this.props;
     if (!space) return (<div />);
-
-    const { contentTypes } = space;
-
     const columns = [
       {
         title: 'Title',

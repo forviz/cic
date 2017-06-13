@@ -1,10 +1,8 @@
 import React, { Component } from 'react';
 import T from 'prop-types';
 import _ from 'lodash';
-import { Layout, Menu, Input, Select, Row, Col, Button, Icon } from 'antd';
+import { Input, Select } from 'antd';
 
-const { Sider } = Layout;
-const { SubMenu } = Menu;
 const InputGroup = Input.Group;
 const Search = Input.Search;
 const Option = Select.Option;
@@ -30,7 +28,6 @@ class EntryFilterBar extends Component {
   }
 
   handleChange = (name, value) => {
-
     const newState = {
       ...this.state,
       [name]: value,

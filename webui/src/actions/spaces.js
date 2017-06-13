@@ -1,22 +1,9 @@
-import { fetchSpace, fetchCreateSpace, fetchUpdateSpace } from '../api/cic/spaces';
+import _ from 'lodash';
+import { fetchCreateSpace, fetchUpdateSpace } from '../api/cic/spaces';
 import { fetchCreateContentType } from '../api/cic/contentTypes';
 import { openNotification } from './notification';
-
+import { cic } from '../App';
 import { getSpaceFetchStatus } from '../selectors/spaces';
-// Fetch Space Info
-// export const getSpace = (spaceId) => {
-//   return (dispatch) => {
-//     fetchSpace(spaceId)
-//     .then((space) => {
-//       dispatch({
-//         type: 'SPACE/UPDATE/RECEIVED',
-//         spaceId,
-//         space,
-//       });
-//     });
-//   };
-// };
-
 
 export const getSpace = (spaceId) => {
   return (dispatch, getState) => {
@@ -25,14 +12,14 @@ export const getSpace = (spaceId) => {
     // If haven't loaded, do load it from server
     if (fetchStatus !== 'loaded') {
       openNotification('info', { message: 'fetching space' });
-      fetchSpace(spaceId)
-      .then((space) => {
+      cic.getSpace(spaceId)
+      .then((res) => {
         dispatch({
           type: 'SPACE/UPDATE/RECEIVED',
           spaceId,
-          space,
+          space: res.space,
         });
-        openNotification('success', { message: `fetching space ${spaceId} done` });
+        openNotification('success', { message: `fetching space ${_.get(res, 'name')} done` });
       });
     }
   };

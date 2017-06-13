@@ -3,21 +3,21 @@ import T from 'prop-types';
 import _ from 'lodash';
 import { connect } from 'react-redux';
 
-import { Menu } from 'antd';
+import { Spin, Menu } from 'antd';
 import { NavLink } from 'react-router-dom';
 
-import { getActiveSpace } from '../../selectors';
+import { getSpaceId, getActiveSpace } from '../../selectors';
 
 const mapStateToProps = (state, ownProps) => {
   return {
     location: _.get(ownProps, 'location'),
+    spaceId: getSpaceId(ownProps),
     space: getActiveSpace(state, ownProps),
   };
 };
 
-const SpaceSidebar = ({ space, location }) => {
-  if (!space) return (<div />);
-  const spaceId = space._id;
+const SpaceSidebar = ({ space, spaceId, location }) => {
+  if (!spaceId) return (<Spin />);
 
   let selectedKeys = [];
   if (_.includes(location.pathname, 'content_types')) selectedKeys = [`/spaces/${spaceId}/content_types`];
@@ -54,15 +54,17 @@ const SpaceSidebar = ({ space, location }) => {
 
 SpaceSidebar.propTypes = {
   space: T.shape({
-    _id: T.string,
-  }).isRequired,
+    name: T.string,
+  }),
+  spaceId: T.string,
   location: T.object,
 };
 
 SpaceSidebar.defaultProps = {
   space: {
-    _id: '',
+    name: '',
   },
+  spaceId: '',
   location: {
     pathname: '',
   },

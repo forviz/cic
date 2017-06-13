@@ -5,6 +5,12 @@ const Schema = mongoose.Schema;
 const spaceSchema = new Schema({
   name: String,
   defaultLocale: { type: String, default: 'en', required: true },
+  locales: [{
+    code: String,
+    default: Boolean,
+    name: String,
+    fallbackCode: String,
+  }],
   // users: [{ type: Schema.Types.ObjectId, ref: 'User' }],
   organization: { type: Schema.Types.ObjectId, ref: 'Organization' },
   apiKeys: [{
@@ -64,6 +70,12 @@ const spaceSchema = new Schema({
   updatedAt: { type: 'Date', default: Date.now, required: true },
 }, { timestamps: true });
 
+spaceSchema.methods.sys = function sys() {
+  return {
+    type: 'Space',
+    id: this._id,
+  };
+};
 
 const Space = mongoose.model('Space', spaceSchema);
 

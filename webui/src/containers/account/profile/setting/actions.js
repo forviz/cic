@@ -1,13 +1,11 @@
 export const editName = () => {
   return {
-    type : 'CHANGENAME'
-  }
-}
+    type: 'CHANGENAME',
+  };
+};
 
 export const editEmail = () => {
-  
   return {
-    type : 'EDITEMAIL'
-  }
-
-}
+    type: 'EDITEMAIL',
+  };
+};

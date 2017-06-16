@@ -1,5 +1,4 @@
 import _ from 'lodash';
-// import { createSelector } from 'reselect';
 
 export const getUser = state => state.session.user;
 export const getCurrentUser = state => state.session.user;
@@ -19,17 +18,10 @@ export const getUserOrganizationsWithSpaces = (state) => {
 };
 
 export const getUserOrganizations = (state) => {
-
-  /* state.entities.organizations.entities
-  {
-    2874920309238942: { ... },
-    kjds238047238922: { ... }
-  }
-  */
-  return _.map(state.session.user.organizations, function(id) {
+  return _.map(state.session.user.organizations, (id) => {
     return _.get(state, `entities.organizations.entities.${id}`);
   });
-}
+};
 
 export const getUserSpaces = (state) => {
   const spaceIds = _.get(getUser(state), 'spaces');

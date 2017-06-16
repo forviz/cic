@@ -4,6 +4,22 @@ import { fetchGetSingleEntry } from '../api/cic/entries';
 import { openNotification } from './notification';
 import { getEntryFetchStatus, getUnFetchedEntryIds } from '../selectors/entities';
 
+export const receiveEntry = (entryId, entry) => {
+  return {
+    type: 'ENTITIES/ENTRY/RECEIVED',
+    entryId,
+    entry,
+  };
+};
+
+
+export const receiveEntries = (entries) => {
+  return {
+    type: 'ENTITIES/ENTRIES/RECEIVED',
+    entries,
+  };
+};
+
 export const getEntryInSpace = (spaceId) => {
   return (dispatch) => {
     // return fetchEntryInSpace(spaceId)

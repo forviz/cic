@@ -10,12 +10,23 @@ import {
 
 import { Layout, Col, Row, Menu, Icon } from 'antd';
 
+import { getUser, getUserOrganizationsWithSpaces } from '../../selectors';
+
 import * as SpaceActions from '../../actions/spaces';
 import CreateNewSpaceModal from '../../components/CreateNewSpaceModal';
 
 const Header = Layout.Header;
 const SubMenu = Menu.SubMenu;
 const MenuItemGroup = Menu.ItemGroup;
+
+const mapStateToProps = (state) => {
+  const userProfile = getUser(state);
+  const userOrganizations = getUserOrganizationsWithSpaces(state);
+  return {
+    userProfile,
+    userOrganizations,
+  };
+};
 
 const actions = {
   createNewSpace: SpaceActions.createNewSpace,
@@ -92,6 +103,14 @@ class AppHeader extends Component {
     });
   }
 
+  handleClickUserMenu = (e) => {
+    const key = e.key;
+    switch (key) {
+      case 'logout': this.props.onLogout(); break;
+      default: break;
+    }
+  }
+
   renderLeftMenu = () => {
     const { userOrganizations } = this.props;
 
@@ -128,15 +147,6 @@ class AppHeader extends Component {
     );
   }
 
-  handleClickUserMenu = (e) => {
-    const key = e.key;
-    switch (key) {
-      case 'logout': this.props.onLogout(); break;
-      default: break;
-    }
-
-  }
-
   renderUserMenu = (userProfile) => {
     const imgStyle = { position: 'relative', top: 4, marginBottom: -8, left: -4 };
     const userTitle = (
@@ -152,8 +162,9 @@ class AppHeader extends Component {
         style={{ lineHeight: '64px' }}
         onClick={this.handleClickUserMenu}
       >
-        <SubMenu title={<span><img src={userProfile.picture} alt="Profile" width="32" height="32" style={{ position: 'relative', top: 4, marginBottom: -8, left: -4 }} /> {userProfile.email}</span>}>
-          <Menu.Item key="organization"><Link to="/account/profile/organization">Organizatoin</Link></Menu.Item>
+        <SubMenu title={userTitle}>
+          <Menu.Item key="profile"><Link to="/account/profile/user">User profile</Link></Menu.Item>
+          <Menu.Item key="organizations"><Link to="/account/organizations/subscription">Organizations</Link></Menu.Item>
           <Menu.Item key="logout">Logout</Menu.Item>
         </SubMenu>
       </Menu>
@@ -184,7 +195,7 @@ class AppHeader extends Component {
             {this.renderLeftMenu()}
           </Col>
           <Col span={4}>
-            {!_.isEmpty(userProfile) ? this.renderUserMenu(userProfile) : this.renderGuestMenu()}
+            {userProfile.isAuthenticated ? this.renderUserMenu(userProfile) : this.renderGuestMenu()}
           </Col>
         </Row>
 
@@ -200,4 +211,4 @@ class AppHeader extends Component {
   }
 }
 
-export default connect(undefined, mapDispatchToProps)(AppHeader);
+export default connect(mapStateToProps, mapDispatchToProps)(AppHeader);

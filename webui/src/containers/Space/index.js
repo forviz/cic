@@ -22,8 +22,10 @@ import SpaceApiKeyContainer from './ApiKeys/list';
 import SpaceApiKeySingleContainer from './ApiKeys/single';
 import SpaceSettingContainer from './Settings';
 
-import * as Actions from './actions';
+import { fetchSpace, fetchSpaceEntries } from '../../api/cic/spaces';
+
 import * as SpaceActions from '../../actions/spaces';
+import * as EntryActions from '../../actions/entries';
 import { getSpaceId, getActiveSpace } from '../../selectors';
 
 const { Content, Sider } = Layout;
@@ -35,12 +37,27 @@ const mapStateToProps = (state, ownProps) => {
   };
 };
 
+const mapActions = {
+  initWithSpaceId: (spaceId) => {
+    return (dispatch) => {
+      fetchSpace(spaceId)
+      .then((space) => {
+        dispatch(SpaceActions.receiveSpace(spaceId, space));
+        fetchSpaceEntries(spaceId)
+        .then((entries) => {
+          _.forEach(entries, (entry) => {
+            dispatch(EntryActions.receiveEntry(entry._id, entry));
+          });
+        });
+      });
+    };
+  },
+  // getSpace: SpaceActions.getSpace,
+};
+
 const mapDispatchToProps = (dispatch) => {
   return {
-    actions: bindActionCreators({
-      initWithSpaceId: Actions.initWithSpaceId,
-      getSpace: SpaceActions.getSpace,
-    }, dispatch),
+    actions: bindActionCreators(mapActions, dispatch),
   };
 };
 
@@ -63,8 +80,8 @@ class Space extends Component {
   constructor(props) {
     super(props);
     const { spaceId, actions } = props;
-    const { getSpace } = actions;
-    getSpace(spaceId);
+    const { initWithSpaceId } = actions;
+    initWithSpaceId(spaceId);
   }
 
   render() {

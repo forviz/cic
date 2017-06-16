@@ -5,9 +5,7 @@ import { BASE_URL, fetchWithResponse, convertToURLParam, responseError } from '.
 export const fetchInitWithUser = (userId) => {
   return fetchWithResponse(`${BASE_URL}/users/${userId}`)
   .then((response) => {
-    console.log('fetchInitWithUser', response);
     if (response) return response;
-
     throw responseError({
       appMessage: 'Cannot find spaces',
     });
@@ -17,9 +15,7 @@ export const fetchInitWithUser = (userId) => {
 export const fetchUserOrganizations = () => {
   return fetchWithResponse(`${BASE_URL}/organizations`)
   .then((response) => {
-
-    // console.log('space', response);
-    if (response.status === 'SUCCESS') {
+    if (_.get(response, 'items')) {
       const organizations = _.get(response, 'items');
       return organizations;
     }
@@ -66,15 +62,7 @@ export const fetchSpace = (spaceId) => {
   // return fetchWithResponse(`${BASE_URL}/spaces/${spaceId}${urlParam}`)
   return cic.getSpace(spaceId)
   .then((response) => {
-    console.log('fetchSpace', response);
-    const space = _.get(response, 'space');
-    // console.log('space', space);
-    if (space) {
-      return space;
-    }
-    throw responseError({
-      appMessage: 'Cannot find spaces',
-    });
+    return response;
   });
 };
 
@@ -88,9 +76,7 @@ export const fetchCreateSpace = (name, { organizationId, defaultLocale }) => {
     }),
   })
   .then((response) => {
-
     if (response.status === 'SUCCESS') return response;
-
     throw responseError({
       appMessage: 'Cannot create spaces',
     });

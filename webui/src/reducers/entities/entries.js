@@ -10,14 +10,15 @@ const entries = (state = initialState, action) => {
   switch (action.type) {
 
     case 'ENTITIES/ENTRY/RECEIVED': {
+      const entryId = action.item._id;
       return {
         ...state,
         entities: _.assign({}, state.entities, {
-          [action.item._id]: action.item,
+          [entryId]: { ...state.entities[entryId], ...action.item },
         }),
         fetchStatus: {
           ...state.fetchStatus,
-          [action.item._id]: 'loaded',
+          [entryId]: 'loaded',
         },
       };
     }

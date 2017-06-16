@@ -6,6 +6,15 @@ import { cic } from '../App';
 import { getSpaceFetchStatus } from '../selectors/spaces';
 import { handleError } from './application';
 
+export const receiveSpace = (spaceId, space) => {
+  return {
+    type: 'ENTITIES/SPACE/RECEIVED',
+    spaceId,
+    space,
+  };
+};
+
+
 export const getSpace = (spaceId) => {
   return (dispatch, getState) => {
     const fetchStatus = getSpaceFetchStatus(getState(), spaceId);
@@ -15,11 +24,7 @@ export const getSpace = (spaceId) => {
       openNotification('info', { message: 'fetching space' });
       cic.getSpace(spaceId)
       .then((res) => {
-        dispatch({
-          type: 'SPACE/UPDATE/RECEIVED',
-          spaceId,
-          space: res.space,
-        });
+        dispatch(receiveSpace(spaceId, res.space));
         openNotification('success', { message: `fetching space ${_.get(res, 'name')} done` });
       });
     }
@@ -32,7 +37,7 @@ export const createNewSpace = (name, { organizationId, defaultLocale }) => {
     .then((res) => {
       openNotification('success', { message: 'Space created' });
       return res;
-    }).catch(error => {
+    }).catch((error) => {
       handleError(error);
     });
   };

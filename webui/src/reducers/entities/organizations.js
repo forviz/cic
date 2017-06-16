@@ -3,9 +3,9 @@ import convertArrayToEntities from '../../helpers/convertArrayToEntities';
 
 const initialState = {
   entities: {
-    'forviz': {
+    forviz: {
       name: 'Forviz',
-      users: []
+      users: [],
     },
   },
   fetchStatus: {},
@@ -25,8 +25,29 @@ const organizations = (state = initialState, action) => {
     case 'CREATENEW/ORGANIZATION': {
       return {
         ...state,
-        entities: { ...state.entities, 'lego': { name: 'Lego', users: [] }},
-      }
+        entities: { ...state.entities, lego: { name: 'Lego', members: [] } },
+      };
+    }
+
+    case 'ENTITIES/ORGANIZATION/RECEIVED': {
+      const orgId = action.organizationId;
+      return {
+        ...state,
+        entities: {
+          ...state.entities,
+          [orgId]: { ...state.entities[orgId], ...action.organization },
+        },
+      };
+    }
+    case 'ENTITIES/ORGANIZATION/MEMBERS/RECEIVED': {
+      const orgId = action.organizationId;
+      return {
+        ...state,
+        entities: {
+          ...state.entities,
+          [orgId]: { ...state.entities[orgId], members: action.members },
+        },
+      };
     }
 
     default: return state;

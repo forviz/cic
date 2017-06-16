@@ -25,16 +25,67 @@ exports.getAll = async (req, res, next) => {
   }
 };
 
-exports.getSingle = async (req, res, next) => {
+const getAllOrganizationMembers = async (req, res, next) => {
   const organizationId = req.params.organization_id;
-  Organization.findOne({ _id: organizationId }).exec((err, organization) => {
-    if (err) next(err);
+
+  try {
+    if (!mongooseObject.isValid(organizationId)) {
+      throw new Error('Not objectId');
+    }
+
+    const organization = await Organization.findOne({ _id: organizationId }).populate('users.Members, users.Admins, users.Owners');
+    const allUsers = [
+      ..._.map(organization.users.Owners, user => ({ _id: user._id, role: 'Owner' })),
+      ..._.map(organization.users.Admins, user => ({ _id: user._id, role: 'Admin' })),
+      ..._.map(organization.users.Members, user => ({ _id: user._id, role: 'Member' })),
+    ];
     res.json({
       status: 'SUCCESS',
-      title: 'find organization',
-      organization,
+      sys: { type: 'Array' },
+      total: _.size(allUsers),
+      skip: 0,
+      limit: 100,
+      items: allUsers,
     });
-  });
+  } catch (e) {
+    next(e);
+  }
+};
+
+exports.getAllMemberOrganization = getAllOrganizationMembers;
+
+exports.getSingle = async (req, res, next) => {
+  const organizationId = req.params.organization_id;
+  try {
+    const organization = await Organization.findOne({ _id: organizationId }).populate('spaces');
+    const {
+      _id,
+      name,
+      spaces,
+      updatedAt,
+      createdAt,
+      __v,
+    } = organization;
+    res.json({
+      status: 'SUCCESS',
+      _id,
+      name,
+      spaces: _.map(spaces, sp => ({
+        _id: sp.id,
+        name: sp.name,
+        createdAt: sp.createdAt,
+        stats: {
+          contentTypes: _.size(sp.contentTypes),
+          entries: _.size(sp.entries),
+        },
+      })),
+      updatedAt,
+      createdAt,
+      __v,
+    });
+  } catch (e) {
+    next(e);
+  }
 };
 
 exports.createOrganization = async (req, res, next) => {
@@ -65,25 +116,6 @@ exports.createOrganization = async (req, res, next) => {
   }
 };
 
-exports.getAllMemberOrganization = async (req, res, next) => {
-  const organizationId = req.params.organization_id;
-
-  try {
-    if (!mongooseObject.isValid(organizationId)) {
-      throw new Error('Not objectId');
-    }
-
-    const result = await Organization.find({ _id: organizationId }).populate('users.Members');
-
-    res.json({
-      status: 'SUCCESS',
-      organization: organizationId,
-      members: result[0].users.Members,
-    });
-  } catch (e) {
-    next(e);
-  }
-};
 
 exports.delMemberOrganization = async (req, res, next) => {
   try {

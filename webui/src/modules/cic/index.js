@@ -37,9 +37,7 @@ export default class CIC extends EventEmitter {
 
   fetch(endPoint, params) {
     return fetch(`${this.secure ? 'https' : 'http'}://${this.host}/${endPoint}`, this.prepareRequest(params))
-    .then((response) => {
-      return response;
-    });
+    .then(response => response.json());
   }
 
   /*
@@ -47,20 +45,24 @@ export default class CIC extends EventEmitter {
    */
   getSpace(spaceId = this.spaceId) {
     return this.fetch(`spaces/${spaceId}`)
-    .then(response => ({
-      sys: response.sys,
-      name: response.name,
-      locales: response.locales,
-      item: response.item,
-    }));
+    .then((response) => {
+      return {
+        sys: response.sys,
+        name: response.name,
+        locales: response.locales,
+        entries: _.get(response, 'space.entries', []),
+        contentTypes: _.get(response, 'space.contentTypes', []),
+        apiKeys: _.get(response, 'space.apiKeys', []),
+        organizationId: _.get(response, 'space.organization', ''),
+      };
+    });
   }
 
   /*
    * (static) getSpaces() → {Promise.<Space.SpaceCollection>}
    */
   getSpaces() {
-    return this.fetch('spaces')
-    .then(response => response);
+    return this.fetch('spaces');
   }
 
   /*
@@ -108,7 +110,6 @@ export default class CIC extends EventEmitter {
     const cleanQuery = _.omitBy(query, _.isEmpty);
     const urlParams = `?${_.join(_.map(cleanQuery, (value, key) => `${key}=${value}`), '&')}`;
     return this.fetch(`spaces/${spaceId}/entries/${urlParams}`)
-    .then(response => response.json())
     .then(response => response);
   }
 

@@ -1,7 +1,5 @@
 import _ from 'lodash';
 
-import convertArrayToEntities from '../../helpers/convertArrayToEntities';
-
 const initialState = {
   entities: {},
   fetchStatus: {},
@@ -11,22 +9,20 @@ const initialState = {
 const spaces = (state = initialState, action) => {
   switch (action.type) {
 
-    case 'USER/SPACES/RECEIVED': {
-      // const ids = _.map(action.spaces, space => space._id);
-      return {
-        ...state,
-        entities: _.assign({}, state.entities, convertArrayToEntities(action.spaces, '_id')),
-      };
-    }
-
-    case 'SPACE/UPDATE/RECEIVED': {
+    case 'ENTITIES/SPACE/RECEIVED': {
+      const spaceId = action.spaceId;
       return {
         ...state,
         entities: _.assign({}, state.entities, {
-          [action.spaceId]: action.space,
+          [spaceId]: { ...state.entities[spaceId], ...action.space },
         }),
+        fetchStatus: {
+          ...state.fetchStatus,
+          [spaceId]: 'loaded',
+        },
       };
     }
+
     default: return state;
   }
 };

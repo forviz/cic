@@ -21,11 +21,11 @@ import * as Actions from './actions/application';
 
 import AppHeader from './containers/AppHeader';
 import HomeContainer from './containers/Home';
-import WelcomeContainer from './containers/Welcome';
 import SpaceContainer from './containers/Space';
-import AccountContainer from './containers/account';
+import AccountProfileContainer from './containers/account/profile';
+import AccountOrganizationContainer from './containers/account/organizations';
 
-import { getUserOrganizationsWithSpaces } from './selectors';
+import { getUser, getUserOrganizationsWithSpaces } from './selectors';
 
 import AuthService from './modules/auth/AuthService';
 
@@ -45,7 +45,6 @@ cic.createClient({
   host: 'localhost:4000/v1',
   accessToken,
 });
-// cic.getSpace('59253f8b2e3e702664a7306c');
 
 const PrivateRoute = ({ component: RouteComponent, ...rest }) => {
   return (
@@ -72,8 +71,10 @@ PrivateRoute.defaultProps = {
 };
 
 const mapStateToProps = (state) => {
+  const userProfile = getUser(state);
   const userOrganizations = getUserOrganizationsWithSpaces(state);
   return {
+    userProfile,
     userOrganizations,
   };
 };
@@ -81,6 +82,7 @@ const mapStateToProps = (state) => {
 const appActions = {
   initWithUser: Actions.initWithUser,
   updateUserProfile: Actions.updateUserProfile,
+  clearUserProfile: Actions.clearUserProfile,
 };
 
 const mapDispatchToProps = dispatch => ({
@@ -90,52 +92,39 @@ const mapDispatchToProps = dispatch => ({
 class App extends Component {
 
   static propTypes = {
-    userOrganizations: T.array,
     actions: T.shape({
       initWithUser: T.func.isRequired,
     }).isRequired,
   }
 
-  static defaultProps = {
-    userOrganizations: [],
-  }
-
   constructor(props) {
     super(props);
-    console.log('constructor', props);
-    const userProfile = auth.getProfile();
+    const { initWithUser, updateUserProfile, clearUserProfile } = props.actions;
 
-    this.state = {
-      userProfile: userProfile,
+    const userProfile = auth.getProfile();
+    if (!_.isEmpty(_.get(userProfile, 'sub'))) {
+      updateUserProfile(userProfile);
+      initWithUser(userProfile.sub, auth);
     }
 
-    const { updateUserProfile } = props.actions;
-    updateUserProfile(userProfile);
 
     // On Login Success
     auth.on('login_success', (authResult, profile) => {
-      console.log('Login success', authResult, profile);
+      console.log('auth.login_success', authResult, profile);
     });
 
     // On Receive Profile
     auth.on('profile_updated', (newProfile) => {
-      this.setState({ userProfile: newProfile });
-
-      const { actions } = this.props;
-      actions.initWithUser(newProfile.sub);
+      console.log('auth.profile_updated', newProfile);
+      updateUserProfile(newProfile);
+      initWithUser(userProfile.sub, auth);
     });
 
     // On Logout Success
     auth.on('logout_success', () => {
-      this.setState({ userProfile: undefined });
+      console.log('auth.logout_success');
+      clearUserProfile(null);
     });
-  }
-
-  componentDidMount() {
-    const { actions } = this.props;
-    if (!_.isEmpty(_.get(this.state, 'userProfile.sub'))) {
-      actions.initWithUser(this.state.userProfile.sub, auth);
-    }
   }
 
   handleLogin = () => {
@@ -147,30 +136,30 @@ class App extends Component {
   }
 
   render() {
-    const { userOrganizations } = this.props;
-    const { userProfile } = this.state;
     return (
       <LocaleProvider locale={enUS}>
         <Router>
           <Layout>
             <AppHeader
-              userProfile={userProfile}
-              userOrganizations={userOrganizations}
               onLogin={this.handleLogin}
               onLogout={this.handleLogout}
             />
             <Content>
               <Route key="home" path="/" exact render={routeProps => <HomeContainer {...routeProps} auth={auth} />} />
-              <PrivateRoute key="welcome" path="/welcome" exact component={WelcomeContainer} />
               <PrivateRoute
                 key="space"
                 path="/spaces/:spaceId"
                 component={SpaceContainer}
               />
-              <Route
-                key="account"
-                path="/account"
-                component={AccountContainer}
+              <PrivateRoute
+                key="account_user"
+                path="/account/profile"
+                component={AccountProfileContainer}
+              />
+              <PrivateRoute
+                key="account_organization"
+                path="/account/organizations/:organizationId"
+                component={AccountOrganizationContainer}
               />
             </Content>
           </Layout>

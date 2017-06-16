@@ -102,7 +102,7 @@ class Home extends Component {
 
   render() {
     const { userProfile, userOrganizations } = this.props;
-    const content = _.isEmpty(userProfile) ?
+    const content = !userProfile.isAuthenticated ?
       this.renderHomeForGuest()
       :
       this.renderHomeForUser(userProfile, userOrganizations);

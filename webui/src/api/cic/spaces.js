@@ -12,36 +12,6 @@ export const fetchInitWithUser = (userId) => {
   });
 };
 
-export const fetchUserOrganizations = () => {
-  return fetchWithResponse(`${BASE_URL}/organizations`)
-  .then((response) => {
-    if (_.get(response, 'items')) {
-      const organizations = _.get(response, 'items');
-      return organizations;
-    }
-
-    throw responseError({
-      appMessage: 'Cannot find organizations',
-    });
-  });
-};
-
-
-export const fetchUserSpaces = () => {
-  return fetchWithResponse(`${BASE_URL}/spaces`)
-  .then((response) => {
-    // console.log('space', response);
-    if (response.status === 'SUCCESS') {
-      const spaces = _.get(response, 'items');
-      return spaces;
-    }
-
-    throw responseError({
-      appMessage: 'Cannot find spaces',
-    });
-  });
-};
-
 export const fetchSpaceEntries = (spaceId) => {
   const urlParam = convertToURLParam({});
   return fetchWithResponse(`${BASE_URL}/spaces/${spaceId}/entries/${urlParam}`)

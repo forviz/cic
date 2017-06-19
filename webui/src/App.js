@@ -127,6 +127,10 @@ class App extends Component {
     });
   }
 
+  componentDidMount() {
+    if (!auth.loggedIn) auth.login();
+  }
+
   handleLogin = () => {
     auth.login();
   }

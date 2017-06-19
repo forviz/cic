@@ -1,15 +1,21 @@
 import _ from 'lodash';
 import { notification } from 'antd';
 import { receiveSpace } from './spaces';
-import { fetchUserSpaces, fetchUserOrganizations } from '../api/cic/spaces';
+import { fetchUpdateMyInfo, fetchMyInfo, fetchUserSpaces, fetchUserOrganizations } from '../api/cic/user';
 
 // Action Creator
 export const initWithUser = (userId, auth) => {
   return (dispatch) => {
     return Promise.all([
+      fetchMyInfo(),
       fetchUserOrganizations(userId),
       fetchUserSpaces(userId),
-    ]).then(([organizations, spaces]) => {
+    ]).then(([userInfo, organizations, spaces]) => {
+      dispatch({
+        type: 'USER/INFO/RECEIVED',
+        user: userInfo
+      });
+
       dispatch({
         type: 'USER/ORGANIZATIONS/RECEIVED',
         organizations,
@@ -26,17 +32,29 @@ export const initWithUser = (userId, auth) => {
     })
     .catch((e) => {
       console.log('e', e);
-      if (e.name === 'jwtTokenExpire') auth.login();
+      // if (e.name === 'jwtTokenExpire') auth.login();
     });
   };
 };
 
 // Action Creator
 export const updateUserProfile = (profile) => {
-  // Action
-  return {
-    type: 'USER/PROFILE/RECEIVED',
-    profile,
+  return (dispatch) => {
+    // Facebook
+    const updateProfile = {
+      sub: profile.sub,
+      name: profile.name,
+      firstName: profile.given_name,
+      lastName: profile.family_name,
+      email: profile.email,
+      picture: profile.picture,
+      updatedAt: profile.updated_at,
+    };
+    fetchUpdateMyInfo(updateProfile);
+    dispatch({
+      type: 'USER/PROFILE/RECEIVED',
+      profile,
+    });
   };
 };
 

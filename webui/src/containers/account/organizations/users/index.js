@@ -10,6 +10,7 @@ import { getOrganizationEntity } from '../../../../selectors/organizations';
 
 const mapStateToProps = (state, ownProps) => {
   const organization = getOrganizationEntity(state, ownProps.match.params.organizationId);
+  console.log('mapStateToProps', organization);
   if (organization) {
     return {
       users: organization.members,
@@ -46,7 +47,8 @@ class OrganizationUserPage extends Component {
     const dataSource = _.map(users, (user) => {
       return {
         _id: user._id,
-        name: user.name,
+        name: _.get(user, 'profile.name', 'No name'),
+        email: _.get(user, 'profile.email', ''),
         role: user.role,
         invitedAt: user.createdAt,
       };

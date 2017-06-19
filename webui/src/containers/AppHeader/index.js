@@ -164,7 +164,7 @@ class AppHeader extends Component {
       >
         <SubMenu title={userTitle}>
           <Menu.Item key="profile"><Link to="/account/profile/user">User profile</Link></Menu.Item>
-          <Menu.Item key="organizations"><Link to="/account/organizations/subscription">Organizations</Link></Menu.Item>
+          <Menu.Item key="organizations"><Link to="/account/profile/organizations">Organizations</Link></Menu.Item>
           <Menu.Item key="logout">Logout</Menu.Item>
         </SubMenu>
       </Menu>

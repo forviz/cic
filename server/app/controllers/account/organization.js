@@ -18,7 +18,13 @@ exports.getAll = async (req, res, next) => {
     });
 
     res.json({
+      status: 'SUCCESS',
+      sys: { type: 'Array' },
+      total: _.size(organizations),
+      skip: 0,
+      limit: 100,
       items: organizations,
+      // items: _.map(organizations, org => _.pick(org, ['_id', 'name', 'users', 'updatedAt', 'createdAt', '__v'])),
     });
   } catch (e) {
     next(e);
@@ -35,9 +41,9 @@ const getAllOrganizationMembers = async (req, res, next) => {
 
     const organization = await Organization.findOne({ _id: organizationId }).populate('users.Members, users.Admins, users.Owners');
     const allUsers = [
-      ..._.map(organization.users.Owners, user => ({ _id: user._id, role: 'Owner' })),
-      ..._.map(organization.users.Admins, user => ({ _id: user._id, role: 'Admin' })),
-      ..._.map(organization.users.Members, user => ({ _id: user._id, role: 'Member' })),
+      ..._.map(organization.users.Owners, user => ({ _id: user._id, profile: user.profile, role: 'Owner' })),
+      ..._.map(organization.users.Admins, user => ({ _id: user._id, profile: user.profile, role: 'Admin' })),
+      ..._.map(organization.users.Members, user => ({ _id: user._id, profile: user.profile, role: 'Member' })),
     ];
     res.json({
       status: 'SUCCESS',

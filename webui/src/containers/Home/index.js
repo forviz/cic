@@ -6,7 +6,9 @@ import { bindActionCreators } from 'redux';
 import {
   Link,
 } from 'react-router-dom';
+
 import { Card, Row, Col, Steps, Button, Tooltip } from 'antd';
+import SpaceCard from '../../components/SpaceCard';
 
 import AuthService from '../../modules/auth/AuthService';
 import * as SpaceActions from '../../actions/spaces';
@@ -75,19 +77,17 @@ class Home extends Component {
     );
   }
 
-  renderTooltip = (title, description) =>
+  renderTooltip = (title, description, index) =>
     (<Tooltip placement="bottom" title="Click to enter space">
-      <Card loading title={title} style={{ marginBottom: 16, textAlign: 'center' }}>
-        {description}
-      </Card>
+      <SpaceCard title={title} description={description} index={index} />
     </Tooltip>);
 
   renderHomeForUser = (userProfile, userOrganizations) => {
     return _.map(userOrganizations, (org) => {
-      const orgSpaces = _.map(_.compact(org.spaces), space =>
+      const orgSpaces = _.map(_.compact(org.spaces), (space, index) =>
         (<Col span={8} key={space._id}>
           <Link to={`spaces/${space._id}/content_types`}>
-            {this.renderTooltip(space.name, space.description)}
+            {this.renderTooltip(space.name, space.description, index)}
           </Link>
         </Col>));
 

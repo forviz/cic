@@ -48,3 +48,33 @@ export const fetchDeleteMemberOrganization = (organizationId, userId) => {
     });
   });
 };
+
+export const fetchCreateMember = (organizationId, email, { role }) => {
+  return fetchWithResponse(`${BASE_URL}/organizations/${organizationId}/members/`, {
+    method: 'POST',
+    body: JSON.stringify({
+      email,
+      role,
+    }),
+  })
+  .then((response) => {
+    if (response.status === 'SUCCESS') return response;
+
+    throw responseError({
+      appMessage: response.message,
+    });
+  });
+};
+
+export const fetchRemoveMember = (organizationId, userId) => {
+  return fetchWithResponse(`${BASE_URL}/organizations/${organizationId}/members/${userId}`, {
+    method: 'DELETE',
+  })
+  .then((response) => {
+    if (response.status === 'SUCCESS') return response;
+
+    throw responseError({
+      appMessage: response.message,
+    });
+  });
+};

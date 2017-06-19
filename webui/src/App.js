@@ -3,7 +3,8 @@ import T from 'prop-types';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { Layout, LocaleProvider, Spin } from 'antd';
-
+import jwtDecode from 'jwt-decode';
+import moment from 'moment';
 import _ from 'lodash';
 
 import {
@@ -70,10 +71,22 @@ PrivateRoute.defaultProps = {
   component: Spin,
 };
 
+const tokenIsValid = () => {
+  const token = auth.getToken();
+  if (token === null) return false;
+
+  const payload = jwtDecode(token);
+  const didExpired = moment(payload.exp, 'X').isBefore(moment());
+  if (didExpired) return false;
+  return true;
+};
+
 const mapStateToProps = (state) => {
+  const isAuthenticated = auth.loggedIn() && tokenIsValid();
   const userProfile = getUser(state);
   const userOrganizations = getUserOrganizationsWithSpaces(state);
   return {
+    isAuthenticated,
     userProfile,
     userOrganizations,
   };
@@ -103,10 +116,11 @@ class App extends Component {
 
     const userProfile = auth.getProfile();
     if (!_.isEmpty(_.get(userProfile, 'sub'))) {
-      updateUserProfile(userProfile);
-      initWithUser(userProfile.sub, auth);
+      updateUserProfile(userProfile)
+      .then(() => {
+        initWithUser(userProfile.sub);
+      });
     }
-
 
     // On Login Success
     auth.on('login_success', (authResult, profile) => {
@@ -116,8 +130,10 @@ class App extends Component {
     // On Receive Profile
     auth.on('profile_updated', (newProfile) => {
       console.log('auth.profile_updated', newProfile);
-      updateUserProfile(newProfile);
-      initWithUser(userProfile.sub, auth);
+      updateUserProfile(newProfile)
+      .then(() => {
+        initWithUser(userProfile.sub);
+      });
     });
 
     // On Logout Success
@@ -125,10 +141,6 @@ class App extends Component {
       console.log('auth.logout_success');
       clearUserProfile(null);
     });
-  }
-
-  componentDidMount() {
-    if (!auth.loggedIn) auth.login();
   }
 
   handleLogin = () => {

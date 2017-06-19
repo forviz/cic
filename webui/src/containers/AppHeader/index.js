@@ -113,8 +113,9 @@ class AppHeader extends Component {
 
   renderLeftMenu = () => {
     const { userOrganizations } = this.props;
+    console.log('userOrganizations', userOrganizations);
 
-    const organizations = userOrganizations.map((org) => {
+    const organizations = _.map(userOrganizations, (org) => {
       return (
         <MenuItemGroup key={org._id} title={org.name}>
           {

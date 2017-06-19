@@ -44,6 +44,14 @@ const organizationController = require('./controllers/account/organization');
 
 const cloudinaryController = require('./controllers/services/cloudinary');
 
+const admin = require('firebase-admin');
+
+const serviceAccount = require('../secret/doppio-d82f8-firebase-adminsdk-n29hs-9ed1af2b88.json');
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  databaseURL: 'https://doppio-d82f8.firebaseio.com/'
+});
 
 /**
  * Create Express server.

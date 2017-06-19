@@ -46,7 +46,13 @@ class Home extends Component {
   }
 
   renderHomeForGuest = () => {
-    const { auth } = this.props;
+    return (
+      <div />
+    );
+  }
+
+  renderHomeForFirstTimer = () => {
+    const { auth, actions } = this.props;
     return (
       <Row type="flex" justify="center">
         <Col span={18}>
@@ -69,7 +75,7 @@ class Home extends Component {
               />
             </Steps>
             <Row type="flex" justify="center">
-              <Button type="primary" size="large" onClick={() => auth.login()}>Start</Button>
+              <Button type="primary" size="large" onClick={actions.onCreateSpace}>Start</Button>
             </Row>
           </Card>
         </Col>
@@ -83,6 +89,10 @@ class Home extends Component {
     </Tooltip>);
 
   renderHomeForUser = (userProfile, userOrganizations) => {
+    if (_.size(userOrganizations) === 0) {
+      return this.renderHomeForFirstTimer();
+    }
+
     return _.map(userOrganizations, (org) => {
       const orgSpaces = _.map(_.compact(org.spaces), (space, index) =>
         (<Col span={8} key={space._id}>

@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import handleError from '../utils/errors';
 import { getIdentityFromToken } from '../utils/jwtUtils';
 import { getUserFromIdentity } from './space';
@@ -20,6 +21,7 @@ exports.updateMe = async (req, res) => {
     const userOpenId = getIdentityFromToken(req);
     const user = await getUserFromIdentity(userOpenId);
     const profile = req.body;
+    if (!_.isEmpty(profile.email)) user.email = profile.email;
     user.profile = profile;
 
     await user.save();

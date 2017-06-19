@@ -8,7 +8,7 @@ import { Link, Route } from 'react-router-dom';
 import { fetchOrganization, fetchOrganizationMembers } from '../../../api/cic/organizations';
 import OrganizationSettingPage from './setting';
 import OrganizationSubscriptionPage from './subscription';
-import OrganizationUsersPage from './users';
+import OrganizationUsersPage from './members';
 import OrganizationSpacesPage from './spaces/index';
 
 import { receiveOrganization, receiveOrganizationMembers } from '../../../actions/organizations';
@@ -46,8 +46,8 @@ class AccountOrganization extends Component {
             <Menu.Item key={`/account/organizations/${organizationId}/subscription`}>
               <Link to={`/account/organizations/${organizationId}/subscription`}><Icon type="book" />Subscription</Link>
             </Menu.Item>
-            <Menu.Item key={`/account/organizations/${organizationId}/users`}>
-              <Link to={`/account/organizations/${organizationId}/users`}><Icon type="team" />Users</Link>
+            <Menu.Item key={`/account/organizations/${organizationId}/organization_memberships`}>
+              <Link to={`/account/organizations/${organizationId}/organization_memberships`}><Icon type="team" />Users</Link>
             </Menu.Item>
             <Menu.Item key={`/account/organizations/${organizationId}/spaces`}>
               <Link to={`/account/organizations/${organizationId}/spaces`}><Icon type="solution" />Spaces</Link>
@@ -66,7 +66,7 @@ class AccountOrganization extends Component {
           />
           <Route
             key="users"
-            path="/account/organizations/:organizationId/users"
+            path="/account/organizations/:organizationId/organization_memberships"
             component={OrganizationUsersPage}
           />
           <Route

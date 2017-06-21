@@ -65,3 +65,12 @@ export const fetchUpdateSpace = (spaceId, { name, defaultLocale }) => {
     return response;
   });
 };
+
+export const fetchDeleteSpace = (spaceId) => {
+  return fetchWithResponse(`${BASE_URL}/spaces/${spaceId}`, {
+    method: 'DELETE',
+  })
+  .then((response) => {
+    return response;
+  });
+};

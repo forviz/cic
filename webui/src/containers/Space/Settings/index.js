@@ -2,22 +2,27 @@ import React, { Component } from 'react';
 import T from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { Form, Input, Button } from 'antd';
+import { Form, Input, Button, Popconfirm } from 'antd';
 
-import { getActiveSpace } from '../../../selectors';
-import { updateSpace } from '../../../actions/spaces';
+import SubHeader from '../../../components/SubHeader';
+import { getActiveSpace, getSpaceId } from '../../../selectors';
+import * as SpaceActions from '../../../actions/spaces';
 
 const mapStateToProps = (state, ownProps) => {
   return {
+    spaceId: getSpaceId(ownProps),
     space: getActiveSpace(state, ownProps),
   };
 };
 
+const actions = {
+  updateSpace: SpaceActions.updateSpace,
+  deleteSpace: SpaceActions.deleteSpace,
+};
+
 const mapDispatchToProps = (dispatch) => {
   return {
-    actions: bindActionCreators({
-      updateSpace,
-    }, dispatch),
+    actions: bindActionCreators(actions, dispatch),
   };
 };
 
@@ -55,6 +60,12 @@ class Setting extends Component {
     });
   }
 
+  confirmDeleteSpace = (e) => {
+    const { spaceId, history } = this.props;
+    const { deleteSpace } = this.props.actions;
+    deleteSpace(spaceId, history);
+  }
+
   render() {
     const { form, space } = this.props;
     if (!space) return (<div />);
@@ -74,7 +85,7 @@ class Setting extends Component {
 
     return (
       <div>
-        <h1>Setting</h1>
+        <SubHeader title="Setting" />
         <Form layout="vertical" onSubmit={this.handleSubmit}>
           <Form.Item label="Space ID" {...formItemLayout}>
             {getFieldDecorator('_id', {
@@ -96,7 +107,20 @@ class Setting extends Component {
             <Button type="primary" htmlType="submit" size="large">Save</Button>
           </Form.Item>
         </Form>
+
+        <SubHeader title="Danger" />
+        <div>
+          <Popconfirm
+            title="Are you sure delete this space and all its content?"
+            onConfirm={this.confirmDeleteSpace}
+            okText="Yes, delete this space"
+            cancelText="Cancel"
+          >
+            <Button type="danger">Remove Space and all its content</Button>
+          </Popconfirm>
+        </div>
       </div>
+
     );
   }
 }

@@ -1,7 +1,8 @@
 import _ from 'lodash';
+import moment from 'moment';
 import React, { Component } from 'react';
 import T from 'prop-types';
-import { Table, Popconfirm } from 'antd';
+import { Table } from 'antd';
 
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -56,23 +57,7 @@ class AccountSpacesPage extends Component {
       title: 'Created At',
       dataIndex: 'created',
       key: 'created',
-    }, {
-      title: 'Actions',
-      dataIndex: 'actions',
-      key: 'actions',
-      render: (text, record) => (
-        <span>
-          <Popconfirm
-            title="Confirm leaving this space?"
-            onConfirm={() => actions.leaveSpace(record._id)}
-            onCancel={this.cancel}
-            okText="Yes"
-            cancelText="No"
-          >
-            <a href="#">Leave</a>
-          </Popconfirm>
-        </span>
-      ),
+      render: text => moment(text).fromNow(),
     }];
 
     return (

@@ -47,6 +47,7 @@ export const initWithUser = (userId) => {
 
 // Action Creator
 export const updateUserProfile = (profile) => {
+  console.log('updateProfile', profile);
   return (dispatch) => {
     // Facebook
     const updateProfile = {

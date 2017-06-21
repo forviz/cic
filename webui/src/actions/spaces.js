@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { fetchCreateSpace, fetchUpdateSpace } from '../api/cic/spaces';
+import { fetchCreateSpace, fetchUpdateSpace, fetchDeleteSpace } from '../api/cic/spaces';
 import { fetchCreateContentType } from '../api/cic/contentTypes';
 import { openNotification } from './notification';
 import { cic } from '../App';
@@ -48,6 +48,18 @@ export const updateSpace = (spaceId, { name, defaultLocale }) => {
     fetchUpdateSpace(spaceId, { name, defaultLocale })
     .then((res) => {
       openNotification('success', { message: `Space ${name} Updated` });
+      return res;
+    });
+  };
+};
+
+export const deleteSpace = (spaceId, history) => {
+  return (dispatch) => {
+    return fetchDeleteSpace(spaceId)
+    .then((res) => {
+      dispatch({ type: 'ENTITITIES/SPACE/DELETE', spaceId });
+      openNotification('success', { message: 'Space Deleted' });
+      history.push('/');
       return res;
     });
   };

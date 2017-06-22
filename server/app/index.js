@@ -43,6 +43,7 @@ const organizationController = require('./controllers/account/organization');
 
 const cloudinaryController = require('./controllers/services/cloudinary');
 
+const applicationController = require('./controllers/application/api');
 
 /**
  * Create Express server.
@@ -227,6 +228,14 @@ app.delete(`${apiPrefix}/spaces/:space_id/assets_truncate/`, cma, assetControlle
 // Upload Media (cloudinary)
 app.post(`${apiPrefix}/media/upload`, upload.single('file'), cloudinaryController.upload);
 app.get(`${apiPrefix}/media/:param?/:public_id`, cloudinaryController.getImage);
+
+
+// Application
+app.get(`${apiPrefix}/application`, applicationController.getAllApplication);
+app.get(`${apiPrefix}/application/:id`, applicationController.getApplication);
+app.post(`${apiPrefix}/application`, applicationController.createApplication);
+app.put(`${apiPrefix}/application/:id?`, applicationController.updateApplication);
+app.delete(`${apiPrefix}/application/:id?`, applicationController.deleteApplication);
 
 
 // Image api

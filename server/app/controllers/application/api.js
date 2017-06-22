@@ -50,16 +50,10 @@ exports.updateApplication = async (req, res) => {
       req.body,
     );
 
-    const getApplication = await Application.findOne({ _id: id });
+    const application = await Application.findOne({ _id: id });
     res.json({
       status: 'SUCCESS',
-      _id: getApplication._id,
-      name: getApplication.name,
-      description: getApplication.description,
-      redirectURL: getApplication.redirectURL,
-      read: getApplication.read,
-      write: getApplication.write,
-      __v: getApplication.__v,
+      ..._.pick(application, ['_id', 'name', 'description', 'redirectURL', 'read', 'write']),
     });
   } catch (e) {
     res.status(400).json({
@@ -89,12 +83,7 @@ exports.createApplication = async (req, res) => {
 
     res.json({
       status: 'SUCCESSFUL',
-      _id: application._id,
-      name: application.name,
-      description: application.description,
-      redirectURL: application.redirectURL,
-      read: application.read,
-      write: application.write,
+      ..._.pick(application, ['_id', 'name', 'description', 'redirectURL', 'read', 'write']),
     });
   } catch (e) {
     // next(e);

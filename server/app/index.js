@@ -230,9 +230,6 @@ app.post(`${apiPrefix}/media/upload`, upload.single('file'), cloudinaryControlle
 app.get(`${apiPrefix}/media/:param?/:public_id`, cloudinaryController.getImage);
 
 
-
-
-
 // Application
 app.get(`${apiPrefix}/application`, applicationController.getAllApplication);
 app.get(`${apiPrefix}/application/:id`, applicationController.getApplication);

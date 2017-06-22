@@ -5,16 +5,19 @@ const Application = require('../../models/Application');
 
 const mongooseObject = mongoose.Types.ObjectId;
 
-const checkID = (id) => {
-  if (typeof (id) !== 'object') {
-    if (!mongooseObject.isValid(id)) throw new Error('Not objectID!!');
-  }
+const isObjectId = (id) => {
+  return (!mongooseObject.isValid(id));
 };
 
 exports.getAllApplication = async (req, res) => {
   try {
     const allApplication = await Application.find({ });
-    res.json(allApplication);
+    res.json({
+      applications: [allApplication],
+      skip: 0,
+      limit: 100,
+      total: allApplication.length,
+    });
   } catch (e) {
     res.status(400).json({
       status: 'ERROR',
@@ -26,12 +29,16 @@ exports.getAllApplication = async (req, res) => {
 exports.getApplication = async (req, res) => {
   try {
     const id = req.params.id;
-    if (id === undefined) throw new Error('Bad Request');
+    if (id === undefined) throw new Error('Please Request ID');
 
-    checkID(id);
+    if (isObjectId(id)) throw new Error('Not ObjectID');
 
-    const getApplication = await Application.findOne({ _id: id });
-    res.json(getApplication);
+    const application = await Application.findOne({ _id: id });
+
+    res.json({
+      status: 'SUCCESSFUL',
+      ...application.toObject(),
+    });
   } catch (e) {
     res.status(400).json({
       status: 'ERROR',
@@ -43,14 +50,18 @@ exports.getApplication = async (req, res) => {
 exports.updateApplication = async (req, res) => {
   try {
     const id = req.params.id;
-    if (id === undefined) throw new Error('Bad Request');
-    checkID(id);
+    if (id === undefined) throw new Error('Please Request ID');
+    if (isObjectId(id)) throw new Error('Not ObjectID');
 
-    await Application.findOneAndUpdate({ _id: id },
-      req.body,
+    const application = await Application.findOneAndUpdate(
+      { _id: id },
+      _.pick(req.body, ['_id', 'name', 'description', 'redirectURL', 'read', 'write']),
+      {
+        new: true,
+        upsert: true,
+      },
     );
 
-    const application = await Application.findOne({ _id: id });
     res.json({
       status: 'SUCCESS',
       ..._.pick(application, ['_id', 'name', 'description', 'redirectURL', 'read', 'write']),
@@ -64,21 +75,18 @@ exports.updateApplication = async (req, res) => {
 };
 
 exports.createApplication = async (req, res) => {
-  const applicationName = _.get(req, 'body.name', '');
-  const applicationDescription = _.get(req, 'body.description', '');
-  const applicationRedirectURL = _.get(req, 'body.redirectURL', '');
-  const applicationRead = _.get(req, 'body.read');
-  const applicationWrite = _.get(req, 'body.write');
+  const { name, description, redirectURL, read, write } = req.body;
   try {
-    if (applicationName === '') throw new Error('NameIsRequired');
-    if (applicationRead === undefined) throw new Error('ReadIsRequired');
-    if (applicationWrite === undefined) throw new Error('WriteIsRequired');
-    const application = new Application();
-    application.name = applicationName;
-    application.description = applicationDescription;
-    application.redirectURL = applicationRedirectURL;
-    application.read = applicationRead;
-    application.write = applicationWrite;
+    if (name === undefined) throw new Error('NameIsRequired');
+    if (read === undefined) throw new Error('ReadIsRequired');
+    if (write === undefined) throw new Error('WriteIsRequired');
+    const application = new Application({
+      name,
+      description,
+      redirectURL,
+      read,
+      write,
+    });
     await application.save();
 
     res.json({
@@ -97,8 +105,8 @@ exports.createApplication = async (req, res) => {
 exports.deleteApplication = async (req, res) => {
   try {
     const id = req.params.id;
-    if (id === undefined) throw new Error('BadRequest');
-    checkID(id);
+    if (id === undefined) throw new Error('Please Request ID');
+    if (isObjectId(id)) throw new Error('Not ObjectID');
 
     await Application.remove({ _id: id });
     res.json({

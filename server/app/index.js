@@ -232,10 +232,10 @@ app.get(`${apiPrefix}/media/:param?/:public_id`, cloudinaryController.getImage);
 
 // Application
 app.get(`${apiPrefix}/application`, applicationController.getAllApplication);
-app.get(`${apiPrefix}/application/:id`, applicationController.getApplication);
+app.get(`${apiPrefix}/application/:id?`, applicationController.getApplication);
 app.post(`${apiPrefix}/application`, applicationController.createApplication);
-app.put(`${apiPrefix}/application/:id`, applicationController.updateApplication);
-app.delete(`${apiPrefix}/application/:id`, applicationController.deleteApplication);
+app.put(`${apiPrefix}/application/:id?`, applicationController.updateApplication);
+app.delete(`${apiPrefix}/application/:id?`, applicationController.deleteApplication);
 
 
 // Image api

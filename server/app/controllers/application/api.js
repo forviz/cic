@@ -6,14 +6,14 @@ const Application = require('../../models/Application');
 const mongooseObject = mongoose.Types.ObjectId;
 
 const isObjectId = (id) => {
-  return (!mongooseObject.isValid(id));
+  return (mongooseObject.isValid(id));
 };
 
 exports.getAllApplication = async (req, res) => {
   try {
     const allApplication = await Application.find({ });
     res.json({
-      applications: [allApplication],
+      items: allApplication,
       skip: 0,
       limit: 100,
       total: allApplication.length,
@@ -31,7 +31,7 @@ exports.getApplication = async (req, res) => {
     const id = req.params.id;
     if (id === undefined) throw new Error('Please Request ID');
 
-    if (isObjectId(id)) throw new Error('Not ObjectID');
+    if (!isObjectId(id)) throw new Error('Not ObjectID');
 
     const application = await Application.findOne({ _id: id });
 
@@ -51,7 +51,7 @@ exports.updateApplication = async (req, res) => {
   try {
     const id = req.params.id;
     if (id === undefined) throw new Error('Please Request ID');
-    if (isObjectId(id)) throw new Error('Not ObjectID');
+    if (!isObjectId(id)) throw new Error('Not ObjectID');
 
     const application = await Application.findOneAndUpdate(
       { _id: id },
@@ -106,7 +106,7 @@ exports.deleteApplication = async (req, res) => {
   try {
     const id = req.params.id;
     if (id === undefined) throw new Error('Please Request ID');
-    if (isObjectId(id)) throw new Error('Not ObjectID');
+    if (!isObjectId(id)) throw new Error('Not ObjectID');
 
     await Application.remove({ _id: id });
     res.json({

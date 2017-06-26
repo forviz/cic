@@ -6,8 +6,15 @@ import { isTokenExpired } from './jwtHelper';
 
 export default class AuthService extends EventEmitter {
 
+  clientId = '';
+  domain = '';
+
   constructor(clientId, domain) {
     super();
+    this.clientId = clientId;
+    this.clientSecret = 'uloWINgkQaNazJ7_n-r5J5JvZrAgez-XcxNIHs_gF-mxYr6V6OutQwDWFE8U_t-4';
+    this.domain = domain;
+
     // Configure Auth0
     this.lock = new Auth0Lock(clientId, domain, {
       auth: {
@@ -29,10 +36,17 @@ export default class AuthService extends EventEmitter {
     this.lock.on('authorization_error', this._authorizationError.bind(this));
     // binds login functions to keep this context
     this.login = this.login.bind(this);
+
+    /*
+    if (this.loggedIn()) {
+      console.log('hello');
+      this.emit('profile_updated', this.getProfile());
+    }*/
   }
 
   _doAuthentication(authResult) {
     // Saves the user token
+    console.log('authResult', authResult);
     const token = authResult.accessToken;
     // const token = authResult.idToken;
 
@@ -44,7 +58,7 @@ export default class AuthService extends EventEmitter {
         this.emit('login_error', error);
       } else {
         this.setProfile(profile);
-        this.emit('login_success', authResult);
+        this.emit('login_success', authResult, profile);
       }
     });
   }
@@ -63,6 +77,22 @@ export default class AuthService extends EventEmitter {
     // Checks if there is a saved token and it's still valid
     const token = this.getToken();
     return !!token && !isTokenExpired(token);
+  }
+
+  getAccessToken() {
+    return fetch(`https://${this.domain}/oauth/token`, {
+      method: 'POST',
+      body: JSON.stringify({
+        grant_type: 'authorization_code',
+        client_id: this.clientId,
+        client_secret: this.clientSecret,
+        code: 'AUTHORIZATION_CODE',
+        redirect_uri: 'https://YOUR_APP/callback'
+      })
+    })
+    .then(response => {
+      console.log('response', response);
+    })
   }
 
   setProfile(profile) {

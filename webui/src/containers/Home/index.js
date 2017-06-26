@@ -6,7 +6,9 @@ import { bindActionCreators } from 'redux';
 import {
   Link,
 } from 'react-router-dom';
+
 import { Card, Row, Col, Steps, Button, Tooltip } from 'antd';
+import SpaceCard from '../../components/SpaceCard';
 
 import AuthService from '../../modules/auth/AuthService';
 import * as SpaceActions from '../../actions/spaces';
@@ -44,7 +46,13 @@ class Home extends Component {
   }
 
   renderHomeForGuest = () => {
-    const { auth } = this.props;
+    return (
+      <div />
+    );
+  }
+
+  renderHomeForFirstTimer = () => {
+    const { auth, actions } = this.props;
     return (
       <Row type="flex" justify="center">
         <Col span={18}>
@@ -67,7 +75,7 @@ class Home extends Component {
               />
             </Steps>
             <Row type="flex" justify="center">
-              <Button type="primary" size="large" onClick={() => auth.login()}>Start</Button>
+              <Button type="primary" size="large" onClick={actions.onCreateSpace}>Start</Button>
             </Row>
           </Card>
         </Col>
@@ -75,19 +83,21 @@ class Home extends Component {
     );
   }
 
-  renderTooltip = (title, description) =>
+  renderTooltip = (title, description, index) =>
     (<Tooltip placement="bottom" title="Click to enter space">
-      <Card loading title={title} style={{ marginBottom: 16, textAlign: 'center' }}>
-        {description}
-      </Card>
+      <SpaceCard title={title} description={description} index={index} />
     </Tooltip>);
 
   renderHomeForUser = (userProfile, userOrganizations) => {
+    if (_.size(userOrganizations) === 0) {
+      return this.renderHomeForFirstTimer();
+    }
+
     return _.map(userOrganizations, (org) => {
-      const orgSpaces = _.map(_.compact(org.spaces), space =>
+      const orgSpaces = _.map(_.compact(org.spaces), (space, index) =>
         (<Col span={8} key={space._id}>
           <Link to={`spaces/${space._id}/content_types`}>
-            {this.renderTooltip(space.name, space.description)}
+            {this.renderTooltip(space.name, space.description, index)}
           </Link>
         </Col>));
 
@@ -102,7 +112,7 @@ class Home extends Component {
 
   render() {
     const { userProfile, userOrganizations } = this.props;
-    const content = _.isEmpty(userProfile) ?
+    const content = !userProfile.isAuthenticated ?
       this.renderHomeForGuest()
       :
       this.renderHomeForUser(userProfile, userOrganizations);

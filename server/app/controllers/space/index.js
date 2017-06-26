@@ -3,6 +3,7 @@ import { getIdentityFromToken } from '../../utils/jwtUtils';
 import handleError from '../../utils/errors';
 
 const Space = require('../../models/Space');
+const Entry = require('../../models/Entry');
 const User = require('../../models/User');
 const Organization = require('../../models/Organization');
 
@@ -176,22 +177,26 @@ exports.createSpace = async (req, res) => {
   });
 };
 
-exports.deleteSpace = (req, res, next) => {
+exports.deleteSpace = async (req, res, next) => {
   const spaceId = req.params.space_id;
-  Space.findOne({ _id: spaceId }, (err, space) => {
-    if (err) next(err);
 
-    if (!space) {
-      res.json({
-        status: 'UNSUCCESSFUL',
-        message: 'Cannot find space',
-      });
-    } else {
-      space.remove();
-      res.json({
-        status: 'SUCCESSFUL',
-        message: 'Delete successfully',
-      });
-    }
-  });
+  try {
+    await Entry.remove({ _spaceId: spaceId });
+    await Space.remove({ _id: spaceId });
+
+    const orgWithSpace = await Organization.find({ spaces: spaceId });
+
+    const results = [];
+    _.forEach(orgWithSpace, (org) => {
+      org.spaces = _.filter(org.spaces, id => !id.equals(spaceId));
+      results.push(org.save());
+    });
+    await Promise.all(results);
+    res.json({
+      status: 'SUCCESSFUL',
+      message: 'Delete successfully',
+    });
+  } catch (e) {
+    next(e);
+  }
 };

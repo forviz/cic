@@ -1,9 +1,19 @@
 import _ from 'lodash';
-import { fetchCreateSpace, fetchUpdateSpace } from '../api/cic/spaces';
+import { fetchCreateSpace, fetchUpdateSpace, fetchDeleteSpace } from '../api/cic/spaces';
 import { fetchCreateContentType } from '../api/cic/contentTypes';
 import { openNotification } from './notification';
 import { cic } from '../App';
 import { getSpaceFetchStatus } from '../selectors/spaces';
+import { handleError } from './application';
+
+export const receiveSpace = (spaceId, space) => {
+  return {
+    type: 'ENTITIES/SPACE/RECEIVED',
+    spaceId,
+    space,
+  };
+};
+
 
 export const getSpace = (spaceId) => {
   return (dispatch, getState) => {
@@ -14,11 +24,7 @@ export const getSpace = (spaceId) => {
       openNotification('info', { message: 'fetching space' });
       cic.getSpace(spaceId)
       .then((res) => {
-        dispatch({
-          type: 'SPACE/UPDATE/RECEIVED',
-          spaceId,
-          space: res.space,
-        });
+        dispatch(receiveSpace(spaceId, res.space));
         openNotification('success', { message: `fetching space ${_.get(res, 'name')} done` });
       });
     }
@@ -31,6 +37,8 @@ export const createNewSpace = (name, { organizationId, defaultLocale }) => {
     .then((res) => {
       openNotification('success', { message: 'Space created' });
       return res;
+    }).catch((error) => {
+      handleError(error);
     });
   };
 };
@@ -40,6 +48,18 @@ export const updateSpace = (spaceId, { name, defaultLocale }) => {
     fetchUpdateSpace(spaceId, { name, defaultLocale })
     .then((res) => {
       openNotification('success', { message: `Space ${name} Updated` });
+      return res;
+    });
+  };
+};
+
+export const deleteSpace = (spaceId, history) => {
+  return (dispatch) => {
+    return fetchDeleteSpace(spaceId)
+    .then((res) => {
+      dispatch({ type: 'ENTITITIES/SPACE/DELETE', spaceId });
+      openNotification('success', { message: 'Space Deleted' });
+      history.push('/');
       return res;
     });
   };

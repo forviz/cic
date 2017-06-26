@@ -9,7 +9,7 @@ import {
 
 const initialState = {
   isFetching: false,
-  isAuthenticated: localStorage.getItem('id_token'),
+  isAuthenticated: !_.isEmpty(localStorage.getItem('id_token')),
   token: localStorage.getItem('id_token'),
   spaces: [],
 };
@@ -40,6 +40,15 @@ const user = (state = initialState, action) => {
         isAuthenticated: false,
       });
 
+    case 'USER/PROFILE/RECEIVED':
+      return {
+        ...state,
+        isAuthenticated: true,
+        ...action.profile,
+      };
+
+    case 'USER/PROFILE/CLEAR': return initialState;
+
     case 'USER/SPACES/RECEIVED': {
       const ids = _.map(action.spaces, space => space._id);
       return { ...state, spaces: ids };
@@ -47,7 +56,10 @@ const user = (state = initialState, action) => {
 
     case 'USER/ORGANIZATIONS/RECEIVED': {
       const ids = _.map(action.organizations, org => org._id);
-      return { ...state, organizations: ids };
+      return {
+        ...state,
+        organizations: ids,
+      };
     }
 
     default: return state;

@@ -38,6 +38,7 @@ const contentTypeController = require('./controllers/space/contentType');
 const entryController = require('./controllers/space/entry');
 const apiKeyController = require('./controllers/space/apikey');
 const assetController = require('./controllers/space/asset');
+const userController = require('./controllers/user');
 
 const organizationController = require('./controllers/account/organization');
 
@@ -224,6 +225,10 @@ app.post(`${apiPrefix}/spaces/:space_id/assets/`, cma, assetController.createAss
 app.put(`${apiPrefix}/spaces/:space_id/assets/:asset_id`, cma, assetController.updateAsset);
 app.delete(`${apiPrefix}/spaces/:space_id/assets/:asset_id`, cma, assetController.deleteAsset);
 app.delete(`${apiPrefix}/spaces/:space_id/assets_truncate/`, cma, assetController.truncateAsset);
+
+// User
+app.get(`${apiPrefix}/users/me`, cma, userController.getMe);
+app.post(`${apiPrefix}/users/me`, cma, userController.updateMe);
 
 // Upload Media (cloudinary)
 app.post(`${apiPrefix}/media/upload`, upload.single('file'), cloudinaryController.upload);

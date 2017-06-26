@@ -1,19 +1,28 @@
 import _ from 'lodash';
-// import { createSelector } from 'reselect';
 
 export const getUser = state => state.session.user;
+export const getCurrentUser = state => state.session.user;
 export const getIsAuthenticated = state => state.session.user.isAuthenticated;
 
 export const getUserOrganizationsWithSpaces = (state) => {
-  const organizationIds = _.get(getUser(state), 'organizations');
-  return _.map(organizationIds, (id) => {
+  const organizationIds = _.get(getUser(state), 'organizations', []);
+  return _.compact(_.map(organizationIds, (id) => {
     const organization = _.get(state, `entities.organizations.entities.${id}`);
-    return {
-      ...organization,
-      spaces: _.map(organization.spaces, (spaceId) => {
-        return _.get(state, `entities.spaces.entities.${spaceId}`);
-      }),
-    };
+    if (organization) {
+      return {
+        ...organization,
+        spaces: _.map(organization.spaces, (spaceId) => {
+          return _.get(state, `entities.spaces.entities.${spaceId}`);
+        }),
+      };
+    }
+    return undefined;
+  }));
+};
+
+export const getUserOrganizations = (state) => {
+  return _.map(state.session.user.organizations, (id) => {
+    return _.get(state, `entities.organizations.entities.${id}`);
   });
 };
 
@@ -24,6 +33,10 @@ export const getUserSpaces = (state) => {
 
 export const getSpaceId = (props) => {
   return _.get(props, 'match.params.spaceId');
+};
+
+export const getOrganizationId = (props) => {
+  return props.match.params.organizationId;
 };
 
 export const getContentTypeId = (props) => {

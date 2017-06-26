@@ -5,28 +5,94 @@ const mongoose = require('mongoose');
 
 const _ = require('lodash');
 const Organization = require('../../models/Organization');
+const User = require('../../models/User');
 
 const mongooseObject = mongoose.Types.ObjectId;
 
-exports.getAll = async (req, res) => {
-  const organizations = await Organization.find({ });
+exports.getAll = async (req, res, next) => {
+  const userOpenId = getIdentityFromToken(req);
+  const user = await getUserFromIdentity(userOpenId);
 
-  res.json({
-    status: 'SUCCESS',
-    items: organizations,
-  });
+  try {
+    const organizations = await Organization.find({
+      $or: [{ 'users.Members': user._id }, { 'users.Admins': user._id }, { 'users.Owners': user._id }],
+    });
+
+    res.json({
+      status: 'SUCCESS',
+      sys: { type: 'Array' },
+      total: _.size(organizations),
+      skip: 0,
+      limit: 100,
+      items: _.map(organizations, org =>
+        _.pick(org, ['_id', 'name', 'spaces', 'users', 'updatedAt', 'createdAt', '__v'])),
+    });
+  } catch (e) {
+    next(e);
+  }
 };
+
+const getAllOrganizationMembers = async (req, res, next) => {
+  const organizationId = req.params.organization_id;
+
+  try {
+    if (!mongooseObject.isValid(organizationId)) {
+      throw new Error('Not objectId');
+    }
+
+    const organization = await Organization.findOne({ _id: organizationId }).populate('users.Members users.Admins users.Owners');
+    const allUsers = [
+      ..._.map(organization.users.Owners, user => ({ _id: user._id, email: user.email, profile: user.profile, role: 'Owner' })),
+      ..._.map(organization.users.Admins, user => ({ _id: user._id, email: user.email, profile: user.profile, role: 'Admin' })),
+      ..._.map(organization.users.Members, user => ({ _id: user._id, email: user.email, profile: user.profile, role: 'Member' })),
+    ];
+    res.json({
+      status: 'SUCCESS',
+      sys: { type: 'Array' },
+      total: _.size(allUsers),
+      skip: 0,
+      limit: 100,
+      items: allUsers,
+    });
+  } catch (e) {
+    next(e);
+  }
+};
+
+exports.getAllMemberOrganization = getAllOrganizationMembers;
 
 exports.getSingle = async (req, res, next) => {
   const organizationId = req.params.organization_id;
-  Organization.findOne({ _id: organizationId }).exec((err, organization) => {
-    if (err) next(err);
+  try {
+    const organization = await Organization.findOne({ _id: organizationId }).populate('spaces');
+    const {
+      _id,
+      name,
+      spaces,
+      updatedAt,
+      createdAt,
+      __v,
+    } = organization;
     res.json({
       status: 'SUCCESS',
-      title: 'find organization',
-      organization,
+      _id,
+      name,
+      spaces: _.map(spaces, sp => ({
+        _id: sp.id,
+        name: sp.name,
+        createdAt: sp.createdAt,
+        stats: {
+          contentTypes: _.size(sp.contentTypes),
+          entries: _.size(sp.entries),
+        },
+      })),
+      updatedAt,
+      createdAt,
+      __v,
     });
-  });
+  } catch (e) {
+    next(e);
+  }
 };
 
 exports.createOrganization = async (req, res, next) => {
@@ -57,25 +123,6 @@ exports.createOrganization = async (req, res, next) => {
   }
 };
 
-exports.getAllMemberOrganization = async (req, res, next) => {
-  const organizationId = req.params.organization_id;
-
-  try {
-    if (!mongooseObject.isValid(organizationId)) {
-      throw new Error('Not objectId');
-    }
-
-    const result = await Organization.find({ _id: organizationId }).populate('users.Members');
-
-    res.json({
-      status: 'SUCCESS',
-      organization: organizationId,
-      members: result[0].users.Members,
-    });
-  } catch (e) {
-    next(e);
-  }
-};
 
 exports.delMemberOrganization = async (req, res, next) => {
   try {
@@ -86,6 +133,8 @@ exports.delMemberOrganization = async (req, res, next) => {
       _id: organizationId },
       {
         $pull: {
+          'users.Owners': userId,
+          'users.Admins': userId,
           'users.Members': userId,
         },
       },
@@ -99,44 +148,50 @@ exports.delMemberOrganization = async (req, res, next) => {
   }
 };
 
+const mapRoleToModelKey = (role) => {
+  switch (role) {
+    case 'admin': return 'Admins';
+    case 'owner': return 'Owners';
+    default: return 'Members';
+  }
+};
+
 exports.createMemberOrganization = async (req, res, next) => {
   try {
-    const userId = req.body.user_id;
+    const userEmail = req.body.email;
+    const role = req.body.role;
+    const user = await User.findOne({ email: userEmail });
+    const userId = user._id;
+    
     const organizationId = req.params.organization_id;
+    const organization = await Organization.findOne({ _id: organizationId });
 
-    // const organization = await Organization.find({ _id: organizationId });
-    // console.log("find organization:: ", organization);
-    // organization[0].users.Members.push(userId);
+    const roleKey = mapRoleToModelKey(role);
+    const allRoleKeys = ['Owners', 'Admins', 'Members'];
+    const isExisting = _.some(_.get(organization, `users.${roleKey}`), memberId => memberId.equals(userId));
 
-    // const organization = new Organization();
-    // organization.update( { "_id": organizationId },
-    // { "users.Members": userId },
-    // { upsert: true } )
-
-    // const organization = await Organization.findOne({ _id: organizationId });
-    // organization.users.Members.push(userId);
-    //
-    // const result = await organization.save();
-
-    const checkMember = await Organization.find({ 'users.Members': userId });
-
-    if (!_.isEmpty(checkMember)) {
-      // console.log("IF");
-      res.json({
-        status: 'มีแล้ว ไม่แอดแล้ว',
-      });
+    if (isExisting) {
+      throw new Error('UserExistsInOrganization');
     } else {
-      // console.log("ELSE");
-      await Organization.update({
-        _id: organizationId,
-      }, {
-        $push: {
-          'users.Members': userId,
-        },
-      });
+      organization.users = _.reduce(allRoleKeys, (sum, key) => {
+        const usersInRole = organization.users[key];
+        if (key === roleKey) {
+          return {
+            ...sum,
+            [key]: [...usersInRole, userId],
+          };
+        }
+        return {
+          ...sum,
+          [key]: _.filter(usersInRole, uId => !uId.equals(userId)),
+        };
+      }, {});
+
+      await organization.save();
 
       res.json({
         status: 'SUCCESS',
+        organization,
       });
     }
   } catch (e) {

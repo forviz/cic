@@ -9,6 +9,7 @@ import UserOrganizationsPage from './organization';
 import newAddPage from './organization/addnew';
 import UserOAuthTokenPage from './tokens';
 import UserApplication from './developers/Applications';
+import CreateNewApplication from './developers/NewApplication';
 
 class AccountIndex extends Component {
 
@@ -76,8 +77,14 @@ class AccountIndex extends Component {
           />
           <Route
             key="applications"
+            exact
             path="/account/profile/developers/applications"
             component={UserApplication}
+          />
+          <Route
+            key="applications-new"
+            path="/account/profile/developers/applications/new"
+            component={CreateNewApplication}
           />
         </Card>
       </div>

@@ -1,13 +1,12 @@
 import _ from 'lodash';
 import React, { Component } from 'react';
 import T from 'prop-types';
-import { Table, Row, Col, Button, Icon } from 'antd';
-import {
-  Link,
-} from 'react-router-dom';
+import { Table, Row, Col, Icon, Popconfirm } from 'antd';
 
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+
+import ModalNewApplication from './ModalNewApplication';
 
 class DeveloperApplicationsPage extends Component {
 
@@ -22,14 +21,58 @@ class DeveloperApplicationsPage extends Component {
     applications: [],
   }
 
+  state = {
+    applications: [],
+  }
+
+  componentDidMount() {
+    this.getApplication();
+  }
+
+  onDelete = (id) => {
+    fetch(`http://localhost:4000/v1/application/${id}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+    .then(response => response.json())
+    .then((response) => {
+      console.log('response ', response);
+      this.getApplication();
+    }).catch((e) => {
+      console.log('error', e);
+    });
+  }
+
+  getApplication = () => {
+    fetch('http://localhost:4000/v1/application', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+    .then(response => response.json())
+    .then((response) => {
+      console.log('response ', response);
+      this.setState({
+        applications: response.items,
+      });
+    }).catch((e) => {
+      console.log('error', e);
+    });
+  }
+
   render() {
-    const { applications } = this.props;
+    const { applications } = this.state;
     const dataSource = _.map(applications, (app) => {
       return {
         name: app.name,
+        description: app.description,
         read: app.read,
         write: app.write,
         created: app.createdAt,
+        operation: app._id,
       };
     });
 
@@ -51,18 +94,34 @@ class DeveloperApplicationsPage extends Component {
       title: 'Created At',
       dataIndex: 'created',
       key: 'created',
-    }];
+    }, {
+      title: 'operation',
+      dataIndex: 'operation',
+      render: (text) => {
+        return (
+          this.state.applications.length > 1 ?
+          (
+            <Popconfirm title="Sure to delete?" onConfirm={() => this.onDelete(text)}>
+              <a href="###">Delete</a>
+            </Popconfirm>
+          ) : null
+        );
+      },
+    },
+    ];
 
     return (
       <div>
         <Row>
           <Col span={12} style={{ marginBottom: 20 }}>
-            <Link to="/account/profile/deveopers/applications/new">
-              <Button type="primary"><Icon type="plus" /> Add New Application</Button>
-            </Link>
+            <ModalNewApplication onUpdate={this.getApplication} />
           </Col>
         </Row>
-        <Table dataSource={dataSource} columns={columns} />
+        <Table
+          dataSource={dataSource}
+          columns={columns}
+          expandedRowRender={record => <p>{record.description}</p>}
+        />
       </div>
     );
   }
@@ -73,10 +132,7 @@ const mapStateToProps = (state) => {
   return {
     applications: [
       {
-        name: 'cicapp',
-        read: true,
-        write: true,
-        createdAt: '2017-02-01T10:50:40',
+        name: 'Loading',
       },
     ],
   };

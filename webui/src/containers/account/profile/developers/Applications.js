@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import React, { Component } from 'react';
 import T from 'prop-types';
 import { Table, Row, Col, Icon, Popconfirm } from 'antd';
@@ -16,7 +15,15 @@ class DeveloperApplicationsPage extends Component {
     applications: T.arrayOf(T.shape({
       _id: T.string,
       name: T.string,
+      description: T.string,
+      redirectURL: T.string,
+      read: T.boolean,
+      write: T.boolean,
     })),
+    actions: T.shape({
+      fetchApplication: T.func,
+      deleteApplication: T.func,
+    }).isRequired,
   }
 
   static defaultProps = {
@@ -35,7 +42,6 @@ class DeveloperApplicationsPage extends Component {
   handleDelete = (id) => {
     const { deleteApplication } = this.props.actions;
     deleteApplication(id);
-    console.log('iddelete ', id);
   };
 
   render() {
@@ -97,7 +103,6 @@ class DeveloperApplicationsPage extends Component {
 
 /* eslint-disable no-unused-vars */
 const mapStateToProps = (state) => {
-  console.log('mapStateToProps', state);
   return {
     applications: state.entities.application.entities,
   };

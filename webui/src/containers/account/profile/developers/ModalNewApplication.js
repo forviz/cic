@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Button, Modal, Form, Input, Checkbox, Icon } from 'antd';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import T from 'prop-types';
 
 import * as MyApplicationActions from '../../../../actions/myApplication';
 
@@ -67,6 +68,13 @@ const CollectionCreateForm = Form.create()(
 );
 
 class ModalNewApplication extends Component {
+
+  static propTypes = {
+    actions: T.shape({
+      createApplication: T.func,
+    }).isRequired,
+  }
+
   state = {
     visible: false,
   };
@@ -119,7 +127,6 @@ class ModalNewApplication extends Component {
 }
 
 const mapStateToProps = (state) => {
-  console.log('mapStateToProps', state);
   return {
     applications: state.entities.application.entities,
   };

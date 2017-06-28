@@ -162,7 +162,7 @@ exports.createMemberOrganization = async (req, res, next) => {
     const role = req.body.role;
     const user = await User.findOne({ email: userEmail });
     const userId = user._id;
-    
+
     const organizationId = req.params.organization_id;
     const organization = await Organization.findOne({ _id: organizationId });
 

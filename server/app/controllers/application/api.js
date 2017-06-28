@@ -77,7 +77,7 @@ exports.updateApplication = async (req, res) => {
 exports.createApplication = async (req, res) => {
   const { name, description, redirectURL, read, write } = req.body;
   try {
-    if (name === undefined) throw new Error('NameIsRequired');
+    if (name === undefined || name === '') throw new Error('NameIsRequired');
     if (read === undefined) throw new Error('ReadIsRequired');
     if (write === undefined) throw new Error('WriteIsRequired');
     const application = new Application({

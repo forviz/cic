@@ -8,6 +8,8 @@ import { bindActionCreators } from 'redux';
 
 import ModalNewApplication from './ModalNewApplication';
 
+import * as MyApplicationActions from '../../../../actions/myApplication';
+
 class DeveloperApplicationsPage extends Component {
 
   static propTypes = {
@@ -21,60 +23,25 @@ class DeveloperApplicationsPage extends Component {
     applications: [],
   }
 
-  state = {
-    applications: [],
-  }
-
   componentDidMount() {
     this.getApplication();
   }
 
-  onDelete = (id) => {
-    fetch(`http://localhost:4000/v1/application/${id}`, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
-    .then(response => response.json())
-    .then((response) => {
-      console.log('response ', response);
-      this.getApplication();
-    }).catch((e) => {
-      console.log('error', e);
-    });
+  getApplication = () => {
+    const { fetchApplication } = this.props.actions;
+    fetchApplication();
   }
 
-  getApplication = () => {
-    fetch('http://localhost:4000/v1/application', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
-    .then(response => response.json())
-    .then((response) => {
-      console.log('response ', response);
-      this.setState({
-        applications: response.items,
-      });
-    }).catch((e) => {
-      console.log('error', e);
-    });
-  }
+  handleDelete = (id) => {
+    const { deleteApplication } = this.props.actions;
+    deleteApplication(id);
+    console.log('iddelete ', id);
+  };
 
   render() {
-    const { applications } = this.state;
-    const dataSource = _.map(applications, (app) => {
-      return {
-        name: app.name,
-        description: app.description,
-        read: app.read,
-        write: app.write,
-        created: app.createdAt,
-        operation: app._id,
-      };
-    });
+    const { applications } = this.props;
+
+    if (Object.keys(applications).length === 0) return <div />;
 
     const columns = [{
       title: 'Name',
@@ -91,17 +58,18 @@ class DeveloperApplicationsPage extends Component {
       key: 'write',
       render: value => (value ? <Icon type="check" /> : <Icon type="close" />),
     }, {
-      title: 'Created At',
-      dataIndex: 'created',
-      key: 'created',
+      title: 'Redirect URL',
+      dataIndex: 'redirectURL',
+      key: 'redirectURL',
+      render: text => <a href={text}>{text}</a>,
     }, {
-      title: 'operation',
-      dataIndex: 'operation',
+      title: 'Operation',
+      dataIndex: '_id',
       render: (text) => {
         return (
-          this.state.applications.length > 1 ?
+          Object.keys(applications).length > 1 ?
           (
-            <Popconfirm title="Sure to delete?" onConfirm={() => this.onDelete(text)}>
+            <Popconfirm title="Sure to delete?" onConfirm={() => this.handleDelete(text)}>
               <a href="###">Delete</a>
             </Popconfirm>
           ) : null
@@ -118,7 +86,7 @@ class DeveloperApplicationsPage extends Component {
           </Col>
         </Row>
         <Table
-          dataSource={dataSource}
+          dataSource={applications}
           columns={columns}
           expandedRowRender={record => <p>{record.description}</p>}
         />
@@ -129,16 +97,16 @@ class DeveloperApplicationsPage extends Component {
 
 /* eslint-disable no-unused-vars */
 const mapStateToProps = (state) => {
+  console.log('mapStateToProps', state);
   return {
-    applications: [
-      {
-        name: 'Loading',
-      },
-    ],
+    applications: state.entities.application.entities,
   };
 };
 
-const actions = {};
+const actions = {
+  fetchApplication: MyApplicationActions.fetchApplication,
+  deleteApplication: MyApplicationActions.deleteApplication,
+};
 
 const mapDispatchToProps = (dispatch) => {
   return { actions: bindActionCreators(actions, dispatch) };

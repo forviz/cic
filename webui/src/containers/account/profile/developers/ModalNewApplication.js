@@ -1,5 +1,10 @@
 import React, { Component } from 'react';
 import { Button, Modal, Form, Input, Checkbox, Icon } from 'antd';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+
+import * as MyApplicationActions from '../../../../actions/myApplication';
+
 const FormItem = Form.Item;
 
 const CollectionCreateForm = Form.create()(
@@ -9,7 +14,7 @@ const CollectionCreateForm = Form.create()(
     return (
       <Modal
         visible={visible}
-        title="Create a new collection"
+        title="Create a new application"
         okText="Create"
         onCancel={onCancel}
         onOk={onCreate}
@@ -17,21 +22,21 @@ const CollectionCreateForm = Form.create()(
         <Form onSubmit={this.handleSubmit} >
           <FormItem label="Name">
             {getFieldDecorator('name', {
-              rules: [{ required: true, message: 'Please input the name of collection!' }],
+              rules: [{ required: true, message: 'Please input the name of application!' }],
             })(
               <Input />,
             )}
           </FormItem>
           <FormItem label="Description">
             {getFieldDecorator('description', {
-              rules: [{ required: false, message: 'Please input the description of collection!' }],
+              rules: [{ required: false, message: 'Please input the description of application!' }],
             })(
               <Input />,
             )}
           </FormItem>
           <FormItem label="Redirect URI">
             {getFieldDecorator('redirectURL', {
-              rules: [{ required: false, message: 'Please input the Redirect URI of collection!' }],
+              rules: [{ required: false, message: 'Please input the Redirect URI of application!' }],
             })(
               <Input />,
             )}
@@ -39,17 +44,19 @@ const CollectionCreateForm = Form.create()(
 
           <FormItem label="">
             {getFieldDecorator('read', {
-              rules: [{ required: false, message: 'Please check the read of collection!' }],
+              rules: [{ required: false, message: 'Please check the read of application!' }],
+              valuePropName: 'checked',
             })(
-              <Checkbox>Content management read</Checkbox>,
+              <Checkbox >Content management read</Checkbox>,
             )}
           </FormItem>
 
           <FormItem label="">
             {getFieldDecorator('write', {
-              rules: [{ required: false, message: 'Please check the write of collection!' }],
+              rules: [{ required: false, message: 'Please check the write of application!' }],
+              valuePropName: 'checked',
             })(
-              <Checkbox>Content management manage</Checkbox>,
+              <Checkbox >Content management manage</Checkbox>,
             )}
           </FormItem>
 
@@ -77,29 +84,18 @@ class ModalNewApplication extends Component {
       if (err) {
         return;
       }
+      const { createApplication } = this.props.actions;
+      createApplication(values);
 
-      fetch('http://localhost:4000/v1/application', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: values.name,
-          description: values.description,
-          redirectURL: values.redirectURL,
-          read: (values.read !== undefined),
-          write: (values.read !== undefined),
-        }),
-      })
-      .then(response => response.json())
-      .then((response) => {
-        console.log('your response here', response);
-        this.props.onUpdate();
-      }).catch((e) => {
-        console.log('error', e);
+      // form.resetFields();
+      form.setFields({
+        name: '',
+        description: '',
+        redirectURL: '',
+        read: false,
+        write: false,
       });
 
-      form.resetFields();
       this.setState({ visible: false });
     });
   }
@@ -110,7 +106,7 @@ class ModalNewApplication extends Component {
   render() {
     return (
       <div>
-        <Button type="primary" onClick={this.showModal}><Icon type="plus" /> Add New Collection</Button>
+        <Button type="primary" onClick={this.showModal}><Icon type="plus" />Add New Application</Button>
         <CollectionCreateForm
           ref={this.saveFormRef}
           visible={this.state.visible}
@@ -122,4 +118,20 @@ class ModalNewApplication extends Component {
   }
 }
 
-export default ModalNewApplication;
+const mapStateToProps = (state) => {
+  console.log('mapStateToProps', state);
+  return {
+    applications: state.entities.application.entities,
+  };
+};
+
+const actions = {
+  fetchApplication: MyApplicationActions.fetchApplication,
+  createApplication: MyApplicationActions.createApplication,
+};
+
+const mapDispatchToProps = (dispatch) => {
+  return { actions: bindActionCreators(actions, dispatch) };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(ModalNewApplication);

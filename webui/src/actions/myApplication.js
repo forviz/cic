@@ -68,10 +68,8 @@ export const deleteApplication = (id) => {
 const doCreateApplication = (values) => {
   const { name, description, redirectURL } = values;
   let { read, write } = values;
-
   if (read === undefined) read = false;
   if (write === undefined) write = false;
-
   return fetch('http://localhost:4000/v1/application', {
     method: 'POST',
     headers: {
@@ -87,7 +85,7 @@ const doCreateApplication = (values) => {
   })
   .then(response => response.json())
   .then((response) => {
-    console.log('your response here CREATEEE', response);
+    console.log('response CREATE', response);
     return doFetchApplication().then((result) => {
       return result;
     });

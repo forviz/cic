@@ -29,7 +29,7 @@ exports.getAllApplication = async (req, res) => {
 exports.getApplication = async (req, res) => {
   try {
     const id = req.params.id;
-    if (id === undefined) throw new Error('Please Request ID');
+    if (_.isEmpty(id)) throw new Error('Please Request ID');
 
     if (!isObjectId(id)) throw new Error('Not ObjectID');
 
@@ -50,7 +50,7 @@ exports.getApplication = async (req, res) => {
 exports.updateApplication = async (req, res) => {
   try {
     const id = req.params.id;
-    if (id === undefined) throw new Error('Please Request ID');
+    if (_.isEmpty(id)) throw new Error('Please Request ID');
     if (!isObjectId(id)) throw new Error('Not ObjectID');
 
     const application = await Application.findOneAndUpdate(
@@ -77,7 +77,7 @@ exports.updateApplication = async (req, res) => {
 exports.createApplication = async (req, res) => {
   const { name, description, redirectURL, read, write } = req.body;
   try {
-    if (name === undefined) throw new Error('NameIsRequired');
+    if (_.isEmpty(name)) throw new Error('NameIsRequired');
     if (read === undefined) throw new Error('ReadIsRequired');
     if (write === undefined) throw new Error('WriteIsRequired');
     const application = new Application({
@@ -91,7 +91,7 @@ exports.createApplication = async (req, res) => {
 
     res.json({
       status: 'SUCCESSFUL',
-      ..._.pick(application, ['_id', 'name', 'description', 'redirectURL', 'read', 'write']),
+      item: _.pick(application, ['_id', 'name', 'description', 'redirectURL', 'read', 'write']),
     });
   } catch (e) {
     // next(e);
@@ -105,7 +105,7 @@ exports.createApplication = async (req, res) => {
 exports.deleteApplication = async (req, res) => {
   try {
     const id = req.params.id;
-    if (id === undefined) throw new Error('Please Request ID');
+    if (_.isEmpty(id)) throw new Error('Please Request ID');
     if (!isObjectId(id)) throw new Error('Not ObjectID');
 
     await Application.remove({ _id: id });

@@ -87,12 +87,12 @@ export default class AuthService extends EventEmitter {
         client_id: this.clientId,
         client_secret: this.clientSecret,
         code: 'AUTHORIZATION_CODE',
-        redirect_uri: 'https://YOUR_APP/callback'
-      })
+        redirect_uri: 'https://YOUR_APP/callback',
+      }),
     })
-    .then(response => {
+    .then((response) => {
       console.log('response', response);
-    })
+    });
   }
 
   setProfile(profile) {

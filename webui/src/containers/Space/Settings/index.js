@@ -34,6 +34,7 @@ class Setting extends Component {
     }).isRequired,
     actions: T.shape({
       updateSpace: T.func,
+      deleteSpace: T.func,
     }).isRequired,
     space: T.shape({
       _id: T.string,
@@ -60,7 +61,7 @@ class Setting extends Component {
     });
   }
 
-  confirmDeleteSpace = (e) => {
+  confirmDeleteSpace = () => {
     const { spaceId, history } = this.props;
     const { deleteSpace } = this.props.actions;
     deleteSpace(spaceId, history);

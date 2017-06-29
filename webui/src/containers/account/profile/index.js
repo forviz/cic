@@ -76,9 +76,11 @@ class AccountIndex extends Component {
           />
           <Route
             key="applications"
+            exact
             path="/account/profile/developers/applications"
             component={UserApplication}
           />
+
         </Card>
       </div>
     );

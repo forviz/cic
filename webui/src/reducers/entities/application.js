@@ -1,5 +1,3 @@
-import _ from 'lodash';
-
 const initialState = {
   entities: {},
   fetchStatus: {},
@@ -7,28 +5,22 @@ const initialState = {
 };
 const reducers = (state = initialState, action) => {
   switch (action.type) {
-    case 'APPLICATION/RECEIVED/SUCCESS': {
+    case 'USER/APPLICATION/RECEIVED': {
       return {
-        entities: _.map(action.items, (app) => {
-          return {
-            name: app.name,
-            redirectURL: app.redirectURL,
-            description: app.description,
-            read: app.read,
-            write: app.write,
-            _id: app._id,
-          };
-        }),
+        ...state,
+        entities: action.applications,
       };
     }
-    case 'APPLICATION/DELETE': {
+    case 'USER/APPLICATION/DELETE': {
       return {
-        entities: action.items,
+        ...state,
+        fetchStatus: action.status,
       };
     }
-    case 'APPLICATION/CREATE': {
+    case 'USER/APPLICATION/CREATE': {
       return {
-        entities: action.items,
+        ...state,
+        fetchStatus: action.status,
       };
     }
     default:

@@ -1,66 +1,45 @@
 import React, { Component } from 'react';
-import { Button, Modal, Form, Input, Checkbox, Icon } from 'antd';
+import { Button, Modal, Form, Input, Checkbox, Icon, notification } from 'antd';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import T from 'prop-types';
 
-import * as MyApplicationActions from '../../../../actions/myApplication';
+import { getApplication, createApplicationSuccess } from '../../../../actions/users';
+import { fetchCreateApplication } from '../../../../api/cic/user';
 
 const FormItem = Form.Item;
 
 const CollectionCreateForm = Form.create()(
   (props) => {
-    const { visible, onCancel, onCreate, form } = props;
+    const { visible, onCancel, onCreate, form, checkControl } = props;
     const { getFieldDecorator } = form;
     return (
-      <Modal
-        visible={visible}
-        title="Create a new application"
-        okText="Create"
-        onCancel={onCancel}
-        onOk={onCreate}
-      >
+      <Modal visible={visible} title="Create a new application" okText="Create" onCancel={onCancel} onOk={onCreate}>
         <Form onSubmit={this.handleSubmit} >
           <FormItem label="Name">
-            {getFieldDecorator('name', {
-              rules: [{ required: true, message: 'Please input the name of application!' }],
-            })(
-              <Input />,
-            )}
+            {getFieldDecorator('name', { rules: [{ required: true, message: 'Please input the name of application!' }],
+            })(<Input />)}
           </FormItem>
           <FormItem label="Description">
             {getFieldDecorator('description', {
               rules: [{ required: false, message: 'Please input the description of application!' }],
-            })(
-              <Input />,
-            )}
+            })(<Input />)}
           </FormItem>
           <FormItem label="Redirect URI">
             {getFieldDecorator('redirectURL', {
               rules: [{ required: false, message: 'Please input the Redirect URI of application!' }],
-            })(
-              <Input />,
-            )}
+            })(<Input />)}
           </FormItem>
-
           <FormItem label="">
             {getFieldDecorator('read', {
-              rules: [{ required: false, message: 'Please check the read of application!' }],
-              valuePropName: 'checked',
-            })(
-              <Checkbox >Content management read</Checkbox>,
-            )}
+              rules: [{ required: false, message: 'Please check the read of application!' }], valuePropName: 'checked',
+            })(<Checkbox>Content management read</Checkbox>)}
           </FormItem>
-
           <FormItem label="">
             {getFieldDecorator('write', {
-              rules: [{ required: false, message: 'Please check the write of application!' }],
-              valuePropName: 'checked',
-            })(
-              <Checkbox >Content management manage</Checkbox>,
-            )}
+              rules: [{ required: false, message: 'Please check the write of application!' }], valuePropName: 'checked',
+            })(<Checkbox onChange={checkControl}>Content management manage</Checkbox>)}
           </FormItem>
-
         </Form>
       </Modal>
     );
@@ -77,6 +56,7 @@ class ModalNewApplication extends Component {
 
   state = {
     visible: false,
+    checkRead: false,
   };
 
   showModal = () => {
@@ -95,20 +75,20 @@ class ModalNewApplication extends Component {
       const { createApplication } = this.props.actions;
       createApplication(values);
 
-      // form.resetFields();
-      form.setFields({
-        name: '',
-        description: '',
-        redirectURL: '',
-        read: false,
-        write: false,
-      });
+      form.resetFields();
 
       this.setState({ visible: false });
     });
   }
   saveFormRef = (form) => {
     this.form = form;
+  }
+
+  handleCheckRead = (e) => {
+    const form = this.form;
+    form.setFieldsValue({
+      read: e.target.checked,
+    });
   }
 
   render() {
@@ -120,6 +100,7 @@ class ModalNewApplication extends Component {
           visible={this.state.visible}
           onCancel={this.handleCancel}
           onCreate={this.handleCreate}
+          checkControl={this.handleCheckRead}
         />
       </div>
     );
@@ -133,8 +114,18 @@ const mapStateToProps = (state) => {
 };
 
 const actions = {
-  fetchApplication: MyApplicationActions.fetchApplication,
-  createApplication: MyApplicationActions.createApplication,
+  createApplication: (application) => {
+    return (dispatch) => {
+      return fetchCreateApplication(application)
+      .then((result) => {
+        if (result.status === 'ERROR') notification.error({ message: result.status, description: result.message });
+
+        dispatch(createApplicationSuccess(result));
+        dispatch(getApplication());
+      });
+    };
+  },
+
 };
 
 const mapDispatchToProps = (dispatch) => {

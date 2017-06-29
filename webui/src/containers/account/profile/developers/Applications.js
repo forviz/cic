@@ -1,13 +1,14 @@
 import React, { Component } from 'react';
 import T from 'prop-types';
-import { Table, Row, Col, Icon, Popconfirm } from 'antd';
+import { Table, Row, Col, Icon, Popconfirm, notification } from 'antd';
 
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
 import ModalNewApplication from './ModalNewApplication';
 
-import * as MyApplicationActions from '../../../../actions/myApplication';
+import { getApplication, deleteApplicationSuccess } from '../../../../actions/users';
+import { fetchDeleteApplication } from '../../../../api/cic/user';
 
 class DeveloperApplicationsPage extends Component {
 
@@ -21,7 +22,7 @@ class DeveloperApplicationsPage extends Component {
       write: T.boolean,
     })),
     actions: T.shape({
-      fetchApplication: T.func,
+      getApplication: T.func,
       deleteApplication: T.func,
     }).isRequired,
   }
@@ -31,18 +32,19 @@ class DeveloperApplicationsPage extends Component {
   }
 
   componentDidMount() {
-    this.getApplication();
-  }
-
-  getApplication = () => {
-    const { fetchApplication } = this.props.actions;
-    fetchApplication();
+    this.props.actions.getApplication();
   }
 
   handleDelete = (id) => {
     const { deleteApplication } = this.props.actions;
     deleteApplication(id);
   };
+
+  handleCheck = (e) => {
+    this.setState({
+      read: e.target.checked,
+    });
+  }
 
   render() {
     const { applications } = this.props;
@@ -96,6 +98,7 @@ class DeveloperApplicationsPage extends Component {
           columns={columns}
           expandedRowRender={record => <p>{record.description}</p>}
         />
+
       </div>
     );
   }
@@ -109,8 +112,18 @@ const mapStateToProps = (state) => {
 };
 
 const actions = {
-  fetchApplication: MyApplicationActions.fetchApplication,
-  deleteApplication: MyApplicationActions.deleteApplication,
+  getApplication,
+  deleteApplication: (id) => {
+    return (dispatch) => {
+      return fetchDeleteApplication(id)
+      .then((result) => {
+        if (result.status === 'ERROR') notification.error({ message: result.status, description: result.message });
+
+        dispatch(deleteApplicationSuccess(result));
+        dispatch(getApplication());
+      });
+    };
+  },
 };
 
 const mapDispatchToProps = (dispatch) => {
